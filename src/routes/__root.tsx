@@ -32,6 +32,7 @@ export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
   convexClient: ConvexReactClient;
   convexQueryClient: ConvexQueryClient;
+  userId?: string;
 }>()({
   head: () => ({
     meta: [
@@ -93,7 +94,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
           <head>
             <HeadContent />
           </head>
-          <body>
+          <body className="dark">
             {children}
             <Scripts />
           </body>
