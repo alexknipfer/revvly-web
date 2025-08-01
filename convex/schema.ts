@@ -11,4 +11,10 @@ export default defineSchema({
     plate: v.string(),
     imageUrl: v.optional(v.string()),
   }),
+  vehicle_models: defineTable({
+    body_styles: v.array(v.string()),
+    make: v.string(),
+    model: v.union(v.float64(), v.string()),
+    year: v.float64(),
+  }),
 });
