@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthDashboardIndexRouteImport } from './routes/_auth/dashboard/index'
+import { Route as AuthDashboardManageVehiclesIndexRouteImport } from './routes/_auth/dashboard/manage-vehicles/index'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
@@ -27,27 +28,41 @@ const AuthDashboardIndexRoute = AuthDashboardIndexRouteImport.update({
   path: '/dashboard/',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthDashboardManageVehiclesIndexRoute =
+  AuthDashboardManageVehiclesIndexRouteImport.update({
+    id: '/dashboard/manage-vehicles/',
+    path: '/dashboard/manage-vehicles/',
+    getParentRoute: () => AuthRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof AuthDashboardIndexRoute
+  '/dashboard/manage-vehicles': typeof AuthDashboardManageVehiclesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof AuthDashboardIndexRoute
+  '/dashboard/manage-vehicles': typeof AuthDashboardManageVehiclesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_auth': typeof AuthRouteWithChildren
   '/_auth/dashboard/': typeof AuthDashboardIndexRoute
+  '/_auth/dashboard/manage-vehicles/': typeof AuthDashboardManageVehiclesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard'
+  fullPaths: '/' | '/dashboard' | '/dashboard/manage-vehicles'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard'
-  id: '__root__' | '/' | '/_auth' | '/_auth/dashboard/'
+  to: '/' | '/dashboard' | '/dashboard/manage-vehicles'
+  id:
+    | '__root__'
+    | '/'
+    | '/_auth'
+    | '/_auth/dashboard/'
+    | '/_auth/dashboard/manage-vehicles/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -78,15 +93,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthDashboardIndexRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/dashboard/manage-vehicles/': {
+      id: '/_auth/dashboard/manage-vehicles/'
+      path: '/dashboard/manage-vehicles'
+      fullPath: '/dashboard/manage-vehicles'
+      preLoaderRoute: typeof AuthDashboardManageVehiclesIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
   }
 }
 
 interface AuthRouteChildren {
   AuthDashboardIndexRoute: typeof AuthDashboardIndexRoute
+  AuthDashboardManageVehiclesIndexRoute: typeof AuthDashboardManageVehiclesIndexRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthDashboardIndexRoute: AuthDashboardIndexRoute,
+  AuthDashboardManageVehiclesIndexRoute: AuthDashboardManageVehiclesIndexRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
