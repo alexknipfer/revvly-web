@@ -60,13 +60,6 @@ function RouteComponent() {
           </DropdownMenuContent>
         </DropdownMenu>
       </nav>
-      <h1>Authentication Route</h1>
-      <p>This route is used for authentication purposes.</p>
-      <p>
-        It can be extended to include login, logout, or other auth-related
-        functionality.
-      </p>
-      <SignOutButton />
       <Outlet />
     </div>
   );
