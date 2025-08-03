@@ -16,5 +16,5 @@ export default defineSchema({
     make: v.string(),
     model: v.union(v.float64(), v.string()),
     year: v.float64(),
-  }),
+  }).index('by_year', ['year']),
 });
