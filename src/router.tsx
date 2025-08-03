@@ -7,21 +7,20 @@ import { routeTree } from './routeTree.gen';
 
 export function createRouter() {
   const CONVEX_URL = (import.meta as any).env.VITE_CONVEX_URL!;
-
   if (!CONVEX_URL) {
     console.error('missing envar VITE_CONVEX_URL');
   }
-
   const convex = new ConvexReactClient(CONVEX_URL, {
     unsavedChangesWarning: false,
   });
-  const convexQueryClient = new ConvexQueryClient(CONVEX_URL);
+  const convexQueryClient = new ConvexQueryClient(convex);
 
   const queryClient: QueryClient = new QueryClient({
     defaultOptions: {
       queries: {
         queryKeyHashFn: convexQueryClient.hashFn(),
         queryFn: convexQueryClient.queryFn(),
+        gcTime: 5000,
       },
     },
   });
@@ -31,6 +30,7 @@ export function createRouter() {
     createTanStackRouter({
       routeTree,
       defaultPreload: 'intent',
+      defaultPreloadStaleTime: 0, // Let React Query handle all caching
       context: { queryClient, convexClient: convex, convexQueryClient },
       Wrap: ({ children }) => (
         <ConvexProvider client={convexQueryClient.convexClient}>
