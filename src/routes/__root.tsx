@@ -32,7 +32,6 @@ export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
   convexClient: ConvexReactClient;
   convexQueryClient: ConvexQueryClient;
-  userId?: string;
 }>()({
   head: () => ({
     meta: [
@@ -55,51 +54,47 @@ export const Route = createRootRouteWithContext<{
     ],
   }),
   beforeLoad: async (ctx) => {
-    try {
-      const auth = await fetchClerkAuth();
-      const { userId, token } = auth;
+    const auth = await fetchClerkAuth();
+    const { userId, token } = auth;
 
-      // During SSR only (the only time serverHttpClient exists),
-      // set the Clerk auth token to make HTTP queries with.
-      if (token) {
-        ctx.context.convexQueryClient.serverHttpClient?.setAuth(token);
-      }
-
-      return {
-        userId,
-        token,
-      };
-    } catch (error) {
-      console.log('error before load: ', error);
+    // During SSR only (the only time serverHttpClient exists),
+    // set the Clerk auth token to make HTTP queries with.
+    if (token) {
+      ctx.context.convexQueryClient.serverHttpClient?.setAuth(token);
     }
+
+    return {
+      userId,
+      token,
+    };
   },
   component: RootComponent,
 });
 
 function RootComponent() {
-  return (
-    <RootDocument>
-      <Outlet />
-    </RootDocument>
-  );
-}
-
-function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   const context = useRouteContext({ from: Route.id });
 
   return (
     <ClerkProvider>
       <ConvexProviderWithClerk client={context.convexClient} useAuth={useAuth}>
-        <html>
-          <head>
-            <HeadContent />
-          </head>
-          <body className="dark">
-            {children}
-            <Scripts />
-          </body>
-        </html>
+        <RootDocument>
+          <Outlet />
+        </RootDocument>
       </ConvexProviderWithClerk>
     </ClerkProvider>
+  );
+}
+
+function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
+  return (
+    <html>
+      <head>
+        <HeadContent />
+      </head>
+      <body className="dark">
+        {children}
+        <Scripts />
+      </body>
+    </html>
   );
 }
