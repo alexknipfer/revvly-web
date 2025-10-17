@@ -1,24 +1,14 @@
 import { PlusIcon } from 'lucide-react';
-import { z } from 'zod/v3';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { useState } from 'react';
-import { convexQuery } from '@convex-dev/react-query';
+import { z } from 'zod';
 import { api } from 'convex/_generated/api';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery } from 'convex/react';
+import { useForm, useStore } from '@tanstack/react-form';
 
 import { Combobox } from '@/components/ui/combobox';
 import { getSupportedVehicleYears } from '@/lib/utils';
 import { DrawerDialog } from '@/components/ui/dialog-drawer';
 import { Button } from '@/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 
 const formSchema = z.object({
   year: z.string(),
@@ -26,18 +16,19 @@ const formSchema = z.object({
 });
 
 export function AddVehicleDialog() {
-  const [open, setOpen] = useState(false);
-  const { data = [] } = useQuery({
-    ...convexQuery(api.vehicles.getVehicleMakesByYear, { year: 2023 }),
-    enabled: open,
-  });
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm({
     defaultValues: {
       year: '',
       make: '',
     },
+    validators: {
+      onSubmit: formSchema,
+    },
+    onSubmit: ({ value }) => onSubmit(value),
+  });
+  const selectedYear = useStore(form.store, (state) => state.values.year);
+  const data = useQuery(api.vehicles.getVehicleMakesByYear, {
+    year: Number(selectedYear),
   });
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
@@ -48,7 +39,6 @@ export function AddVehicleDialog() {
     <DrawerDialog
       title="Add Vehicle"
       description="Add your vehicle to begin tracking"
-      onOpenChange={setOpen}
       trigger={
         <Button
           type="button"
@@ -58,49 +48,67 @@ export function AddVehicleDialog() {
         </Button>
       }
     >
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-          <FormField
-            control={form.control}
-            name="year"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Year</FormLabel>
-                <FormControl>
-                  <Combobox
-                    label="Select Year"
-                    items={getSupportedVehicleYears().map((year) => ({
-                      value: year,
-                      label: year,
-                    }))}
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="make"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Make</FormLabel>
-                <FormControl>
-                  <Combobox
-                    label="Select Make"
-                    items={data.map((make) => ({ value: make, label: make }))}
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </form>
-      </Form>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          form.handleSubmit();
+        }}
+        className="space-y-5"
+      >
+        <form.Field
+          name="year"
+          listeners={{
+            onChangeDebounceMs: 500,
+            onChange: () => {
+              form.setFieldValue('make', '');
+            },
+          }}
+          children={(field) => {
+            const isInvalid =
+              field.state.meta.isTouched && !field.state.meta.isValid;
+
+            return (
+              <Field data-invalid={isInvalid}>
+                <FieldLabel htmlFor={field.name}>Year</FieldLabel>
+                <Combobox
+                  label="Select Year"
+                  items={getSupportedVehicleYears().map((year) => ({
+                    value: year,
+                    label: year,
+                  }))}
+                  value={field.state.value}
+                  onChange={field.handleChange}
+                />
+                {isInvalid && <FieldError errors={field.state.meta.errors} />}
+              </Field>
+            );
+          }}
+        />
+        <form.Field
+          name="make"
+          children={(field) => {
+            const isInvalid =
+              field.state.meta.isTouched && !field.state.meta.isValid;
+
+            return (
+              <Field data-invalid={isInvalid}>
+                <FieldLabel htmlFor={field.name}>Make</FieldLabel>
+                <Combobox
+                  label="Select Make"
+                  items={(data || []).map((make) => ({
+                    value: make,
+                    label: make,
+                  }))}
+                  value={field.state.value}
+                  onChange={field.handleChange}
+                  disabled={selectedYear === ''}
+                />
+                {isInvalid && <FieldError errors={field.state.meta.errors} />}
+              </Field>
+            );
+          }}
+        />
+      </form>
     </DrawerDialog>
   );
 }
