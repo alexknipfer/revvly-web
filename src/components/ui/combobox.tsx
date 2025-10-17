@@ -27,9 +27,10 @@ interface Props {
   items: Array<Item>;
   onChange: (value: string) => void;
   value: string;
+  disabled?: boolean;
 }
 
-export function Combobox({ items, label, value, onChange }: Props) {
+export function Combobox({ items, label, value, disabled, onChange }: Props) {
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -39,6 +40,7 @@ export function Combobox({ items, label, value, onChange }: Props) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
+          disabled={disabled}
           className={cn('justify-between', {
             'text-muted-foreground': !value,
           })}
