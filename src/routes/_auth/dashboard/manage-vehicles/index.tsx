@@ -7,17 +7,17 @@ import { AddVehicleDialog } from './-components/add-vehicle-dialog';
 
 export const Route = createFileRoute('/_auth/dashboard/manage-vehicles/')({
   component: RouteComponent,
-  // beforeLoad: async ({ context }) => {
-  //   await context.queryClient.ensureQueryData(
-  //     convexQuery(api.vehicles.getVehicleMakesByYear, { year: 2023 }),
-  //   );
-  // },
+  beforeLoad: async ({ context }) => {
+    await context.queryClient.ensureQueryData(
+      convexQuery(api.vehicles.getUserVehicles, {}),
+    );
+  },
 });
 
 function RouteComponent() {
-  // const { data } = useSuspenseQuery(
-  //   convexQuery(api.vehicles.getVehicleMakesByYear, { year: 2023 }),
-  // );
+  const { data: vehicles } = useSuspenseQuery(
+    convexQuery(api.vehicles.getUserVehicles, {}),
+  );
 
   return (
     <section className="relative">
@@ -25,9 +25,9 @@ function RouteComponent() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Manage Vehicles</h1>
       </div>
-      {/*{data.map((make) => (
-        <div>{make}</div>
-      ))}*/}
+      {vehicles.map((vehicle) => (
+        <div key={vehicle._id}>{vehicle.model}</div>
+      ))}
     </section>
   );
 }
