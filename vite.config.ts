@@ -1,15 +1,28 @@
-import { defineConfig } from "vite";
-import tsConfigPaths from "vite-tsconfig-paths";
-import { tanstackStart } from "@tanstack/react-start/plugin/vite";
-import viteReact from "@vitejs/plugin-react";
+import { defineConfig } from 'vite';
+import tsConfigPaths from 'vite-tsconfig-paths';
+import { tanstackStart } from '@tanstack/react-start/plugin/vite';
+import viteReact from '@vitejs/plugin-react';
 
 export default defineConfig({
   server: {
     port: 3000,
   },
-  plugins: [
-    tsConfigPaths(),
-    tanstackStart({ customViteReactPlugin: true }),
-    viteReact(),
-  ],
+  plugins: [tsConfigPaths(), tanstackStart(), viteReact()],
+  // To fix the error "The requested module does not provide an export named 'parse'"
+  optimizeDeps: {
+    include: ['@clerk/tanstack-react-start', 'cookie-es'],
+  },
+  resolve: {
+    // Aliases are added as a workaround: https://github.com/clerk/javascript/issues/6996
+    alias: [
+      {
+        find: 'use-sync-external-store/shim/index.js',
+        replacement: 'react',
+      },
+      {
+        find: 'cookie',
+        replacement: 'cookie-es',
+      },
+    ],
+  },
 });
