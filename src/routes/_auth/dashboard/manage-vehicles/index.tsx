@@ -3,11 +3,16 @@ import { convexQuery } from '@convex-dev/react-query';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 
-import { AddVehicleDialog } from './-components/add-vehicle-dialog';
+// import { AddVehicleDialog } from './-components/add-vehicle-dialog';
+// import { MyVehicles } from './-components/my-vehicles';
+import { Authenticated, AuthLoading } from 'convex/react';
+// import { AddVehicleDialog } from './-components/add-vehicle-dialog';
 
 export const Route = createFileRoute('/_auth/dashboard/manage-vehicles/')({
   component: RouteComponent,
-  beforeLoad: async ({ context }) => {
+  loader: async ({ context }) => {
+    // console.log('loader token: ', context.token);
+    console.log('calling ensureQueryData');
     await context.queryClient.ensureQueryData(
       convexQuery(api.vehicles.getUserVehicles, {}),
     );
@@ -15,19 +20,25 @@ export const Route = createFileRoute('/_auth/dashboard/manage-vehicles/')({
 });
 
 function RouteComponent() {
-  const { data: vehicles } = useSuspenseQuery(
-    convexQuery(api.vehicles.getUserVehicles, {}),
-  );
+  // const { data: vehicles } = useSuspenseQuery(
+  //   convexQuery(api.vehicles.getUserVehicles, {}),
+  // );
 
   return (
     <section className="relative">
-      <AddVehicleDialog />
+      {/* <Authenticated>
+        <AddVehicleDialog />
+      </Authenticated> */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Manage Vehicles</h1>
       </div>
-      {vehicles.map((vehicle) => (
+      {/* <Authenticated>
+        <MyVehicles />
+      </Authenticated> */}
+      <AuthLoading>Loading...</AuthLoading>
+      {/* {vehicles.map((vehicle) => (
         <div key={vehicle._id}>{vehicle.model}</div>
-      ))}
+      ))} */}
     </section>
   );
 }

@@ -84,6 +84,7 @@ export const createUserVehicle = mutation({
 
 export const getUserVehicles = query({
   handler: async (ctx) => {
+    console.log('server identity', await ctx.auth.getUserIdentity());
     const identity = await ctx.auth.getUserIdentity();
 
     if (identity === null) {

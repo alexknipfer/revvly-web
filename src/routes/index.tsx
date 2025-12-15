@@ -316,7 +316,7 @@ function Home() {
 
       {/* CTA Section */}
       <section className="py-24 px-6 relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/[0.06] via-primary/[0.03] to-primary/[0.06]" />
+        <div className="absolute inset-0 bg-linear-to-r from-primary/6 via-primary/3 to-primary/6" />
         <div className="relative mx-auto max-w-6xl text-center">
           <h2 className="text-3xl font-bold mb-4">
             Ready to optimize your fuel efficiency?
