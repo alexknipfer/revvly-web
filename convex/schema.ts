@@ -8,7 +8,7 @@ export default defineSchema({
     model: v.string(),
     year: v.string(),
     plate: v.string(),
-    imageUrl: v.optional(v.string()),
+    imageStorageId: v.optional(v.id('_storage')),
     userId: v.string(),
   }).index('by_userid', ['userId']),
   vehicle_models: defineTable({

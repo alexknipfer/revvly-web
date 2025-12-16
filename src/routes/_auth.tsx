@@ -24,7 +24,7 @@ export const Route = createFileRoute('/_auth')({
 
 function RouteComponent() {
   return (
-    <div>
+    <div className="bg-slate-900 flex flex-col min-h-svh text-foreground">
       <nav className="text-foreground border border-b-accent pl-2 pr-1 flex items-center justify-between">
         <span className="font-bold tracking-widest uppercase">Revly</span>
         <DropdownMenu>
@@ -60,7 +60,9 @@ function RouteComponent() {
           </DropdownMenuContent>
         </DropdownMenu>
       </nav>
-      <Outlet />
+      <main className="p-2.5">
+        <Outlet />
+      </main>
     </div>
   );
 }

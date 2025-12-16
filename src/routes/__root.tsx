@@ -57,9 +57,10 @@ export const Route = createRootRouteWithContext<{
     const { userId, token } = auth;
     // During SSR only (the only time serverHttpClient exists),
     // set the Clerk auth token to make HTTP queries with.
-    if (token) {
-      ctx.context.convexQueryClient.serverHttpClient?.setAuth(token);
+    if (token && ctx.context.convexQueryClient.serverHttpClient?.setAuth) {
+      ctx.context.convexQueryClient.serverHttpClient.setAuth(token);
     }
+
     return {
       userId,
       token,
