@@ -1,5 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { Authenticated, AuthLoading } from 'convex/react';
+import { createFileRoute, Link } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/_auth/dashboard/')({
   component: RouteComponent,
@@ -7,9 +6,9 @@ export const Route = createFileRoute('/_auth/dashboard/')({
 
 function RouteComponent() {
   return (
-    <>
-      <Authenticated>Hello "/_auth/dashboard/"!</Authenticated>;
-      <AuthLoading>Loading....</AuthLoading>
-    </>
+    <div>
+      <Link to="/dashboard/manage-vehicles">Manage Vehicles</Link>
+      Hello "/_auth/dashboard/"!
+    </div>
   );
 }
