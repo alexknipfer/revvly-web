@@ -14,3 +14,4 @@ node_modules
 .tanstack/start/build/client-dist/
 .tanstack/tmp
 convex/_generated/
+dist
