@@ -1,6 +1,7 @@
 import { v } from 'convex/values';
 import { Id } from './_generated/dataModel';
 import { mutation, query } from './_generated/server';
+import { requireAuth } from './auth';
 
 export const create = mutation({
   args: {
@@ -11,13 +12,7 @@ export const create = mutation({
     plate: v.string(),
   },
   handler: async (ctx, { name, make, model, year, plate }) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (identity === null) {
-      throw new Error(
-        'Unauthorized: User identity is required to access this data.',
-      );
-    }
+    const identity = await requireAuth(ctx);
 
     const inserted = ctx.db.insert('vehicles', {
       name,
@@ -34,13 +29,7 @@ export const create = mutation({
 
 export const getAll = query({
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (identity === null) {
-      throw new Error(
-        'Unauthorized: User identity is required to access this data.',
-      );
-    }
+    const identity = await requireAuth(ctx);
 
     const vehicles = await ctx.db
       .query('vehicles')
