@@ -1,4 +1,5 @@
 import { v } from 'convex/values';
+import { Id } from './_generated/dataModel';
 import { mutation, query } from './_generated/server';
 
 export const create = mutation({
@@ -46,6 +47,50 @@ export const getAll = query({
       .withIndex('by_userid', (q) => q.eq('userId', identity.subject))
       .collect();
 
-    return vehicles;
+    return Promise.all(
+      vehicles.map(async (vehicle) => ({
+        ...vehicle,
+        imageUrl: vehicle.imageStorageId
+          ? await ctx.storage.getUrl(vehicle.imageStorageId)
+          : null,
+      })),
+    );
+  },
+});
+
+export const update = mutation({
+  args: {
+    id: v.id('vehicles'),
+    update: v.object({
+      name: v.optional(v.string()),
+      make: v.optional(v.string()),
+      model: v.optional(v.string()),
+      year: v.optional(v.string()),
+      plate: v.optional(v.string()),
+      imageStorageId: v.optional(v.id('_storage')),
+    }),
+  },
+  handler: async (ctx, { id, update }) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (identity === null) {
+      throw new Error(
+        'Unauthorized: User identity is required to access this data.',
+      );
+    }
+
+    const vehicle = await ctx.db.get(id);
+
+    if (!vehicle) {
+      throw new Error('Vehicle not found');
+    }
+
+    if (vehicle.userId !== identity.subject) {
+      throw new Error('You can only update your own vehicles.');
+    }
+
+    await ctx.db.patch(id, update);
+
+    return id;
   },
 });
