@@ -14,10 +14,7 @@ import {
   SignInButton,
   UserButton,
 } from '@clerk/tanstack-react-start';
-// import { getAuth } from '@clerk/tanstack-react-start/server';
 import { createFileRoute } from '@tanstack/react-router';
-// import { createServerFn } from '@tanstack/react-start';
-// import { getWebRequest } from '@tanstack/react-start/server';
 import {
   Fuel,
   BarChart3,
@@ -29,14 +26,6 @@ import {
   Star,
   Users,
 } from 'lucide-react';
-
-// const getCount = createServerFn({
-//   method: 'GET',
-// }).handler(async () => {
-//   const request = getWebRequest();
-//   const auth = await getAuth(request);
-//   return Promise.resolve(2);
-// });
 
 export const Route = createFileRoute('/')({
   component: Home,
@@ -83,7 +72,7 @@ function Home() {
                     <UserButton />
                   </SignedIn>
                   <SignedOut>
-                    <SignInButton>
+                    <SignInButton forceRedirectUrl="/dashboard/manage-vehicles">
                       <Button
                         variant="outline"
                         size="sm"
