@@ -24,7 +24,7 @@ export const create = mutation({
       model,
       year,
       plate,
-      userId: identity.tokenIdentifier,
+      userId: identity.subject,
     });
 
     return inserted;
@@ -43,7 +43,7 @@ export const getAll = query({
 
     const vehicles = await ctx.db
       .query('vehicles')
-      .withIndex('by_userid', (q) => q.eq('userId', identity.tokenIdentifier))
+      .withIndex('by_userid', (q) => q.eq('userId', identity.subject))
       .collect();
 
     return vehicles;
