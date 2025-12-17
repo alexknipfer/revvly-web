@@ -9,7 +9,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import {
   Drawer,
@@ -18,26 +17,24 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
 } from '@/components/ui/drawer';
 
 interface Props {
+  open: boolean;
   title: string;
   description: string;
-  trigger: React.ReactNode;
   footerContent?: React.ReactNode;
   onOpenChange?: (open: boolean) => void;
 }
 
 export function DrawerDialog({
+  open,
   children,
   title,
   description,
   footerContent,
-  trigger,
   onOpenChange,
 }: PropsWithChildren<Props>) {
-  const [open, setOpen] = React.useState(false);
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
   if (isDesktop) {
@@ -45,11 +42,9 @@ export function DrawerDialog({
       <Dialog
         open={open}
         onOpenChange={(open) => {
-          setOpen(open);
           onOpenChange?.(open);
         }}
       >
-        <DialogTrigger asChild>{trigger}</DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
@@ -62,8 +57,7 @@ export function DrawerDialog({
     );
   }
   return (
-    <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>{trigger}</DrawerTrigger>
+    <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="px-4">
         <DrawerHeader className="text-left">
           <DrawerTitle>{title}</DrawerTitle>

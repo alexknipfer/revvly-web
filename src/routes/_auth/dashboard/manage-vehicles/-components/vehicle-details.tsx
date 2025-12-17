@@ -3,7 +3,13 @@ import { useDropzone } from 'react-dropzone';
 import { useMutation } from 'convex/react';
 import { api } from 'convex/_generated/api';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Doc } from 'convex/_generated/dataModel';
 import { ImageUp, Loader2 } from 'lucide-react';
 import { ImageCropDialog } from '../../../../../components/image-crop-dialog';
@@ -102,7 +108,10 @@ export function VehicleDetails({ vehicle }: Props) {
           )}
         </CardHeader>
         <CardContent>
-          <CardTitle>{vehicle.model}</CardTitle>
+          <CardTitle>{vehicle.name || vehicle.model}</CardTitle>
+          <CardDescription>
+            {vehicle.make} {vehicle.model} {vehicle.year}
+          </CardDescription>
         </CardContent>
       </Card>
       <ImageCropDialog

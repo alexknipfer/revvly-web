@@ -2,7 +2,6 @@ import { api } from 'convex/_generated/api';
 import { convexQuery } from '@convex-dev/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { VehicleList } from './-components/vehicle-list';
-import { AddVehicleDialog } from './-components/add-vehicle-dialog';
 import { Suspense } from 'react';
 import { AuthLoading } from 'convex/react';
 
@@ -22,7 +21,6 @@ function RouteComponent() {
       {/** TODO: Add a loading state */}
       <Suspense fallback={<div>Suspense fallback loading...</div>}>
         <VehicleList />
-        <AddVehicleDialog />
       </Suspense>
       <AuthLoading>
         <div>Auth loading...</div>
