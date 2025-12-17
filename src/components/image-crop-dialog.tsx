@@ -17,6 +17,7 @@ interface ImageCropDialogProps {
   file: File | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onCropComplete?: (croppedBlob: Blob) => void;
 }
 
 const createImage = (url: string): Promise<HTMLImageElement> =>
@@ -75,6 +76,7 @@ export function ImageCropDialog({
   file,
   open,
   onOpenChange,
+  onCropComplete,
 }: ImageCropDialogProps) {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -96,7 +98,7 @@ export function ImageCropDialog({
     }
   }, [file]);
 
-  const onCropComplete = useCallback(
+  const handleCropAreaComplete = useCallback(
     (_croppedArea: Area, croppedAreaPixels: Area) => {
       setCroppedAreaPixels(croppedAreaPixels);
     },
@@ -116,8 +118,7 @@ export function ImageCropDialog({
         croppedAreaPixels,
         mimeType,
       );
-      // TODO: Implement upload logic here
-      console.warn('Cropped image blob:', croppedBlob.type);
+      onCropComplete?.(croppedBlob);
       onOpenChange(false);
     } catch (error) {
       console.error('Error cropping image:', error);
@@ -151,7 +152,7 @@ export function ImageCropDialog({
               aspect={16 / 9}
               onCropChange={setCrop}
               onZoomChange={setZoom}
-              onCropComplete={onCropComplete}
+              onCropComplete={handleCropAreaComplete}
             />
           </div>
         )}

@@ -7,7 +7,7 @@ export const getMakesByYear = query({
     year: v.float64(),
   },
   handler: async (ctx, { year }) => {
-    await requireAuth(ctx.auth);
+    await requireAuth(ctx);
 
     const vehicles = await ctx.db
       .query('vehicle_models')
@@ -30,7 +30,7 @@ export const getModelsByYearAndMake = query({
     make: v.string(),
   },
   handler: async (ctx, { year, make }) => {
-    await requireAuth(ctx.auth);
+    await requireAuth(ctx);
 
     const vehicles = await ctx.db
       .query('vehicle_models')
