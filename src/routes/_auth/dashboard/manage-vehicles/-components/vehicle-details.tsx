@@ -11,10 +11,17 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Doc } from 'convex/_generated/dataModel';
-import { ImageUp, Loader2 } from 'lucide-react';
+import { EllipsisVertical, Fuel, ImageUp, Loader2 } from 'lucide-react';
 import { ImageCropDialog } from '../../../../../components/image-crop-dialog';
+import { AddFuelEntryDialog } from '../../../../../components/add-fuel-entry-dialog';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
-
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 interface Props {
   vehicle: Doc<'vehicles'> & { imageUrl: string | null };
 }
@@ -23,6 +30,7 @@ export function VehicleDetails({ vehicle }: Props) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [fuelDialogOpen, setFuelDialogOpen] = useState(false);
 
   const generateUploadUrl = useMutation(api.storage.generateUploadUrl);
   const updateVehicle = useMutation(api.userVehicles.update);
@@ -108,10 +116,27 @@ export function VehicleDetails({ vehicle }: Props) {
           )}
         </CardHeader>
         <CardContent>
-          <CardTitle>{vehicle.name || vehicle.model}</CardTitle>
-          <CardDescription>
-            {vehicle.make} {vehicle.model} {vehicle.year}
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>{vehicle.name || vehicle.model}</CardTitle>
+              <CardDescription>
+                {vehicle.make} {vehicle.model} {vehicle.year}
+              </CardDescription>
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <EllipsisVertical className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem onClick={() => setFuelDialogOpen(true)}>
+                  <Fuel className="size-4" />
+                  Add Fuel Up
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </CardContent>
       </Card>
       <ImageCropDialog
@@ -119,6 +144,11 @@ export function VehicleDetails({ vehicle }: Props) {
         open={!!selectedFile}
         onOpenChange={(isOpen) => !isOpen && setSelectedFile(null)}
         onCropComplete={handleCropComplete}
+      />
+      <AddFuelEntryDialog
+        open={fuelDialogOpen}
+        onOpenChange={setFuelDialogOpen}
+        vehicleId={vehicle._id}
       />
     </>
   );
