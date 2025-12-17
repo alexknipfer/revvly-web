@@ -1,4 +1,3 @@
-import { PlusIcon } from 'lucide-react';
 import { z } from 'zod';
 import { api } from 'convex/_generated/api';
 import { useMutation, useQuery } from 'convex/react';
@@ -19,7 +18,17 @@ const formSchema = z.object({
   plate: z.string().min(1),
 });
 
-export function AddVehicleDialog() {
+interface Props {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onVehicleCreated?: () => void;
+}
+
+export function AddVehicleDialog({
+  open,
+  onOpenChange,
+  onVehicleCreated,
+}: Props) {
   const form = useForm({
     defaultValues: {
       year: '',
@@ -48,20 +57,15 @@ export function AddVehicleDialog() {
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     createUserVehicleMutation(data);
+    onVehicleCreated?.();
   };
 
   return (
     <DrawerDialog
       title="Add Vehicle"
       description="Add your vehicle to begin tracking"
-      trigger={
-        <Button
-          type="button"
-          className="fixed bottom-5 right-5 rounded-full bg-blue-500 h-12 w-12 ring-1 ring-blue-700"
-        >
-          <PlusIcon className="text-white size-5" />
-        </Button>
-      }
+      open={open}
+      onOpenChange={onOpenChange}
     >
       <form
         onSubmit={(e) => {

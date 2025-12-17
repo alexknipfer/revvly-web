@@ -7,9 +7,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { AddVehicleDialog } from '@/components/add-vehicle-dialog';
 import { SignOutButton } from '@clerk/tanstack-react-start';
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
-import { Car, EllipsisVertical, Fuel, Wrench } from 'lucide-react';
+import { Car, EllipsisVertical } from 'lucide-react';
+import { useState } from 'react';
 
 export const Route = createFileRoute('/_auth')({
   component: RouteComponent,
@@ -23,6 +25,8 @@ export const Route = createFileRoute('/_auth')({
 });
 
 function RouteComponent() {
+  const [addVehicleOpen, setAddVehicleOpen] = useState(false);
+
   return (
     <div className="bg-slate-900 min-h-svh text-foreground">
       <nav className="text-foreground border border-b-accent pl-2 pr-1 w-full">
@@ -36,25 +40,12 @@ function RouteComponent() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" alignOffset={5}>
               <DropdownMenuGroup>
-                <DropdownMenuItem>
-                  <Fuel className="size-4" />
-                  <span>Add Fuel Log</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Wrench className="size-4" />
-                  <span>Add Service Log</span>
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setAddVehicleOpen(true)}>
                   <Car className="size-4" />
-                  <span>Manage Vehicles</span>
+                  <span>Add Vehicle</span>
                 </DropdownMenuItem>
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuItem asChild>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild className="w-full">
                   <SignOutButton />
                 </DropdownMenuItem>
               </DropdownMenuGroup>
@@ -65,6 +56,11 @@ function RouteComponent() {
       <main className="p-2.5 max-w-7xl mx-auto">
         <Outlet />
       </main>
+      <AddVehicleDialog
+        open={addVehicleOpen}
+        onOpenChange={setAddVehicleOpen}
+        onVehicleCreated={() => setAddVehicleOpen(false)}
+      />
     </div>
   );
 }
