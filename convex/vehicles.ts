@@ -1,18 +1,13 @@
 import { v } from 'convex/values';
 import { query, mutation } from './_generated/server';
+import { requireAuth } from './auth';
 
 export const getMakesByYear = query({
   args: {
     year: v.float64(),
   },
   handler: async (ctx, { year }) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (identity === null) {
-      throw new Error(
-        'Unauthorized: User identity is required to access this data.',
-      );
-    }
+    await requireAuth(ctx.auth);
 
     const vehicles = await ctx.db
       .query('vehicle_models')
@@ -35,13 +30,7 @@ export const getModelsByYearAndMake = query({
     make: v.string(),
   },
   handler: async (ctx, { year, make }) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (identity === null) {
-      throw new Error(
-        'Unauthorized: User identity is required to access this data.',
-      );
-    }
+    await requireAuth(ctx.auth);
 
     const vehicles = await ctx.db
       .query('vehicle_models')

@@ -11,7 +11,7 @@ export function VehicleList() {
   );
 
   return (
-    <div className="grid grid-cols-4 gap-4">
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(min-content,400px))] gap-4">
       {vehicles.map((vehicle) => (
         <VehicleDetails key={vehicle._id} vehicle={vehicle} />
       ))}
