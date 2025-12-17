@@ -11,6 +11,17 @@ export default defineSchema({
     imageStorageId: v.optional(v.id('_storage')),
     userId: v.string(),
   }).index('by_userid', ['userId']),
+  fuelEntries: defineTable({
+    odometer: v.number(),
+    costPerGallon: v.number(),
+    totalGallons: v.number(),
+    totalCost: v.number(),
+    type: v.string(),
+    level: v.union(v.literal('full'), v.literal('partial')),
+    location: v.optional(v.string()),
+    vehicleId: v.id('vehicles'),
+    userId: v.string(),
+  }).index('by_userid_vehicleid', ['userId', 'vehicleId']),
   vehicle_models: defineTable({
     body_styles: v.array(v.string()),
     make: v.string(),
