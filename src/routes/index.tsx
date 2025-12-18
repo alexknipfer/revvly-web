@@ -257,7 +257,7 @@ function Home() {
           </Badge>
           <h2 className="text-3xl font-bold mb-4">Track what matters</h2>
           <p className="text-xl text-muted-foreground mb-12">
-            Get detailed insights into your vehicle's performance and costs
+            Get detailed insights into your vehicle&apos;s performance and costs
           </p>
 
           <div className="grid md:grid-cols-4 gap-6">

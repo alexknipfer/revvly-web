@@ -8,7 +8,6 @@ function RouteComponent() {
   return (
     <div>
       <Link to="/dashboard/manage-vehicles">Manage Vehicles</Link>
-      Hello "/_auth/dashboard/"!
     </div>
   );
 }
