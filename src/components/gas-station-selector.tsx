@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import mapboxgl from 'mapbox-gl';
 
 import { appConfig } from '@/lib/appConfig';
-import { searchNearbyGasStations } from '@/lib/services/location';
+import { searchNearbyGasStations } from '@/lib/services/mapbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 import 'mapbox-gl/dist/mapbox-gl.css';
