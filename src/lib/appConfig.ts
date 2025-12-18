@@ -8,6 +8,9 @@ const loadEnvironmentVariable = (key: string) => {
 };
 
 export const appConfig = {
+  convex: {
+    url: loadEnvironmentVariable('VITE_CONVEX_URL'),
+  },
   mapbox: {
     baseUrl: loadEnvironmentVariable('VITE_MAPBOX_BASE_URL'),
     accessToken: loadEnvironmentVariable('VITE_MAPBOX_ACCESS_TOKEN'),
