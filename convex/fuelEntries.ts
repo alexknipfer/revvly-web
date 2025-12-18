@@ -1,7 +1,7 @@
 import { v } from 'convex/values';
 
 import { mutation } from './_generated/server';
-import { requireAuth } from './auth';
+import { requireAuth, verifyVerhicleOwnership } from './utils/auth';
 
 export const create = mutation({
   args: {
@@ -23,16 +23,7 @@ export const create = mutation({
     { odometer, costPerGallon, totalGallons, type, level, location, vehicleId },
   ) => {
     const identity = await requireAuth(ctx);
-
-    const vehicle = await ctx.db.get(vehicleId);
-
-    if (!vehicle) {
-      throw new Error('Vehicle not found');
-    }
-
-    if (vehicle.userId !== identity.subject) {
-      throw new Error('You can only add fuel entries to your own vehicles.');
-    }
+    await verifyVerhicleOwnership({ ctx, vehicleId, identity });
 
     const totalCost = costPerGallon * totalGallons;
 

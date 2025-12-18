@@ -1,6 +1,6 @@
 import { v } from 'convex/values';
-import { query, mutation } from './_generated/server';
-import { requireAuth } from './auth';
+import { query } from './_generated/server';
+import { requireAuth } from './utils/auth';
 
 export const getMakesByYear = query({
   args: {
