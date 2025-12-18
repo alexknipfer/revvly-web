@@ -1,7 +1,6 @@
 import { v } from 'convex/values';
-import { Id } from './_generated/dataModel';
 import { mutation, query } from './_generated/server';
-import { requireAuth } from './auth';
+import { requireAuth } from './utils/auth';
 
 export const create = mutation({
   args: {
