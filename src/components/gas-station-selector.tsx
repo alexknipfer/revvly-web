@@ -1,13 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import mapboxgl from 'mapbox-gl';
 
 import { appConfig } from '@/lib/appConfig';
 import { searchNearbyGasStations } from '@/lib/services/location';
-import 'mapbox-gl/dist/mapbox-gl.css';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
+import 'mapbox-gl/dist/mapbox-gl.css';
+
 interface Props {
+  geolocation: GeolocationPosition;
   value?: string;
   onChange: (location: string) => void;
 }
@@ -18,28 +20,26 @@ function formatGasStationValue(
   return value.name + ' - ' + value.address;
 }
 
-export function GasStationSelector({ value, onChange }: Props) {
+export function GasStationSelector({ value, geolocation, onChange }: Props) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(
-    null,
-  );
+  const { coords } = geolocation;
 
   const {
     data: stations = [],
+    refetch: refetchStations,
     isLoading,
-    error: queryError,
   } = useQuery({
-    queryKey: ['gasStations', userLocation],
+    queryKey: ['gasStations', coords.longitude, coords.latitude],
     queryFn: () =>
-      userLocation
-        ? searchNearbyGasStations({ coordinates: userLocation })
-        : [],
-    enabled: !!userLocation,
+      searchNearbyGasStations({
+        coordinates: [coords.longitude, coords.latitude],
+      }),
+    enabled: false,
   });
 
-  useEffect(() => {
+  const initializeMap = useCallback(() => {
     if (!mapContainer.current) {
       return;
     }
@@ -48,45 +48,27 @@ export function GasStationSelector({ value, onChange }: Props) {
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/dark-v11',
-      center: [-98.5795, 39.8283],
+      center: [coords.longitude, coords.latitude],
       zoom: 10,
     });
 
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const coords: [number, number] = [
-            position.coords.longitude,
-            position.coords.latitude,
-          ];
-          setUserLocation(coords);
+    const geolocateControl = new mapboxgl.GeolocateControl({
+      positionOptions: {
+        enableHighAccuracy: true,
+      },
+      trackUserLocation: true,
+      showUserHeading: true,
+    });
+    map.current?.addControl(geolocateControl);
 
-          if (map.current) {
-            map.current.setCenter(coords);
-            map.current.setZoom(13);
-          }
-        },
-        (err) => {
-          console.error('Geolocation error:', err);
-        },
-      );
+    if (map.current) {
+      map.current.on('load', async () => {
+        refetchStations();
+      });
     }
+  }, [coords.longitude, coords.latitude, refetchStations]);
 
-    return () => {
-      if (map.current) {
-        map.current.remove();
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!map.current || stations.length === 0) {
-      return;
-    }
-
-    markersRef.current.forEach((marker) => marker.remove());
-    markersRef.current = [];
-
+  const addStationMarkers = useCallback(() => {
     stations.forEach((station) => {
       if (station.coordinates[0] === 0 && station.coordinates[1] === 0) {
         return;
@@ -104,12 +86,52 @@ export function GasStationSelector({ value, onChange }: Props) {
     });
   }, [stations, onChange]);
 
+  useEffect(() => {
+    initializeMap();
+
+    return () => {
+      if (map.current) {
+        map.current.remove();
+      }
+    };
+  }, [initializeMap]);
+
+  useEffect(() => {
+    if (!stations.length) {
+      return;
+    }
+
+    const firstStation = stations[0];
+    onChange(formatGasStationValue(firstStation));
+
+    map.current?.setCenter([
+      firstStation.coordinates[0],
+      firstStation.coordinates[1],
+    ]);
+    map.current?.setZoom(15);
+
+    markersRef.current.forEach((marker) => marker.remove());
+    markersRef.current = [];
+
+    addStationMarkers();
+
+    return () => {
+      markersRef.current.forEach((marker) => marker.remove());
+    };
+  }, [stations, onChange, addStationMarkers]);
+
   return (
     <div className="space-y-2">
-      <div
-        ref={mapContainer}
-        className="w-full h-64 rounded-md border border-input overflow-hidden"
-      />
+      <div className="relative w-full h-64 rounded-md border border-input overflow-hidden">
+        <div ref={mapContainer} className="w-full h-full" />
+        {!isLoading && stations.length === 0 && (
+          <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-10">
+            <p className="text-sm text-muted-foreground">
+              No nearby gas stations found
+            </p>
+          </div>
+        )}
+      </div>
       {isLoading && (
         <p className="text-sm text-muted-foreground">
           Loading nearby gas stations...
@@ -140,9 +162,6 @@ export function GasStationSelector({ value, onChange }: Props) {
             </div>
           </ScrollArea>
         </>
-      )}
-      {value && (
-        <div className="text-sm text-muted-foreground">Selected: {value}</div>
       )}
     </div>
   );

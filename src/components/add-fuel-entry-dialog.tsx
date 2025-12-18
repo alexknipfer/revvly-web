@@ -11,6 +11,8 @@ import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { GasStationSelector } from './gas-station-selector';
+import { Loader2 } from 'lucide-react';
+import { useGeoLocation } from '@/hooks/use-geo-location';
 
 const fuelTypeSchema = z.enum(['regular', 'premium', 'diesel', 'e85']);
 const fuelLevelSchema = z.enum(['full', 'partial']);
@@ -63,6 +65,13 @@ export function AddFuelEntryDialog({
     },
     onSubmit: ({ value }) => onSubmit(value),
   });
+
+  const {
+    location,
+    requestLocation,
+    loading,
+    error: geoLocationError,
+  } = useGeoLocation();
 
   const costPerGallon = useStore(
     form.store,
@@ -248,13 +257,38 @@ export function AddFuelEntryDialog({
           children={(field) => {
             return (
               <Field className="col-span-2">
-                <FieldLabel htmlFor={field.name}>
+                <FieldLabel
+                  htmlFor={field.name}
+                  className="flex items-center justify-between"
+                >
                   Location (Optional)
+                  <Button
+                    type="button"
+                    variant="link"
+                    size="sm"
+                    onClick={requestLocation}
+                  >
+                    <span className="text-xs">Find Nearby Gas Stations</span>
+                    {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                  </Button>
                 </FieldLabel>
-                <GasStationSelector
+                <Input
+                  name={field.name}
                   value={field.state.value}
-                  onChange={field.handleChange}
+                  onChange={(e) => field.handleChange(e.target.value)}
                 />
+                {geoLocationError && (
+                  <FieldError
+                    errors={[{ message: geoLocationError.message }]}
+                  />
+                )}
+                {location && (
+                  <GasStationSelector
+                    value={field.state.value}
+                    geolocation={location}
+                    onChange={field.handleChange}
+                  />
+                )}
               </Field>
             );
           }}
