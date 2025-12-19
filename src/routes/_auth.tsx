@@ -12,6 +12,7 @@ import { SignOutButton } from '@clerk/tanstack-react-start';
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 import { Car, EllipsisVertical } from 'lucide-react';
 import { useState } from 'react';
+import { Toaster } from '@/components/ui/sonner';
 
 export const Route = createFileRoute('/_auth')({
   component: RouteComponent,
@@ -54,6 +55,7 @@ function RouteComponent() {
         </div>
       </nav>
       <main className="p-2.5 max-w-7xl mx-auto">
+        <Toaster />
         <Outlet />
       </main>
       <AddVehicleDialog
