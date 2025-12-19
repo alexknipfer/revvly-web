@@ -15,6 +15,14 @@ import { useState } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 
 export const Route = createFileRoute('/_auth')({
+  head: () => ({
+    meta: [
+      {
+        name: 'theme-color',
+        content: '#0f172a',
+      },
+    ],
+  }),
   component: RouteComponent,
   beforeLoad: ({ context }) => {
     if (!context.userId) {
@@ -30,7 +38,7 @@ function RouteComponent() {
 
   return (
     <div className="bg-slate-900 min-h-svh text-foreground">
-      <nav className="text-foreground border border-b-accent pl-2 pr-1 w-full">
+      <nav className="text-foreground border-b border-b-accent pl-2 pr-1 w-full">
         <div className="max-w-7xl mx-auto w-full flex justify-between items-center">
           <span className="font-bold tracking-widest uppercase">Revly</span>
           <DropdownMenu>
