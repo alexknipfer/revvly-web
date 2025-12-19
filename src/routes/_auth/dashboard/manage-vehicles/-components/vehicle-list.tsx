@@ -24,8 +24,6 @@ export function VehicleList() {
     convexQuery(api.userVehicles.getAll, {}),
   );
 
-  vehicles = [];
-
   if (!vehicles.length) {
     return (
       <Empty>
