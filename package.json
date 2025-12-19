@@ -5,14 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "npm run convex:deploy && vite build",
+    "build": "vite build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "echo \"Error: no test specified\" && exit 1",
     "preview": "vite preview",
     "deploy": "npm run build && wrangler deploy",
     "cf-typegen": "wrangler types",
-    "convex:codegen": "npx convex dev --once",
     "convex:deploy": "convex deploy"
   },
   "keywords": [],
