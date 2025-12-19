@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { z } from 'zod';
 import { api } from 'convex/_generated/api';
-import { useMutation } from 'convex/react';
 import { useForm, useStore } from '@tanstack/react-form';
 import { Id } from 'convex/_generated/dataModel';
 
@@ -13,6 +12,8 @@ import { Input } from '@/components/ui/input';
 import { GasStationSelector } from './gas-station-selector';
 import { Loader2 } from 'lucide-react';
 import { useGeoLocation } from '@/hooks/use-geo-location';
+import { useMutation } from '@tanstack/react-query';
+import { useConvexMutation } from '@convex-dev/react-query';
 
 const fuelTypeSchema = z.enum(['regular', 'premium', 'diesel', 'e85']);
 const fuelLevelSchema = z.enum(['full', 'partial']);
@@ -90,10 +91,17 @@ export function AddFuelEntryDialog({
     }
   }, [open, form]);
 
-  const createFuelEntryMutation = useMutation(api.fuelEntries.create);
+  const createFuelEntryMutation = useMutation({
+    mutationFn: useConvexMutation(api.fuelEntries.create),
+    onSuccess: () => {
+      onFuelEntryCreated?.();
+      onOpenChange(false);
+      form.reset();
+    },
+  });
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    await createFuelEntryMutation({
+    createFuelEntryMutation.mutate({
       odometer: data.odometer,
       costPerGallon: data.costPerGallon,
       totalGallons: data.totalGallons,
@@ -102,9 +110,6 @@ export function AddFuelEntryDialog({
       location: data.location || undefined,
       vehicleId,
     });
-    onFuelEntryCreated?.();
-    onOpenChange(false);
-    form.reset();
   };
 
   return (
