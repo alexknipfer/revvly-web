@@ -30,6 +30,8 @@ export function GasStationSelector({ value, geolocation, onChange }: Props) {
     data: stations = [],
     refetch: refetchStations,
     isLoading,
+    isFetching,
+    isFetched,
   } = useQuery({
     queryKey: ['gasStations', coords.longitude, coords.latitude],
     queryFn: () =>
@@ -124,7 +126,7 @@ export function GasStationSelector({ value, geolocation, onChange }: Props) {
     <div className="space-y-2">
       <div className="relative w-full h-64 rounded-md border border-input overflow-hidden">
         <div ref={mapContainer} className="w-full h-full" />
-        {!isLoading && stations.length === 0 && (
+        {isFetched && !isFetching && stations.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-10">
             <p className="text-sm text-muted-foreground">
               No nearby gas stations found
