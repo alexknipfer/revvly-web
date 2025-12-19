@@ -42,7 +42,11 @@ export const Route = createRootRouteWithContext<{
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'TanStack Start Starter',
+        name: 'theme-color',
+        content: '#020618',
+      },
+      {
+        title: 'Revly',
       },
     ],
     links: [
