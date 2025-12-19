@@ -27,7 +27,7 @@ export const create = mutation({
 
     const totalCost = costPerGallon * totalGallons;
 
-    const inserted = ctx.db.insert('fuelEntries', {
+    const inserted = ctx.db.insert('fuel_entries', {
       odometer,
       costPerGallon,
       totalGallons,

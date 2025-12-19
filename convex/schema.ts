@@ -11,7 +11,7 @@ export default defineSchema({
     imageStorageId: v.optional(v.id('_storage')),
     userId: v.string(),
   }).index('by_userid', ['userId']),
-  fuelEntries: defineTable({
+  fuel_entries: defineTable({
     odometer: v.number(),
     costPerGallon: v.number(),
     totalGallons: v.number(),
