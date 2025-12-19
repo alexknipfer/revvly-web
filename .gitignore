@@ -13,5 +13,4 @@ node_modules
 .vinxi
 .tanstack/start/build/client-dist/
 .tanstack/tmp
-convex/_generated/
 dist
