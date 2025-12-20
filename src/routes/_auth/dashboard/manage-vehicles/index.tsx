@@ -17,7 +17,6 @@ export const Route = createFileRoute('/_auth/dashboard/manage-vehicles/')({
 function RouteComponent() {
   return (
     <section className="relative space-y-2.5">
-      <h1 className="text-2xl font-semibold">Manage Vehicles</h1>
       {/** TODO: Add a loading state */}
       <Suspense fallback={<div>Suspense fallback loading...</div>}>
         <VehicleList />

@@ -38,11 +38,13 @@ function RouteComponent() {
 
   return (
     <div className="bg-slate-900 min-h-svh text-foreground">
-      <nav className="text-foreground border-b border-b-accent pl-2 pr-1 w-full">
-        <div className="max-w-7xl mx-auto w-full flex justify-between items-center">
-          <span className="font-bold tracking-widest uppercase">Revly</span>
+      <nav className="text-foreground border-b border-b-accent w-full">
+        <div className="max-w-7xl mx-auto w-full grid grid-cols-3 sm:grid-cols-2 items-center pl-2.5 pr-2.5 ">
+          <span className="font-bold tracking-widest uppercase col-start-2 sm:col-start-1 text-center sm:text-left">
+            Revly
+          </span>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild className="justify-self-end">
               <Button variant="ghost" size="icon">
                 <EllipsisVertical />
               </Button>
@@ -62,7 +64,7 @@ function RouteComponent() {
           </DropdownMenu>
         </div>
       </nav>
-      <main className="p-2.5 max-w-7xl mx-auto">
+      <main className="px-2.5 py-4 max-w-7xl mx-auto">
         <Toaster />
         <Outlet />
       </main>
