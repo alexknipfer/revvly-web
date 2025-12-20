@@ -93,7 +93,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <head>
         <HeadContent />
       </head>
-      <body className="dark">
+      <body className="bg-slate-900 dark">
         {children}
         <Scripts />
       </body>
