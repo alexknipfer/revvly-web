@@ -5,7 +5,7 @@ import { VehicleList } from './-components/vehicle-list';
 import { Suspense } from 'react';
 import { AuthLoading } from 'convex/react';
 
-export const Route = createFileRoute('/_auth/dashboard/manage-vehicles/')({
+export const Route = createFileRoute('/_auth/vehicles/')({
   component: RouteComponent,
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(

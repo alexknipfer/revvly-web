@@ -1,7 +1,7 @@
 import { convexQuery } from '@convex-dev/react-query';
 import { useSuspenseQuery } from '@tanstack/react-query';
 
-import { api } from '../../../../../../convex/_generated/api';
+import { api } from '../../../../../convex/_generated/api';
 import {
   Empty,
   EmptyContent,
@@ -11,7 +11,7 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty';
 
-import { VehicleDetails } from './vehicle-details';
+import { VehicleListCard } from './vehicle-list-card';
 import { Car } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -53,7 +53,7 @@ export function VehicleList() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-[repeat(auto-fit,400px)] gap-4">
       {vehicles.map((vehicle) => (
-        <VehicleDetails key={vehicle._id} vehicle={vehicle} />
+        <VehicleListCard key={vehicle._id} vehicle={vehicle} />
       ))}
     </div>
   );
