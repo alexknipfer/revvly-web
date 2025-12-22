@@ -5,13 +5,21 @@ import { api } from 'convex/_generated/api';
 
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
 import { Doc } from 'convex/_generated/dataModel';
-import { EllipsisVertical, Fuel, ImageUp, Loader2 } from 'lucide-react';
+import {
+  EllipsisVertical,
+  Fuel,
+  ImageUp,
+  Loader2,
+  Milestone,
+} from 'lucide-react';
 import { ImageCropDialog } from '../../../../../components/image-crop-dialog';
 import { AddFuelEntryDialog } from '../../../../../components/add-fuel-entry-dialog';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
@@ -22,6 +30,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Badge } from '@/components/ui/badge';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 interface Props {
   vehicle: Doc<'vehicles'> & { imageUrl: string | null };
 }
@@ -138,6 +152,29 @@ export function VehicleDetails({ vehicle }: Props) {
             </DropdownMenu>
           </div>
         </CardContent>
+        <CardFooter className="gap-x-2">
+          <Tooltip>
+            <TooltipTrigger>
+              <Badge variant="secondary" className="bg-blue-500">
+                <Milestone />
+                {vehicle.totalMilesTracked
+                  ? vehicle.totalMilesTracked.toLocaleString()
+                  : '--'}{' '}
+                Miles
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent>Total miles tracked</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger>
+              <Badge variant="secondary" className="bg-green-700">
+                <Fuel />{' '}
+                {vehicle.averageMpg ? vehicle.averageMpg.toFixed(1) : '--'} MPG
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent>Average MPG</TooltipContent>
+          </Tooltip>
+        </CardFooter>
       </Card>
       <ImageCropDialog
         file={selectedFile}

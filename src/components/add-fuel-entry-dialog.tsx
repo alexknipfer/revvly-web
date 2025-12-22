@@ -9,6 +9,7 @@ import { DrawerDialog } from '@/components/ui/dialog-drawer';
 import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { DateTimePicker } from '@/components/ui/date-time-picker';
 import { GasStationSelector } from './gas-station-selector';
 import { Loader2 } from 'lucide-react';
 import { useGeoLocation } from '@/hooks/use-geo-location';
@@ -19,9 +20,10 @@ const fuelTypeSchema = z.enum(['regular', 'premium', 'diesel', 'e85']);
 const fuelLevelSchema = z.enum(['full', 'partial']);
 
 const formSchema = z.object({
+  date: z.date(),
   odometer: z.number().min(0),
-  costPerGallon: z.number().min(0),
-  totalGallons: z.number().min(0),
+  costPerGallon: z.string().min(0),
+  totalGallons: z.string().min(0),
   type: fuelTypeSchema,
   level: fuelLevelSchema,
   location: z.string(),
@@ -51,9 +53,10 @@ export function AddFuelEntryDialog({
   onFuelEntryCreated,
 }: Props) {
   const defaultValues: z.infer<typeof formSchema> = {
+    date: new Date(),
     odometer: 0,
-    costPerGallon: 0,
-    totalGallons: 0,
+    costPerGallon: '',
+    totalGallons: '',
     location: '',
     type: 'regular',
     level: 'full',
@@ -83,7 +86,7 @@ export function AddFuelEntryDialog({
     (state) => state.values.totalGallons,
   );
 
-  const totalCost = costPerGallon * totalGallons;
+  const totalCost = parseFloat(costPerGallon) * parseFloat(totalGallons);
 
   useEffect(() => {
     if (!open) {
@@ -102,9 +105,10 @@ export function AddFuelEntryDialog({
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     createFuelEntryMutation.mutate({
+      date: data.date.toISOString(),
       odometer: data.odometer,
-      costPerGallon: data.costPerGallon,
-      totalGallons: data.totalGallons,
+      costPerGallon: parseFloat(data.costPerGallon),
+      totalGallons: parseFloat(data.totalGallons),
       type: data.type,
       level: data.level,
       location: data.location || undefined,
@@ -127,6 +131,28 @@ export function AddFuelEntryDialog({
         className="grid grid-cols-2 gap-4 overflow-y-auto"
       >
         <form.Field
+          name="date"
+          children={(field) => {
+            const isInvalid =
+              field.state.meta.isTouched && !field.state.meta.isValid;
+
+            return (
+              <Field data-invalid={isInvalid} className="col-span-2">
+                <FieldLabel htmlFor={field.name}>Date & Time *</FieldLabel>
+                <DateTimePicker
+                  value={field.state.value}
+                  onChange={(date) => field.handleChange(date)}
+                  defaultValue={new Date()}
+                  id={field.name}
+                  aria-invalid={isInvalid}
+                  showLabels={false}
+                />
+                {isInvalid && <FieldError errors={field.state.meta.errors} />}
+              </Field>
+            );
+          }}
+        />
+        <form.Field
           name="odometer"
           children={(field) => {
             const isInvalid =
@@ -138,10 +164,10 @@ export function AddFuelEntryDialog({
                 <Input
                   name={field.name}
                   type="number"
-                  step="0.1"
+                  step="0.001"
                   value={field.state.value.toString()}
                   onChange={(e) =>
-                    field.handleChange(parseFloat(e.target.value) || 0)
+                    field.handleChange(parseFloat(e.target.value))
                   }
                   aria-invalid={isInvalid}
                 />
@@ -163,10 +189,8 @@ export function AddFuelEntryDialog({
                   name={field.name}
                   type="number"
                   step="0.01"
-                  value={field.state.value.toString()}
-                  onChange={(e) =>
-                    field.handleChange(parseFloat(e.target.value) || 0)
-                  }
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
                   aria-invalid={isInvalid}
                 />
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
@@ -186,11 +210,8 @@ export function AddFuelEntryDialog({
                 <Input
                   name={field.name}
                   type="number"
-                  step="0.01"
-                  value={field.state.value.toString()}
-                  onChange={(e) =>
-                    field.handleChange(parseFloat(e.target.value) || 0)
-                  }
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
                   aria-invalid={isInvalid}
                 />
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}

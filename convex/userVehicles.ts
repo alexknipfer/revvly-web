@@ -19,6 +19,9 @@ export const create = mutation({
       model,
       year,
       plate,
+      totalMilesTracked: 0,
+      totalGallonsUsed: 0,
+      averageMpg: 0,
       userId: identity.subject,
     });
 
