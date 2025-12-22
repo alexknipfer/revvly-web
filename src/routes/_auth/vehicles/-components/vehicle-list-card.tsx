@@ -8,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Doc } from 'convex/_generated/dataModel';
 import { EllipsisVertical, Fuel, Milestone } from 'lucide-react';
 import { AddFuelEntryDialog } from '../../../../components/add-fuel-entry-dialog';
 import { Button } from '@/components/ui/button';
@@ -25,8 +24,11 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { VehicleImage } from '@/components/vehicle-image';
+import { VehicleWithImage, VehicleWithStats } from '@/types/vehicles';
+import { Link } from '@tanstack/react-router';
+
 interface Props {
-  vehicle: Doc<'vehicles'> & { imageUrl: string | null };
+  vehicle: VehicleWithImage & VehicleWithStats;
 }
 
 export function VehicleListCard({ vehicle }: Props) {
@@ -34,7 +36,13 @@ export function VehicleListCard({ vehicle }: Props) {
 
   return (
     <>
-      <Card key={vehicle._id}>
+      <Card key={vehicle._id} className="relative">
+        <Link
+          to="/vehicles/$vehicleId"
+          params={{ vehicleId: vehicle._id }}
+          className="absolute inset-0 z-10"
+          aria-label={`View details for ${vehicle.name || vehicle.model}`}
+        />
         <CardHeader>
           <VehicleImage vehicle={vehicle} />
         </CardHeader>
@@ -47,8 +55,8 @@ export function VehicleListCard({ vehicle }: Props) {
               </CardDescription>
             </div>
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
+              <DropdownMenuTrigger asChild className="relative z-20">
+                <Button variant="ghost" size="icon" className="relative z-20">
                   <EllipsisVertical className="size-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -61,7 +69,7 @@ export function VehicleListCard({ vehicle }: Props) {
             </DropdownMenu>
           </div>
         </CardContent>
-        <CardFooter className="gap-x-2">
+        <CardFooter className="gap-x-2 relative z-10">
           <Tooltip>
             <TooltipTrigger>
               <Badge variant="secondary" className="bg-blue-500">
