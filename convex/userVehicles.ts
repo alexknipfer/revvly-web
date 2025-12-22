@@ -1,4 +1,4 @@
-import { v } from 'convex/values';
+import { ConvexError, v } from 'convex/values';
 import { mutation, query } from './_generated/server';
 import { requireAuth } from './utils/auth';
 
@@ -46,6 +46,36 @@ export const getAll = query({
           : null,
       })),
     );
+  },
+});
+
+export const getById = query({
+  args: {
+    id: v.id('vehicles'),
+  },
+  handler: async (ctx, { id }) => {
+    const identity = await requireAuth(ctx);
+
+    const vehicle = await ctx.db.get(id);
+
+    if (!vehicle) {
+      throw new ConvexError({ message: 'Vehicle not found' });
+    }
+
+    if (vehicle.userId !== identity.subject) {
+      throw new ConvexError({
+        message: 'You can only view your own vehicles.',
+      });
+    }
+
+    const imageUrl = vehicle.imageStorageId
+      ? await ctx.storage.getUrl(vehicle.imageStorageId)
+      : null;
+
+    return {
+      ...vehicle,
+      imageUrl,
+    };
   },
 });
 
