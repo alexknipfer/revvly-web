@@ -18,7 +18,7 @@ export async function searchNearbyGasStations({
   const [error, response] = await tryCatch(
     mapboxApi
       .get<SearchBoxFeatureCollection>(
-        'search/searchbox/v1/category/gas_station,convenience_store',
+        'search/searchbox/v1/category/gas_station',
         {
           searchParams: {
             proximity: `${coordinates[0]},${coordinates[1]}`,
