@@ -47,7 +47,7 @@ function RouteComponent() {
         <div className="max-w-7xl mx-auto w-full grid grid-cols-3 sm:grid-cols-2 items-center pl-2.5 pr-2.5 ">
           <Link to="/vehicles">
             <span className="font-bold tracking-widest uppercase col-start-2 sm:col-start-1 text-center sm:text-left">
-              Revly
+              Revvly
             </span>
           </Link>
           <DropdownMenu>
