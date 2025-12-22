@@ -1,19 +1,19 @@
 import { ImageCropDialog } from '@/components/image-crop-dialog';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { VehicleWithImage } from '@/types/vehicles';
 import { api } from 'convex/_generated/api';
-import { Doc } from 'convex/_generated/dataModel';
 import { useMutation } from 'convex/react';
 import { Car, ImageUp, Loader2 } from 'lucide-react';
 import { createContext, useContext, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 
 interface VehicleImageProps {
-  vehicle: Doc<'vehicles'> & { imageUrl: string | null };
+  vehicle: VehicleWithImage;
   children?: React.ReactNode;
 }
 
 interface VehicleImageContextValue {
-  vehicle: Doc<'vehicles'> & { imageUrl: string | null };
+  vehicle: VehicleWithImage;
 }
 
 const VehicleImageContext = createContext<VehicleImageContextValue | null>(
