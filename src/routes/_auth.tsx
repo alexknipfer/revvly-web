@@ -45,10 +45,11 @@ function RouteComponent() {
     <div className="bg-slate-900 min-h-svh text-foreground">
       <nav className="text-foreground border-b border-b-accent w-full">
         <div className="max-w-7xl mx-auto w-full grid grid-cols-3 sm:grid-cols-2 items-center pl-2.5 pr-2.5 ">
-          <Link to="/vehicles">
-            <span className="font-bold tracking-widest uppercase col-start-2 sm:col-start-1 text-center sm:text-left">
-              Revvly
-            </span>
+          <Link
+            to="/vehicles"
+            className="col-start-2 sm:col-start-1 text-center sm:text-left"
+          >
+            <span className="font-bold tracking-widest uppercase ">Revvly</span>
           </Link>
           <DropdownMenu>
             <DropdownMenuTrigger asChild className="justify-self-end">
