@@ -8,9 +8,7 @@ export default defineSchema({
     model: v.string(),
     year: v.string(),
     plate: v.string(),
-    totalMilesTracked: v.number(),
-    totalGallonsUsed: v.number(),
-    averageMpg: v.number(),
+    // Removed: totalMilesTracked, totalGallonsUsed, averageMpg
     imageStorageId: v.optional(v.id('_storage')),
     userId: v.string(),
   }).index('by_userid', ['userId']),

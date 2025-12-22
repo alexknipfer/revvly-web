@@ -1,6 +1,55 @@
 import { ConvexError, v } from 'convex/values';
-import { mutation, query } from './_generated/server';
+import { mutation, query, QueryCtx } from './_generated/server';
 import { requireAuth } from './utils/auth';
+import { Id } from './_generated/dataModel';
+
+async function calculateVehicleTotals(
+  ctx: QueryCtx,
+  vehicleId: Id<'vehicles'>,
+  userId: string,
+) {
+  const entries = await ctx.db
+    .query('fuel_entries')
+    .withIndex('by_userid_vehicleid', (q) =>
+      q.eq('userId', userId).eq('vehicleId', vehicleId),
+    )
+    .order('asc')
+    .collect();
+
+  const sortedEntries = [...entries].sort((a, b) => a.odometer - b.odometer);
+
+  let totalGallonsUsed = 0;
+  let totalMilesTracked = 0;
+  let gallonsForMpgCalculation = 0;
+
+  for (let i = 0; i < sortedEntries.length; i++) {
+    const entry = sortedEntries[i];
+    totalGallonsUsed += entry.totalGallons;
+
+    // MPG calculation: only entries after the first one contribute to miles tracked
+    if (i > 0) {
+      const previousEntry = sortedEntries[i - 1];
+      const miles = entry.odometer - previousEntry.odometer;
+
+      if (miles > 0 && entry.mpg) {
+        totalMilesTracked += miles;
+        // Only count gallons from entries that have MPG (i.e., not the first entry)
+        gallonsForMpgCalculation += entry.totalGallons;
+      }
+    }
+  }
+
+  const averageMpg =
+    gallonsForMpgCalculation > 0
+      ? totalMilesTracked / gallonsForMpgCalculation
+      : 0;
+
+  return {
+    totalGallonsUsed,
+    totalMilesTracked,
+    averageMpg,
+  };
+}
 
 export const create = mutation({
   args: {
@@ -19,9 +68,6 @@ export const create = mutation({
       model,
       year,
       plate,
-      totalMilesTracked: 0,
-      totalGallonsUsed: 0,
-      averageMpg: 0,
       userId: identity.subject,
     });
 
@@ -39,12 +85,21 @@ export const getAll = query({
       .collect();
 
     return Promise.all(
-      vehicles.map(async (vehicle) => ({
-        ...vehicle,
-        imageUrl: vehicle.imageStorageId
-          ? await ctx.storage.getUrl(vehicle.imageStorageId)
-          : null,
-      })),
+      vehicles.map(async (vehicle) => {
+        const totals = await calculateVehicleTotals(
+          ctx,
+          vehicle._id,
+          identity.subject,
+        );
+
+        return {
+          ...vehicle,
+          imageUrl: vehicle.imageStorageId
+            ? await ctx.storage.getUrl(vehicle.imageStorageId)
+            : null,
+          ...totals,
+        };
+      }),
     );
   },
 });
@@ -68,6 +123,12 @@ export const getById = query({
       });
     }
 
+    const totals = await calculateVehicleTotals(
+      ctx,
+      vehicle._id,
+      identity.subject,
+    );
+
     const imageUrl = vehicle.imageStorageId
       ? await ctx.storage.getUrl(vehicle.imageStorageId)
       : null;
@@ -75,6 +136,7 @@ export const getById = query({
     return {
       ...vehicle,
       imageUrl,
+      ...totals,
     };
   },
 });
