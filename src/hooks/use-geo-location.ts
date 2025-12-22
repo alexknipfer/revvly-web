@@ -30,6 +30,10 @@ export function useGeoLocation() {
           loading: false,
         }));
       },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+      },
     );
   };
 
