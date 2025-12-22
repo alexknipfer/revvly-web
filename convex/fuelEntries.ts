@@ -68,21 +68,33 @@ export const create = mutation({
       userId: identity.subject,
     });
 
-    const oldTotalGallonsUsed = vehicle.totalGallonsUsed;
-    const newTotalGallonsUsed = oldTotalGallonsUsed + totalGallons;
-
     const updateData: {
       totalGallonsUsed: number;
       totalMilesTracked?: number;
       averageMpg?: number;
     } = {
-      totalGallonsUsed: newTotalGallonsUsed,
+      totalGallonsUsed: vehicle.totalGallonsUsed + totalGallons,
     };
 
-    if (mpg && totalMiles > 0) {
-      const oldTotalMilesTracked = vehicle.totalMilesTracked;
-      const newTotalMilesTracked = oldTotalMilesTracked + totalMiles;
-      const newAverageMpg = newTotalMilesTracked / newTotalGallonsUsed;
+    if (mpg && totalMiles > 0 && latestFuelEntry) {
+      const newTotalMilesTracked = vehicle.totalMilesTracked + totalMiles;
+
+      // Calculate average MPG using only gallons that contributed to miles tracked
+      // The first entry's gallons don't contribute to miles (no previous entry to calculate from)
+      // So we need to exclude the first entry's gallons from the calculation
+      let gallonsForMpgCalculation: number;
+
+      if (vehicle.totalMilesTracked === 0) {
+        // This is the first MPG calculation (second entry)
+        // Only count this entry's gallons since previous entry had no MPG
+        gallonsForMpgCalculation = totalGallons;
+      } else {
+        const gallonsFromPreviousMpgEntries =
+          vehicle.totalMilesTracked / vehicle.averageMpg;
+        gallonsForMpgCalculation = gallonsFromPreviousMpgEntries + totalGallons;
+      }
+
+      const newAverageMpg = newTotalMilesTracked / gallonsForMpgCalculation;
 
       updateData.totalMilesTracked = newTotalMilesTracked;
       updateData.averageMpg = newAverageMpg;
