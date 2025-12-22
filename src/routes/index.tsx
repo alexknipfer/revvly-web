@@ -77,7 +77,7 @@ function Home() {
                   <Sparkles className="h-3 w-3 text-primary absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse" />
                 </div>
                 <span className="text-xl font-bold tracking-widest uppercase bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                  Revly
+                  Revvly
                 </span>
               </div>
               <div className="flex items-center space-x-6">
@@ -438,11 +438,11 @@ function Home() {
             <div className="flex items-center space-x-2 group">
               <Fuel className="h-6 w-6 text-primary transition-transform duration-300 group-hover:rotate-12" />
               <span className="font-semibold text-lg bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                Revly
+                Revvly
               </span>
             </div>
             <div className="text-sm text-muted-foreground">
-              © 2025 Revly. Track smarter, drive better.
+              © 2025 Revvly. Track smarter, drive better.
             </div>
           </div>
         </div>

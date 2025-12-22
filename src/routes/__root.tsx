@@ -46,7 +46,7 @@ export const Route = createRootRouteWithContext<{
         content: '#020618',
       },
       {
-        title: 'Revly',
+        title: 'Revvly',
       },
     ],
     links: [
