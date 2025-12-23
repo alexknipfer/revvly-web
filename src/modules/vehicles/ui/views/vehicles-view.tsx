@@ -11,13 +11,13 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty';
 
-import { VehicleListCard } from './vehicle-list-card';
+import { VehicleListCard } from '@/modules/vehicles/ui/components/vehicle-list-card';
 import { Car } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { AddVehicleDialog } from '@/components/add-vehicle-dialog';
 
-export function VehicleList() {
+export function VehiclesView() {
   const [addVehicleOpen, setAddVehicleOpen] = useState(false);
 
   const { data: vehicles } = useSuspenseQuery(
@@ -51,10 +51,12 @@ export function VehicleList() {
     );
   }
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-[repeat(auto-fit,400px)] gap-4">
-      {vehicles.map((vehicle) => (
-        <VehicleListCard key={vehicle._id} vehicle={vehicle} />
-      ))}
-    </div>
+    <section className="relative space-y-2.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-[repeat(auto-fit,400px)] gap-4">
+        {vehicles.map((vehicle) => (
+          <VehicleListCard key={vehicle._id} vehicle={vehicle} />
+        ))}
+      </div>
+    </section>
   );
 }
