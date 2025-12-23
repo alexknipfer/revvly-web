@@ -1,4 +1,4 @@
-import { VehicleImage } from '@/components/vehicle-image';
+import { VehicleImage } from '@/modules/vehicle/ui/components/vehicle-image/vehicle-image';
 import {
   Card,
   CardContent,
@@ -15,7 +15,7 @@ import { Fuel, Gauge, Milestone } from 'lucide-react';
 
 const routeApi = getRouteApi('/_auth/vehicles/$vehicleId/');
 
-export function VehicleDetails() {
+export function VehicleView() {
   const { vehicleId } = routeApi.useParams();
 
   const { data: vehicle } = useSuspenseQuery(

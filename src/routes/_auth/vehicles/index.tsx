@@ -1,9 +1,7 @@
 import { api } from 'convex/_generated/api';
 import { convexQuery } from '@convex-dev/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { VehicleList } from './-components/vehicle-list';
-import { Suspense } from 'react';
-import { AuthLoading } from 'convex/react';
+import { VehiclesView } from '@/modules/vehicles/ui/views/vehicles-view';
 
 export const Route = createFileRoute('/_auth/vehicles/')({
   component: RouteComponent,
@@ -15,15 +13,5 @@ export const Route = createFileRoute('/_auth/vehicles/')({
 });
 
 function RouteComponent() {
-  return (
-    <section className="relative space-y-2.5">
-      {/** TODO: Add a loading state */}
-      <Suspense fallback={<div>Suspense fallback loading...</div>}>
-        <VehicleList />
-      </Suspense>
-      <AuthLoading>
-        <div>Auth loading...</div>
-      </AuthLoading>
-    </section>
-  );
+  return <VehiclesView />;
 }

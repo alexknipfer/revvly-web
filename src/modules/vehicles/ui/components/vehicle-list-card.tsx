@@ -23,7 +23,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { VehicleImage } from '@/components/vehicle-image';
+import { VehicleImage } from '@/modules/vehicle/ui/components/vehicle-image/vehicle-image';
 import { VehicleWithImage, VehicleWithStats } from '@/types/vehicles';
 import { Link } from '@tanstack/react-router';
 
