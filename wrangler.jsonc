@@ -10,6 +10,7 @@
   },
   "env": {
     "dev": {
+      "VITE_CONVEX_URL": "https://artful-walrus-192.convex.cloud",
       "VITE_CLERK_FRONTEND_API_URL": "https://divine-beetle-47.clerk.accounts.dev",
       "CLERK_PUBLISHABLE_KEY": "pk_test_ZGl2aW5lLWJlZXRsZS00Ny5jbGVyay5hY2NvdW50cy5kZXYk",
       "VITE_CLERK_PUBLISHABLE_KEY": "pk_test_ZGl2aW5lLWJlZXRsZS00Ny5jbGVyay5hY2NvdW50cy5kZXYk",
@@ -17,6 +18,7 @@
       "VITE_MAPBOX_BASE_URL": "https://api.mapbox.com",
     },
     "prod": {
+      "VITE_CONVEX_URL": "https://artful-walrus-192.convex.cloud",
       "VITE_CLERK_FRONTEND_API_URL": "https://divine-beetle-47.clerk.accounts.dev",
       "CLERK_PUBLISHABLE_KEY": "pk_test_ZGl2aW5lLWJlZXRsZS00Ny5jbGVyay5hY2NvdW50cy5kZXYk",
       "VITE_CLERK_PUBLISHABLE_KEY": "pk_test_ZGl2aW5lLWJlZXRsZS00Ny5jbGVyay5hY2NvdW50cy5kZXYk",
