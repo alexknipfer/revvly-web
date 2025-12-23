@@ -25,6 +25,8 @@ export function getRouter() {
       },
       mutations: {
         onError: (error) => {
+          console.error('Error:', error);
+
           if (error instanceof ConvexError) {
             toast.error(error.data.message);
           } else if (error instanceof Error) {
