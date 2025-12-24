@@ -14,7 +14,7 @@ import {
   SignInButton,
   UserButton,
 } from '@clerk/tanstack-react-start';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import {
   Fuel,
   BarChart3,
@@ -109,7 +109,7 @@ function Home() {
                     <UserButton />
                   </SignedIn>
                   <SignedOut>
-                    <SignInButton forceRedirectUrl="/dashboard/manage-vehicles">
+                    <SignInButton forceRedirectUrl="/vehicles">
                       <Button
                         variant="outline"
                         size="sm"
@@ -170,9 +170,12 @@ function Home() {
               <Button
                 size="lg"
                 className="text-lg px-10 py-6 rounded-full bg-gradient-to-r from-indigo-500 via-violet-500 to-indigo-600 hover:from-indigo-600 hover:via-violet-600 hover:to-indigo-500 shadow-lg hover:shadow-xl hover:shadow-indigo-500/40 transition-all duration-300 hover:scale-105"
+                asChild
               >
-                Go to Dashboard
-                <Sparkles className="ml-2 h-4 w-4" />
+                <Link to="/vehicles">
+                  Go to Dashboard
+                  <Sparkles className="ml-2 h-4 w-4" />
+                </Link>
               </Button>
             </SignedIn>
             <Button

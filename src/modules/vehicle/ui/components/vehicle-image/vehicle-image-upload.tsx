@@ -16,9 +16,6 @@ export function VehicleImageUpload({ className }: { className?: string }) {
   const uploadVehicleImage = useServerFn(uploadVehicleImageServerFn);
   const { mutate: uploadVehicleImageMutation } = useMutation({
     mutationFn: uploadVehicleImage,
-    onSuccess: (data) => {
-      console.log('Upload successful', data);
-    },
   });
 
   const { vehicle } = useVehicleImageContext();

@@ -22,7 +22,6 @@ export const uploadVehicleImageServerFn = createServerFn({
       throw new Error('Expected image file');
     }
 
-    console.log('image size: ', image.size);
     if (image.size > MAX_FILE_SIZE) {
       throw new Error('Image file size must be no larger than 5MB');
     }
