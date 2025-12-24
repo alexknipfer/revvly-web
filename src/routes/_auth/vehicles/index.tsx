@@ -6,8 +6,12 @@ import { api } from 'convex/_generated/api';
 export const Route = createFileRoute('/_auth/vehicles/')({
   component: RouteComponent,
   loader: async ({ context }) => {
-    if (context.vehicles.length) {
-      const firstVehicle = context.vehicles[0];
+    const vehicles = await context.queryClient.ensureQueryData(
+      convexQuery(api.userVehicles.getAll, {}),
+    );
+
+    if (vehicles.length) {
+      const firstVehicle = vehicles[0];
       context.queryClient.prefetchQuery(
         convexQuery(api.userVehicles.getById, {
           id: firstVehicle._id,
@@ -17,7 +21,7 @@ export const Route = createFileRoute('/_auth/vehicles/')({
       throw redirect({
         to: '/vehicles/$vehicleId',
         params: {
-          vehicleId: context.vehicles[0]._id,
+          vehicleId: firstVehicle._id,
         },
       });
     }

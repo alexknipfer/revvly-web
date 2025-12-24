@@ -32,20 +32,17 @@ export const Route = createFileRoute('/_auth')({
     ],
   }),
   component: RouteComponent,
-  beforeLoad: async ({ context }) => {
+  beforeLoad: ({ context }) => {
     if (!context.userId) {
       throw redirect({
         to: '/',
       });
     }
-
-    const vehicles = await context.queryClient.ensureQueryData(
+  },
+  loader: async ({ context }) => {
+    await context.queryClient.prefetchQuery(
       convexQuery(api.userVehicles.getAll, {}),
     );
-
-    return {
-      vehicles,
-    };
   },
 });
 
