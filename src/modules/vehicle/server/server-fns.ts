@@ -6,7 +6,7 @@ import { Id } from 'convex/_generated/dataModel';
 import ky from 'ky';
 import sharp from 'sharp';
 
-const MAX_FILE_SIZE = 2 * 1024 * 1024;
+const MAX_FILE_SIZE = 8 * 1024 * 1024;
 
 export const uploadVehicleImageServerFn = createServerFn({
   method: 'POST',
@@ -22,6 +22,7 @@ export const uploadVehicleImageServerFn = createServerFn({
       throw new Error('Expected image file');
     }
 
+    console.log('image size: ', image.size);
     if (image.size > MAX_FILE_SIZE) {
       throw new Error('Image file size must be no larger than 5MB');
     }
