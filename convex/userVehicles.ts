@@ -86,18 +86,11 @@ export const getAll = query({
 
     return Promise.all(
       vehicles.map(async (vehicle) => {
-        const totals = await calculateVehicleTotals(
-          ctx,
-          vehicle._id,
-          identity.subject,
-        );
-
         return {
           ...vehicle,
           imageUrl: vehicle.imageStorageId
             ? await ctx.storage.getUrl(vehicle.imageStorageId)
             : null,
-          ...totals,
         };
       }),
     );
