@@ -6,8 +6,8 @@ import { Id } from 'convex/_generated/dataModel';
 
 export const Route = createFileRoute('/_auth/vehicles/$vehicleId/')({
   component: RouteComponent,
-  loader: async ({ context, params }) => {
-    await context.queryClient.prefetchQuery(
+  loader: ({ context, params }) => {
+    context.queryClient.prefetchQuery(
       convexQuery(api.userVehicles.getById, {
         id: params.vehicleId as Id<'vehicles'>,
       }),
