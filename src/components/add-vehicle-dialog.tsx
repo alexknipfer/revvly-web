@@ -46,13 +46,23 @@ export function AddVehicleDialog({
   const selectedYear = useStore(form.store, (state) => state.values.year);
   const selectedMake = useStore(form.store, (state) => state.values.make);
 
-  const data = useQuery(api.vehicles.getMakesByYear, {
-    year: Number(selectedYear),
-  });
-  const models = useQuery(api.vehicles.getModelsByYearAndMake, {
-    year: Number(selectedYear),
-    make: selectedMake,
-  });
+  const data = useQuery(
+    api.vehicles.getMakesByYear,
+    selectedYear
+      ? {
+          year: Number(selectedYear),
+        }
+      : 'skip',
+  );
+  const models = useQuery(
+    api.vehicles.getModelsByYearAndMake,
+    selectedYear && selectedMake
+      ? {
+          year: Number(selectedYear),
+          make: selectedMake,
+        }
+      : 'skip',
+  );
   const createUserVehicleMutation = useMutation(api.userVehicles.create);
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
