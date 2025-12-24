@@ -5,6 +5,7 @@ import { api } from 'convex/_generated/api';
 
 export const Route = createFileRoute('/_auth/vehicles/')({
   component: RouteComponent,
+  pendingComponent: () => <div>Loading...</div>,
   loader: async ({ context }) => {
     const vehicles = await context.queryClient.ensureQueryData(
       convexQuery(api.userVehicles.getAll, {}),
