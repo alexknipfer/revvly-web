@@ -97,6 +97,19 @@ export const getAll = query({
   },
 });
 
+export const getFirst = query({
+  handler: async (ctx) => {
+    const identity = await requireAuth(ctx);
+
+    const vehicle = await ctx.db
+      .query('vehicles')
+      .withIndex('by_userid', (q) => q.eq('userId', identity.subject))
+      .first();
+
+    return vehicle;
+  },
+});
+
 export const getById = query({
   args: {
     id: v.id('vehicles'),

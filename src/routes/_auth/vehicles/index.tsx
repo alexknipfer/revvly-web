@@ -5,24 +5,22 @@ import { api } from 'convex/_generated/api';
 
 export const Route = createFileRoute('/_auth/vehicles/')({
   component: RouteComponent,
-  pendingComponent: () => <div>Loading...</div>,
   loader: async ({ context }) => {
-    const vehicles = await context.queryClient.ensureQueryData(
-      convexQuery(api.userVehicles.getAll, {}),
+    const vehicle = await context.queryClient.ensureQueryData(
+      convexQuery(api.userVehicles.getFirst, {}),
     );
 
-    if (vehicles.length) {
-      const firstVehicle = vehicles[0];
-      context.queryClient.prefetchQuery(
+    if (vehicle) {
+      context.queryClient.ensureQueryData(
         convexQuery(api.userVehicles.getById, {
-          id: firstVehicle._id,
+          id: vehicle._id,
         }),
       );
 
       throw redirect({
         to: '/vehicles/$vehicleId',
         params: {
-          vehicleId: firstVehicle._id,
+          vehicleId: vehicle._id,
         },
       });
     }
