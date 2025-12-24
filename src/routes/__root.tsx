@@ -9,6 +9,8 @@ import {
 } from '@tanstack/react-router';
 import { QueryClient } from '@tanstack/react-query';
 import { ClerkProvider, useAuth } from '@clerk/tanstack-react-start';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 
 import appCss from '@/styles/app.css?url';
 import { auth } from '@clerk/tanstack-react-start/server';
@@ -95,6 +97,8 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       </head>
       <body className="bg-slate-900 dark">
         {children}
+        <TanStackRouterDevtools position="bottom-right" />
+        <ReactQueryDevtools buttonPosition="bottom-left" />
         <Scripts />
       </body>
     </html>
