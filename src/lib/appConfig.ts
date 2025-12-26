@@ -1,5 +1,17 @@
+import { createServerOnlyFn } from '@tanstack/react-start';
+
 const loadEnvironmentVariable = (key: string) => {
   const envVar = import.meta.env[key];
+  if (!envVar) {
+    throw new Error(`Must configure ${key} environment variable.`);
+  }
+
+  return envVar;
+};
+
+const loadServerEnvironmentVariable = (key: string) => {
+  const envVar = process.env[key];
+
   if (!envVar) {
     throw new Error(`Must configure ${key} environment variable.`);
   }
@@ -11,8 +23,13 @@ export const appConfig = {
   convex: {
     url: loadEnvironmentVariable('VITE_CONVEX_URL'),
   },
-  mapbox: {
-    baseUrl: loadEnvironmentVariable('VITE_MAPBOX_BASE_URL'),
-    accessToken: loadEnvironmentVariable('VITE_MAPBOX_ACCESS_TOKEN'),
+  googleMaps: {
+    apiKey: loadEnvironmentVariable('VITE_GOOGLE_MAPS_API_KEY'),
   },
 };
+
+export const serverAppConfig = createServerOnlyFn(() => ({
+  googleMaps: {
+    apiKey: loadServerEnvironmentVariable('GOOGLE_MAPS_API_KEY'),
+  },
+}));
