@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import { api } from 'convex/_generated/api';
 import { useForm, useStore } from '@tanstack/react-form';
@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { DateTimePicker } from '@/components/ui/date-time-picker';
-import { GasStationSelector } from './gas-station-selector';
+import { NearbyGasStationDialog } from './nearby-gas-station-dialog';
 import { Loader2 } from 'lucide-react';
 import { useGeoLocation } from '@/hooks/use-geo-location';
 import { useMutation } from '@tanstack/react-query';
@@ -77,6 +77,9 @@ export function AddFuelEntryDialog({
     error: geoLocationError,
   } = useGeoLocation();
 
+  const [gasStationDialogOpen, setGasStationDialogOpen] = useState(false);
+  const [shouldOpenOnLocation, setShouldOpenOnLocation] = useState(false);
+
   const costPerGallon = useStore(
     form.store,
     (state) => state.values.costPerGallon,
@@ -91,8 +94,20 @@ export function AddFuelEntryDialog({
   useEffect(() => {
     if (!open) {
       form.reset();
+      setGasStationDialogOpen(false);
+      setShouldOpenOnLocation(false);
     }
-  }, [open, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  // Open dialog when location becomes available after user request
+  // This is a valid use case: synchronizing with external state (geolocation API)
+  useEffect(() => {
+    if (location && shouldOpenOnLocation) {
+      setGasStationDialogOpen(true);
+      setShouldOpenOnLocation(false);
+    }
+  }, [location, shouldOpenOnLocation]);
 
   const createFuelEntryMutation = useMutation({
     mutationFn: useConvexMutation(api.fuelEntries.create),
@@ -292,7 +307,14 @@ export function AddFuelEntryDialog({
                     type="button"
                     variant="link"
                     size="sm"
-                    onClick={requestLocation}
+                    onClick={() => {
+                      if (!location) {
+                        setShouldOpenOnLocation(true);
+                        requestLocation();
+                      } else {
+                        setGasStationDialogOpen(true);
+                      }
+                    }}
                   >
                     <span className="text-xs">Find Nearby Gas Stations</span>
                     {loading && <Loader2 className="w-4 h-4 animate-spin" />}
@@ -309,7 +331,9 @@ export function AddFuelEntryDialog({
                   />
                 )}
                 {location && (
-                  <GasStationSelector
+                  <NearbyGasStationDialog
+                    open={gasStationDialogOpen}
+                    onOpenChange={setGasStationDialogOpen}
                     value={field.state.value}
                     geolocation={location}
                     onChange={field.handleChange}
