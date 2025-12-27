@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { VehicleImage } from '@/modules/vehicle/ui/components/vehicle-image/vehicle-image';
 import {
   Card,
@@ -6,23 +7,38 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { convexQuery } from '@convex-dev/react-query';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useSuspenseQuery, useQueryClient } from '@tanstack/react-query';
 import { getRouteApi } from '@tanstack/react-router';
 import { api } from 'convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
-import { Fuel, Gauge, Milestone } from 'lucide-react';
+import { Fuel, Gauge, Milestone, Plus } from 'lucide-react';
+import { AddFuelEntryDialog } from '@/modules/fuel-entry/ui/components/add-fuel-entry-dialog';
 
 const routeApi = getRouteApi('/_auth/vehicles/$vehicleId/');
 
 export function VehicleView() {
   const { vehicleId } = routeApi.useParams();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: vehicle } = useSuspenseQuery(
     convexQuery(api.userVehicles.getById, {
       id: vehicleId as Id<'vehicles'>,
     }),
   );
+
+  const handleFuelEntryCreated = () => {
+    // Invalidate the vehicle query to refresh the data
+    queryClient.invalidateQueries({
+      queryKey: [
+        'convex',
+        api.userVehicles.getById,
+        { id: vehicleId as Id<'vehicles'> },
+      ],
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -34,13 +50,19 @@ export function VehicleView() {
         </div>
       </div>
       <div className="max-w-4xl mx-auto space-y-4">
-        <div>
-          <h1 className="text-3xl font-bold">
-            {vehicle.name || vehicle.model}
-          </h1>
-          <p className="text-muted-foreground text-lg">
-            {vehicle.make} {vehicle.model} {vehicle.year}
-          </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold">
+              {vehicle.name || vehicle.model}
+            </h1>
+            <p className="text-muted-foreground text-lg">
+              {vehicle.make} {vehicle.model} {vehicle.year}
+            </p>
+          </div>
+          <Button onClick={() => setIsDialogOpen(true)} className="shrink-0">
+            <Plus className="size-4" />
+            Add Fuel Entry
+          </Button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
@@ -95,6 +117,12 @@ export function VehicleView() {
           </Card>
         </div>
       </div>
+      <AddFuelEntryDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        vehicleId={vehicleId as Id<'vehicles'>}
+        onFuelEntryCreated={handleFuelEntryCreated}
+      />
     </div>
   );
 }

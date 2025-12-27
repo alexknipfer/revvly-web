@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import { api } from 'convex/_generated/api';
 import { useForm, useStore } from '@tanstack/react-form';
@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { DateTimePicker } from '@/components/ui/date-time-picker';
-import { GasStationSelector } from './gas-station-selector';
+import { NearbyGasStationDialog } from './nearby-gas-station-dialog';
 import { Loader2 } from 'lucide-react';
 import { useGeoLocation } from '@/hooks/use-geo-location';
 import { useMutation } from '@tanstack/react-query';
@@ -75,7 +75,13 @@ export function AddFuelEntryDialog({
     requestLocation,
     loading,
     error: geoLocationError,
-  } = useGeoLocation();
+  } = useGeoLocation({
+    onSuccess: () => {
+      setGasStationDialogOpen(true);
+    },
+  });
+
+  const [gasStationDialogOpen, setGasStationDialogOpen] = useState(false);
 
   const costPerGallon = useStore(
     form.store,
@@ -86,13 +92,10 @@ export function AddFuelEntryDialog({
     (state) => state.values.totalGallons,
   );
 
-  const totalCost = parseFloat(costPerGallon) * parseFloat(totalGallons);
-
-  useEffect(() => {
-    if (!open) {
-      form.reset();
-    }
-  }, [open, form]);
+  const totalCost =
+    isNaN(parseFloat(costPerGallon)) || isNaN(parseFloat(totalGallons))
+      ? 0
+      : parseFloat(costPerGallon) * parseFloat(totalGallons);
 
   const createFuelEntryMutation = useMutation({
     mutationFn: useConvexMutation(api.fuelEntries.create),
@@ -292,7 +295,13 @@ export function AddFuelEntryDialog({
                     type="button"
                     variant="link"
                     size="sm"
-                    onClick={requestLocation}
+                    onClick={() => {
+                      if (!location) {
+                        requestLocation();
+                      } else {
+                        setGasStationDialogOpen(true);
+                      }
+                    }}
                   >
                     <span className="text-xs">Find Nearby Gas Stations</span>
                     {loading && <Loader2 className="w-4 h-4 animate-spin" />}
@@ -309,10 +318,14 @@ export function AddFuelEntryDialog({
                   />
                 )}
                 {location && (
-                  <GasStationSelector
-                    value={field.state.value}
+                  <NearbyGasStationDialog
+                    open={gasStationDialogOpen}
+                    onOpenChange={setGasStationDialogOpen}
                     geolocation={location}
-                    onChange={field.handleChange}
+                    onSelect={(value) => {
+                      field.handleChange(value);
+                      setGasStationDialogOpen(false);
+                    }}
                   />
                 )}
               </Field>

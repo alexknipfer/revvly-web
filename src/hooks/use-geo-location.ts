@@ -1,6 +1,10 @@
 import { useState } from 'react';
 
-export function useGeoLocation() {
+interface UseGeoLocationArgs {
+  onSuccess?: (location: GeolocationPosition) => void;
+}
+
+export function useGeoLocation({ onSuccess }: UseGeoLocationArgs = {}) {
   const [state, setState] = useState<{
     location: GeolocationPosition | null;
     loading: boolean;
@@ -22,6 +26,7 @@ export function useGeoLocation() {
           loading: false,
           error: null,
         }));
+        onSuccess?.(position);
       },
       (error) => {
         setState((state) => ({
