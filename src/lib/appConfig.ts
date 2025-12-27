@@ -23,6 +23,9 @@ export const appConfig = {
   convex: {
     url: loadEnvironmentVariable('VITE_CONVEX_URL'),
   },
+  googleMaps: {
+    apiKey: loadEnvironmentVariable('VITE_GOOGLE_MAPS_API_KEY'),
+  },
 };
 
 export const serverAppConfig = createServerOnlyFn(() => ({
