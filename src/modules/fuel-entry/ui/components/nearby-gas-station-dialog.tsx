@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 
@@ -9,11 +9,14 @@ import { searchNearbyGasStationsServerFn } from '@/modules/fuel-entry/server/ser
 import { type GooglePlace } from '@/types/google';
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 const mapContainerStyle = {
   width: '100%',
@@ -105,8 +108,7 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   geolocation: GeolocationPosition;
-  value?: string;
-  onChange: (location: string) => void;
+  onSelect: (value: string) => void;
 }
 
 function formatGasStationValue(value: GooglePlace) {
@@ -116,9 +118,8 @@ function formatGasStationValue(value: GooglePlace) {
 export function NearbyGasStationDialog({
   open,
   onOpenChange,
-  value,
   geolocation,
-  onChange,
+  onSelect,
 }: Props) {
   const mapRef = useRef<google.maps.Map | null>(null);
   const { coords } = geolocation;
@@ -126,11 +127,14 @@ export function NearbyGasStationDialog({
     lat: coords.latitude,
     lng: coords.longitude,
   };
+  const [selectedStation, setSelectedStation] = useState('');
+  const [mapCenter, setMapCenter] =
+    useState<google.maps.LatLngLiteral>(initialCenter);
+  const [mapZoom, setMapZoom] = useState(10);
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: appConfig.googleMaps.apiKey,
-    libraries: ['places'],
   });
 
   const searchNearbyGasStations = useServerFn(searchNearbyGasStationsServerFn);
@@ -153,57 +157,63 @@ export function NearbyGasStationDialog({
     enabled: false,
   });
 
-  // Compute center and zoom from stations if available, otherwise use initial values
-  const mapCenter =
-    stations.length > 0
-      ? {
-          lat: stations[0].location.latitude,
-          lng: stations[0].location.longitude,
-        }
-      : initialCenter;
-  const mapZoom = stations.length > 0 ? 15 : 10;
-
   const onMapLoad = useCallback(
-    (map: google.maps.Map) => {
+    async (map: google.maps.Map) => {
       mapRef.current = map;
-      refetchStations();
+      const result = await refetchStations();
+      if (result.data?.length) {
+        setSelectedStation(formatGasStationValue(result.data[0]));
+      }
     },
     [refetchStations],
   );
+
+  const centerMapOnStation = useCallback((station: GooglePlace) => {
+    const newCenter: google.maps.LatLngLiteral = {
+      lat: station.location.latitude,
+      lng: station.location.longitude,
+    };
+
+    setMapCenter(newCenter);
+    setMapZoom(15);
+  }, []);
 
   const onMapUnmount = useCallback(() => {
     mapRef.current = null;
   }, []);
 
   const handleMarkerClick = useCallback(
-    (station: Awaited<ReturnType<typeof searchNearbyGasStations>>[number]) => {
-      onChange(formatGasStationValue(station));
+    (station: GooglePlace) => {
+      setSelectedStation(formatGasStationValue(station));
+      centerMapOnStation(station);
     },
-    [onChange],
+    [centerMapOnStation],
   );
 
-  // Update map when stations change and map is loaded
   useEffect(() => {
     if (!stations.length || !mapRef.current) {
       return;
     }
 
     const firstStation = stations[0];
-    onChange(formatGasStationValue(firstStation));
-
     const newCenter: google.maps.LatLngLiteral = {
       lat: firstStation.location.latitude,
       lng: firstStation.location.longitude,
     };
 
-    // Update map center and zoom directly via ref
-    mapRef.current.setCenter(newCenter);
-    mapRef.current.setZoom(15);
-  }, [stations, onChange]);
+    requestAnimationFrame(() => {
+      setMapCenter(newCenter);
+      setMapZoom(15);
+      if (mapRef.current) {
+        mapRef.current.panTo(newCenter);
+        mapRef.current.setZoom(15);
+      }
+    });
+  }, [stations]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Select Gas Station</DialogTitle>
           <DialogDescription>
@@ -216,7 +226,7 @@ export function NearbyGasStationDialog({
               <p className="text-sm text-muted-foreground">Loading map...</p>
             </div>
           ) : (
-            <div className="relative w-full h-96 rounded-md border border-input overflow-hidden">
+            <div className="relative w-full h-52 rounded-md border border-input overflow-hidden">
               <GoogleMap
                 mapContainerStyle={mapContainerStyle}
                 center={mapCenter}
@@ -226,10 +236,10 @@ export function NearbyGasStationDialog({
                 options={{
                   styles: darkMapStyles,
                   disableDefaultUI: false,
-                  zoomControl: true,
+                  zoomControl: false,
                   streetViewControl: false,
                   mapTypeControl: false,
-                  fullscreenControl: true,
+                  fullscreenControl: false,
                 }}
               >
                 {stations.map((station, index) => {
@@ -275,34 +285,46 @@ export function NearbyGasStationDialog({
             </p>
           )}
           {stations.length > 0 && (
-            <>
-              <p className="text-sm font-medium">Nearby Gas Stations:</p>
-              <ScrollArea className="flex-1 min-h-0 max-h-16">
-                <div className="space-y-1 pr-4">
-                  {stations.map((station, index) => (
-                    <button
-                      key={index}
-                      type="button"
-                      onClick={() => onChange(formatGasStationValue(station))}
-                      className={`w-full text-left p-2 rounded-md text-sm border transition-colors ${
-                        value === formatGasStationValue(station)
-                          ? 'bg-primary text-primary-foreground border-primary'
-                          : 'bg-background hover:bg-accent border-input'
-                      }`}
-                    >
-                      <div className="font-medium">
-                        {station.displayName.text}
-                      </div>
-                      <div className="text-xs opacity-80">
-                        {station.formattedAddress}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </ScrollArea>
-            </>
+            <ScrollArea className="flex-1 min-h-0 max-h-52">
+              <div className="space-y-1 pr-4">
+                {stations.map((station, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={() => {
+                      setSelectedStation(formatGasStationValue(station));
+                      centerMapOnStation(station);
+                    }}
+                    className={`w-full text-left p-2 rounded-md text-sm border transition-colors ${
+                      selectedStation === formatGasStationValue(station)
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'bg-background hover:bg-accent border-input'
+                    }`}
+                  >
+                    <div className="font-medium">
+                      {station.displayName.text}
+                    </div>
+                    <div className="text-xs opacity-80">
+                      {station.formattedAddress}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </ScrollArea>
           )}
         </div>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
+          <Button
+            type="button"
+            disabled={!selectedStation}
+            onClick={() => onSelect(selectedStation)}
+          >
+            Save changes
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

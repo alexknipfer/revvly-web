@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import { api } from 'convex/_generated/api';
 import { useForm, useStore } from '@tanstack/react-form';
@@ -75,10 +75,13 @@ export function AddFuelEntryDialog({
     requestLocation,
     loading,
     error: geoLocationError,
-  } = useGeoLocation();
+  } = useGeoLocation({
+    onSuccess: () => {
+      setGasStationDialogOpen(true);
+    },
+  });
 
   const [gasStationDialogOpen, setGasStationDialogOpen] = useState(false);
-  const [shouldOpenOnLocation, setShouldOpenOnLocation] = useState(false);
 
   const costPerGallon = useStore(
     form.store,
@@ -89,25 +92,10 @@ export function AddFuelEntryDialog({
     (state) => state.values.totalGallons,
   );
 
-  const totalCost = parseFloat(costPerGallon) * parseFloat(totalGallons);
-
-  useEffect(() => {
-    if (!open) {
-      form.reset();
-      setGasStationDialogOpen(false);
-      setShouldOpenOnLocation(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
-
-  // Open dialog when location becomes available after user request
-  // This is a valid use case: synchronizing with external state (geolocation API)
-  useEffect(() => {
-    if (location && shouldOpenOnLocation) {
-      setGasStationDialogOpen(true);
-      setShouldOpenOnLocation(false);
-    }
-  }, [location, shouldOpenOnLocation]);
+  const totalCost =
+    isNaN(parseFloat(costPerGallon)) || isNaN(parseFloat(totalGallons))
+      ? 0
+      : parseFloat(costPerGallon) * parseFloat(totalGallons);
 
   const createFuelEntryMutation = useMutation({
     mutationFn: useConvexMutation(api.fuelEntries.create),
@@ -309,7 +297,6 @@ export function AddFuelEntryDialog({
                     size="sm"
                     onClick={() => {
                       if (!location) {
-                        setShouldOpenOnLocation(true);
                         requestLocation();
                       } else {
                         setGasStationDialogOpen(true);
@@ -334,9 +321,11 @@ export function AddFuelEntryDialog({
                   <NearbyGasStationDialog
                     open={gasStationDialogOpen}
                     onOpenChange={setGasStationDialogOpen}
-                    value={field.state.value}
                     geolocation={location}
-                    onChange={field.handleChange}
+                    onSelect={(value) => {
+                      field.handleChange(value);
+                      setGasStationDialogOpen(false);
+                    }}
                   />
                 )}
               </Field>
