@@ -9,6 +9,7 @@ import { DrawerDialog } from '@/components/ui/dialog-drawer';
 import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { useNavigate } from '@tanstack/react-router';
 
 const formSchema = z.object({
   year: z.string().min(1),
@@ -29,6 +30,7 @@ export function AddVehicleDialog({
   onOpenChange,
   onVehicleCreated,
 }: Props) {
+  const navigate = useNavigate();
   const form = useForm({
     defaultValues: {
       year: '',

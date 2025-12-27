@@ -4,8 +4,6 @@ import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 
 import { appConfig } from '@/lib/appConfig';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useServerFn } from '@tanstack/react-start';
-import { searchNearbyGasStationsServerFn } from '@/modules/fuel-entry/server/server-fns';
 import { type GooglePlace } from '@/types/google';
 import {
   Dialog,
@@ -17,6 +15,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { searchNearbyGasStations } from '@/lib/google';
 
 const mapContainerStyle = {
   width: '100%',
@@ -137,8 +136,6 @@ export function NearbyGasStationDialog({
     googleMapsApiKey: appConfig.googleMaps.apiKey,
   });
 
-  const searchNearbyGasStations = useServerFn(searchNearbyGasStationsServerFn);
-
   const {
     data: stations = [],
     refetch: refetchStations,
@@ -149,10 +146,8 @@ export function NearbyGasStationDialog({
     queryKey: ['gasStations', coords.longitude, coords.latitude],
     queryFn: () =>
       searchNearbyGasStations({
-        data: {
-          latitude: coords.latitude,
-          longitude: coords.longitude,
-        },
+        latitude: coords.latitude,
+        longitude: coords.longitude,
       }),
     enabled: false,
   });
@@ -322,7 +317,7 @@ export function NearbyGasStationDialog({
             disabled={!selectedStation}
             onClick={() => onSelect(selectedStation)}
           >
-            Save changes
+            Save
           </Button>
         </DialogFooter>
       </DialogContent>
