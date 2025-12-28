@@ -1,7 +1,10 @@
 import { z } from 'zod';
 import { api } from 'convex/_generated/api';
-import { useMutation, useQuery } from 'convex/react';
+import { useQuery } from 'convex/react';
 import { useForm, useStore } from '@tanstack/react-form';
+import { useNavigate } from '@tanstack/react-router';
+import { useMutation } from '@tanstack/react-query';
+import { useConvexMutation } from '@convex-dev/react-query';
 
 import { Combobox } from '@/components/ui/combobox';
 import { getSupportedVehicleYears } from '@/lib/utils';
@@ -9,7 +12,6 @@ import { DrawerDialog } from '@/components/ui/dialog-drawer';
 import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { useNavigate } from '@tanstack/react-router';
 
 const formSchema = z.object({
   year: z.string().min(1),
@@ -65,11 +67,20 @@ export function AddVehicleDialog({
         }
       : 'skip',
   );
-  const createUserVehicleMutation = useMutation(api.userVehicles.create);
+  const convexCreateUserMutation = useConvexMutation(api.userVehicles.create);
+  const createUserVehicleMutation = useMutation({
+    mutationFn: convexCreateUserMutation,
+    onSuccess: (newVehicleId) => {
+      onVehicleCreated?.();
+      navigate({
+        to: '/vehicles/$vehicleId',
+        params: { vehicleId: newVehicleId },
+      });
+    },
+  });
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
-    createUserVehicleMutation(data);
-    onVehicleCreated?.();
+    createUserVehicleMutation.mutate(data);
   };
 
   return (
