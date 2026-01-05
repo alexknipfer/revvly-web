@@ -6,17 +6,21 @@ import { Id } from 'convex/_generated/dataModel';
 
 export const Route = createFileRoute('/_auth/vehicles/$vehicleId/')({
   component: RouteComponent,
-  loader: ({ context, params }) => {
-    context.queryClient.prefetchQuery(
-      convexQuery(api.fuelEntries.getAll, {
-        vehicleId: params.vehicleId as Id<'vehicles'>,
-      }),
-    );
-    context.queryClient.prefetchQuery(
-      convexQuery(api.userVehicles.getById, {
-        id: params.vehicleId as Id<'vehicles'>,
-      }),
-    );
+  pendingComponent: () => <div>Pending component loading...</div>,
+  pendingMs: 10,
+  loader: async ({ context, params }) => {
+    await Promise.all([
+      context.queryClient.ensureQueryData(
+        convexQuery(api.fuelEntries.getAll, {
+          vehicleId: params.vehicleId as Id<'vehicles'>,
+        }),
+      ),
+      context.queryClient.ensureQueryData(
+        convexQuery(api.userVehicles.getById, {
+          id: params.vehicleId as Id<'vehicles'>,
+        }),
+      ),
+    ]);
   },
 });
 
