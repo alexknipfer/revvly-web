@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { convexQuery } from '@convex-dev/react-query';
-import { useSuspenseQuery, useQueryClient } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { getRouteApi } from '@tanstack/react-router';
 import { api } from 'convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
@@ -21,24 +21,12 @@ const routeApi = getRouteApi('/_auth/vehicles/$vehicleId/');
 export function VehicleView() {
   const { vehicleId } = routeApi.useParams();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const queryClient = useQueryClient();
 
   const { data: vehicle } = useSuspenseQuery(
     convexQuery(api.userVehicles.getById, {
       id: vehicleId as Id<'vehicles'>,
     }),
   );
-
-  const handleFuelEntryCreated = () => {
-    // Invalidate the vehicle query to refresh the data
-    queryClient.invalidateQueries({
-      queryKey: [
-        'convex',
-        api.userVehicles.getById,
-        { id: vehicleId as Id<'vehicles'> },
-      ],
-    });
-  };
 
   return (
     <div className="space-y-6">
@@ -121,7 +109,6 @@ export function VehicleView() {
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         vehicleId={vehicleId as Id<'vehicles'>}
-        onFuelEntryCreated={handleFuelEntryCreated}
       />
     </div>
   );
