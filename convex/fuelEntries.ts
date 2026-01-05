@@ -1,6 +1,6 @@
 import { v } from 'convex/values';
 
-import { mutation } from './_generated/server';
+import { mutation, query } from './_generated/server';
 import { requireAuth, verifyVerhicleOwnership } from './utils/auth';
 
 export const create = mutation({
@@ -67,5 +67,23 @@ export const create = mutation({
       vehicleId,
       userId: identity.subject,
     });
+  },
+});
+
+export const getAll = query({
+  args: {
+    vehicleId: v.id('vehicles'),
+  },
+  handler: async (ctx, { vehicleId }) => {
+    const identity = await requireAuth(ctx);
+    await verifyVerhicleOwnership({ ctx, vehicleId, identity });
+
+    return await ctx.db
+      .query('fuel_entries')
+      .withIndex('by_userid_vehicleid', (q) =>
+        q.eq('userId', identity.subject).eq('vehicleId', vehicleId),
+      )
+      .order('desc')
+      .collect();
   },
 });

@@ -8,6 +8,11 @@ export const Route = createFileRoute('/_auth/vehicles/$vehicleId/')({
   component: RouteComponent,
   loader: ({ context, params }) => {
     context.queryClient.prefetchQuery(
+      convexQuery(api.fuelEntries.getAll, {
+        vehicleId: params.vehicleId as Id<'vehicles'>,
+      }),
+    );
+    context.queryClient.prefetchQuery(
       convexQuery(api.userVehicles.getById, {
         id: params.vehicleId as Id<'vehicles'>,
       }),

@@ -1,13 +1,8 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { VehicleImage } from '@/modules/vehicle/ui/components/vehicle-image/vehicle-image';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Timeline, TimelineItem } from '@/components/timeline';
 import { convexQuery } from '@convex-dev/react-query';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { getRouteApi } from '@tanstack/react-router';
@@ -15,8 +10,37 @@ import { api } from 'convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
 import { Fuel, Gauge, Milestone, Plus } from 'lucide-react';
 import { AddFuelEntryDialog } from '@/modules/fuel-entry/ui/components/add-fuel-entry-dialog';
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemTitle,
+} from '@/components/ui/item';
 
 const routeApi = getRouteApi('/_auth/vehicles/$vehicleId/');
+
+interface StatItemProps {
+  icon: React.ReactNode;
+  label: string;
+  value: string | number;
+  description: string;
+}
+
+// TODO: Figure out where to place this component
+function StatItem({ icon, label, value, description }: StatItemProps) {
+  return (
+    <div className="flex flex-col items-center text-center flex-1 min-w-0">
+      <div className="flex items-center gap-2 mb-2">
+        {icon}
+        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+          {label}
+        </span>
+      </div>
+      <div className="text-2xl font-bold mb-1">{value}</div>
+      <p className="text-xs text-muted-foreground">{description}</p>
+    </div>
+  );
+}
 
 export function VehicleView() {
   const { vehicleId } = routeApi.useParams();
@@ -27,6 +51,47 @@ export function VehicleView() {
       id: vehicleId as Id<'vehicles'>,
     }),
   );
+  const { data: fuelEntries } = useSuspenseQuery(
+    convexQuery(api.fuelEntries.getAll, {
+      vehicleId: vehicleId as Id<'vehicles'>,
+    }),
+  );
+
+  const timelineItems: TimelineItem[] = useMemo(() => {
+    return fuelEntries.map((entry) => {
+      const date = new Date(entry.date);
+      const formattedDate = date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
+
+      return {
+        icon: <Fuel className="size-4" />,
+        content: (
+          <Item className="p-0">
+            <ItemContent>
+              <ItemTitle>{formattedDate}</ItemTitle>
+              <ItemDescription>
+                <span className="mr-2.5">
+                  {entry.totalGallons.toFixed(2)} gal
+                </span>
+                <span>${entry.totalCost.toFixed(2)}</span>
+              </ItemDescription>
+            </ItemContent>
+            <ItemContent className="flex-none">
+              <div className="px-1.5 bg-secondary rounded-sm text-center py-1">
+                <p className="font-semibold text-sm">
+                  {entry.mpg ? entry.mpg.toFixed(1) : '--'}
+                </p>
+                <p className="text-xs text-muted-foreground">MPG</p>
+              </div>
+            </ItemContent>
+          </Item>
+        ),
+      };
+    });
+  }, [fuelEntries]);
 
   return (
     <div className="space-y-6">
@@ -37,8 +102,8 @@ export function VehicleView() {
           </VehicleImage>
         </div>
       </div>
-      <div className="max-w-4xl mx-auto space-y-4">
-        <div className="flex items-start justify-between gap-4">
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold">
               {vehicle.name || vehicle.model}
@@ -52,58 +117,48 @@ export function VehicleView() {
             Add Fuel Entry
           </Button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base font-medium flex items-center gap-2">
-                <Gauge className="size-5 text-blue-500" />
-                Average MPG
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">
-                {vehicle.averageMpg > 0 ? vehicle.averageMpg.toFixed(1) : '--'}
-              </div>
-              <CardDescription className="mt-1">
-                Miles per gallon
-              </CardDescription>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base font-medium flex items-center gap-2">
-                <Milestone className="size-5 text-green-500" />
-                Total Miles Tracked
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">
-                {vehicle.totalMilesTracked > 0
+
+        <div className="bg-card border rounded-lg shadow-sm p-4 sm:p-6">
+          <div className="flex flex-row items-stretch gap-4 sm:gap-6">
+            <StatItem
+              icon={<Gauge className="size-4 text-blue-500" />}
+              label="MPG"
+              value={
+                vehicle.averageMpg > 0 ? vehicle.averageMpg.toFixed(1) : '--'
+              }
+              description="Average"
+            />
+            <Separator orientation="vertical" className="h-auto" />
+            <StatItem
+              icon={<Milestone className="size-4 text-green-500" />}
+              label="Miles"
+              value={
+                vehicle.totalMilesTracked > 0
                   ? vehicle.totalMilesTracked.toLocaleString()
-                  : '--'}
-              </div>
-              <CardDescription className="mt-1">Miles recorded</CardDescription>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base font-medium flex items-center gap-2">
-                <Fuel className="size-5 text-orange-500" />
-                Total Gallons Used
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">
-                {vehicle.totalGallonsUsed > 0
+                  : '--'
+              }
+              description="Tracked"
+            />
+            <Separator orientation="vertical" className="h-auto" />
+            <StatItem
+              icon={<Fuel className="size-4 text-orange-500" />}
+              label="Gallons"
+              value={
+                vehicle.totalGallonsUsed > 0
                   ? vehicle.totalGallonsUsed.toFixed(1)
-                  : '--'}
-              </div>
-              <CardDescription className="mt-1">
-                Gallons of fuel
-              </CardDescription>
-            </CardContent>
-          </Card>
+                  : '--'
+              }
+              description="Used"
+            />
+          </div>
         </div>
+
+        {fuelEntries.length > 0 && (
+          <div>
+            <h2 className="text-xl font-semibold mb-6">Fuel Entries</h2>
+            <Timeline items={timelineItems} />
+          </div>
+        )}
       </div>
       <AddFuelEntryDialog
         open={isDialogOpen}
