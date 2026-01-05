@@ -15,7 +15,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { searchNearbyGasStations } from '@/lib/google';
 import { Card } from '@/components/ui/card';
 import {
   Map,
@@ -25,6 +24,8 @@ import {
   MarkerPopup,
   MarkerTooltip,
 } from '@/components/ui/map';
+
+import { nearbyGasStationsQueryOptions } from '../../lib/query-options';
 
 interface Props {
   open: boolean;
@@ -50,15 +51,13 @@ export function NearbyGasStationDialog({
     isLoading,
     isFetching,
     isFetched,
-  } = useQuery({
-    queryKey: ['gasStations', userCoords.longitude, userCoords.latitude],
-    queryFn: () =>
-      searchNearbyGasStations({
-        latitude: userCoords.latitude,
-        longitude: userCoords.longitude,
-      }),
-    enabled: open,
-  });
+  } = useQuery(
+    nearbyGasStationsQueryOptions({
+      lat: userCoords.latitude,
+      lng: userCoords.longitude,
+      enabled: open,
+    }),
+  );
 
   const panToGasStation = useCallback((station: GooglePlace) => {
     mapRef.current?.flyTo({
