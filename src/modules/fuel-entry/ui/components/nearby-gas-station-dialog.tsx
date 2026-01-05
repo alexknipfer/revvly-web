@@ -109,12 +109,11 @@ export function NearbyGasStationDialog({
                     latitude={station.location.latitude}
                   >
                     <MarkerContent>
-                      <div className="flex items-center justify-center size-6 rounded-full bg-secondary border-2 border-white shadow-lg">
+                      <div className="flex items-center justify-center size-6 rounded-full bg-blue-500 border border-white shadow-lg">
                         <Fuel className="size-3" />
                       </div>
                     </MarkerContent>
-                    <MarkerTooltip>{station.displayName.text}</MarkerTooltip>
-                    <MarkerPopup>
+                    <MarkerPopup className="space-y-2">
                       <div className="space-y-1">
                         <p className="font-medium text-foreground">
                           {station.displayName.text}
@@ -123,6 +122,19 @@ export function NearbyGasStationDialog({
                           {station.formattedAddress}
                         </p>
                       </div>
+                      {selectedStation?.id !== station.id && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="w-full"
+                          onClick={() => {
+                            setSelectedStation(station);
+                            panToGasStation(station);
+                          }}
+                        >
+                          Select
+                        </Button>
+                      )}
                     </MarkerPopup>
                   </MapMarker>
                 ))}
