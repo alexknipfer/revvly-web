@@ -22,7 +22,6 @@ import {
   MapMarker,
   MarkerContent,
   MarkerPopup,
-  MarkerTooltip,
 } from '@/components/ui/map';
 
 import { nearbyGasStationsQueryOptions } from '../../lib/query-options';
