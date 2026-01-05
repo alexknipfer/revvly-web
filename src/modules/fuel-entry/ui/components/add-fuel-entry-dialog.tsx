@@ -321,9 +321,11 @@ export function AddFuelEntryDialog({
                   <NearbyGasStationDialog
                     open={gasStationDialogOpen}
                     onOpenChange={setGasStationDialogOpen}
-                    geolocation={location}
+                    userLocation={location}
                     onSelect={(value) => {
-                      field.handleChange(value);
+                      field.handleChange(
+                        value.displayName.text + ' - ' + value.formattedAddress,
+                      );
                       setGasStationDialogOpen(false);
                     }}
                   />

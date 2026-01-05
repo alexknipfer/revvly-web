@@ -9,6 +9,7 @@ export interface GoogleDisplayName {
 }
 
 export interface GooglePlace {
+  id: string;
   formattedAddress: string;
   location: GoogleLocation;
   displayName: GoogleDisplayName;
