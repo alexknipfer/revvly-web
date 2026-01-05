@@ -24,7 +24,7 @@ export async function searchNearbyGasStations(data: {
       .post<GooglePlacesNearbyResponse>(':searchNearby', {
         headers: {
           'X-Goog-FieldMask':
-            'places.displayName,places.location,places.formattedAddress',
+            'places.id,places.displayName,places.location,places.formattedAddress',
         },
         json: {
           includedTypes: ['gas_station'],
