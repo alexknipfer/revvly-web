@@ -17,6 +17,7 @@ export const create = mutation({
     ),
     level: v.union(v.literal('full'), v.literal('partial')),
     location: v.optional(v.string()),
+    notes: v.optional(v.string()),
     vehicleId: v.id('vehicles'),
   },
   handler: async (
@@ -29,6 +30,7 @@ export const create = mutation({
       type,
       level,
       location,
+      notes,
       vehicleId,
     },
   ) => {
@@ -65,6 +67,7 @@ export const create = mutation({
       level,
       location,
       vehicleId,
+      notes,
       userId: identity.subject,
     });
   },

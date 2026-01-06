@@ -23,6 +23,7 @@ export default defineSchema({
     type: v.string(),
     level: v.union(v.literal('full'), v.literal('partial')),
     location: v.optional(v.string()),
+    notes: v.optional(v.string()),
     vehicleId: v.id('vehicles'),
     userId: v.string(),
   }).index('by_userid_vehicleid', ['userId', 'vehicleId']),
