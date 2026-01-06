@@ -69,7 +69,7 @@ export function VehicleView() {
       });
 
       return {
-        icon: <Fuel className="size-3" />,
+        icon: <Fuel className="size-4" />,
         content: (
           <Item className="p-0">
             <ItemContent>
