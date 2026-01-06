@@ -1,14 +1,16 @@
 import { useState, useMemo } from 'react';
+import { toast } from 'sonner';
+import { convexQuery } from '@convex-dev/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { getRouteApi } from '@tanstack/react-router';
+import { Fuel, Gauge, Milestone, Plus } from 'lucide-react';
+
 import { VehicleImage } from '@/modules/vehicle/ui/components/vehicle-image/vehicle-image';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Timeline, TimelineItem } from '@/components/timeline';
-import { convexQuery } from '@convex-dev/react-query';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { getRouteApi } from '@tanstack/react-router';
 import { api } from 'convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
-import { Fuel, Gauge, Milestone, Plus } from 'lucide-react';
 import { AddFuelEntryDialog } from '@/modules/fuel-entry/ui/components/add-fuel-entry-dialog';
 import {
   Item,
@@ -57,7 +59,7 @@ export function VehicleView() {
     }),
   );
 
-  const timelineItems: TimelineItem[] = useMemo(() => {
+  const timelineItems: Array<TimelineItem> = useMemo(() => {
     return fuelEntries.map((entry) => {
       const date = new Date(entry.date);
       const formattedDate = date.toLocaleDateString('en-US', {
@@ -67,7 +69,7 @@ export function VehicleView() {
       });
 
       return {
-        icon: <Fuel className="size-4" />,
+        icon: <Fuel className="size-3" />,
         content: (
           <Item className="p-0">
             <ItemContent>
@@ -152,19 +154,16 @@ export function VehicleView() {
             />
           </div>
         </div>
-
-        {fuelEntries.length > 0 && (
-          <div>
-            <h2 className="text-xl font-semibold mb-6">Fuel Entries</h2>
-            <Timeline items={timelineItems} />
-          </div>
-        )}
+        {fuelEntries.length > 0 && <Timeline items={timelineItems} />}
       </div>
       <AddFuelEntryDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         vehicleId={vehicleId as Id<'vehicles'>}
         latestOdometer={vehicle.latestOdometer}
+        onFuelEntryCreated={() =>
+          toast.success('Fuel entry added successfully')
+        }
       />
     </div>
   );
