@@ -21,7 +21,7 @@ export function Timeline({ items }: TimelineProps) {
       {items.map((item, index) => (
         <div key={index} className="flex gap-4 min-h-2.5">
           <div className="flex flex-col items-center">
-            <div className="flex items-center justify-center rounded-full bg-blue-500 size-7 shrink-0">
+            <div className="flex items-center justify-center rounded-full bg-secondary size-7 shrink-0">
               {item.icon}
             </div>
             {index < items.length - 1 && (
