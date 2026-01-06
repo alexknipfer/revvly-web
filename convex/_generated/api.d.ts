@@ -13,7 +13,6 @@ import type * as migrations from "../migrations.js";
 import type * as storage from "../storage.js";
 import type * as userVehicles from "../userVehicles.js";
 import type * as utils_auth from "../utils/auth.js";
-import type * as vehicles from "../vehicles.js";
 
 import type {
   ApiFromModules,
@@ -27,7 +26,6 @@ declare const fullApi: ApiFromModules<{
   storage: typeof storage;
   userVehicles: typeof userVehicles;
   "utils/auth": typeof utils_auth;
-  vehicles: typeof vehicles;
 }>;
 
 /**
