@@ -101,6 +101,17 @@ export function NearbyGasStationDialog({
                 }}
                 zoom={15}
               >
+                <MapMarker
+                  longitude={userCoords.longitude}
+                  latitude={userCoords.latitude}
+                >
+                  <MarkerContent>
+                    <div className="relative size-5">
+                      <div className="absolute inset-0 bg-blue-500 rounded-full animate-ping opacity-75" />
+                      <div className="relative bg-blue-600 rounded-full size-5 border-2 border-white shadow-lg" />
+                    </div>
+                  </MarkerContent>
+                </MapMarker>
                 {stations.map((station) => (
                   <MapMarker
                     key={station.id}
@@ -108,7 +119,7 @@ export function NearbyGasStationDialog({
                     latitude={station.location.latitude}
                   >
                     <MarkerContent>
-                      <div className="flex items-center justify-center size-6 rounded-full bg-blue-500 border border-white shadow-lg">
+                      <div className="flex items-center justify-center size-6 rounded-full bg-green-700 border border-white shadow-lg">
                         <Fuel className="size-3" />
                       </div>
                     </MarkerContent>
