@@ -6,8 +6,8 @@ import { Id } from 'convex/_generated/dataModel';
 
 export const Route = createFileRoute('/_auth/vehicles/$vehicleId/')({
   component: RouteComponent,
-  pendingComponent: () => <div>Pending component loading...</div>,
-  pendingMs: 10,
+  // TODO: Add a loading state
+  pendingComponent: () => <div>Loading vehicle data...</div>,
   loader: async ({ context, params }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(
