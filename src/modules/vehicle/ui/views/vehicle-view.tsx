@@ -164,6 +164,7 @@ export function VehicleView() {
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         vehicleId={vehicleId as Id<'vehicles'>}
+        latestOdometer={vehicle.latestOdometer}
       />
     </div>
   );

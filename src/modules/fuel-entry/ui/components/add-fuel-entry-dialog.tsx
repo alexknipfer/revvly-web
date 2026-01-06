@@ -7,7 +7,12 @@ import { Id } from 'convex/_generated/dataModel';
 import { Combobox } from '@/components/ui/combobox';
 import { DrawerDialog } from '@/components/ui/dialog-drawer';
 import { Button } from '@/components/ui/button';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { DateTimePicker } from '@/components/ui/date-time-picker';
 import { NearbyGasStationDialog } from './nearby-gas-station-dialog';
@@ -15,6 +20,7 @@ import { Loader2 } from 'lucide-react';
 import { useGeoLocation } from '@/hooks/use-geo-location';
 import { useMutation } from '@tanstack/react-query';
 import { useConvexMutation } from '@convex-dev/react-query';
+import { Textarea } from '@/components/ui/textarea';
 
 const fuelTypeSchema = z.enum(['regular', 'premium', 'diesel', 'e85']);
 const fuelLevelSchema = z.enum(['full', 'partial']);
@@ -27,12 +33,14 @@ const formSchema = z.object({
   type: fuelTypeSchema,
   level: fuelLevelSchema,
   location: z.string(),
+  notes: z.string(),
 });
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   vehicleId: Id<'vehicles'>;
+  latestOdometer: number;
   onFuelEntryCreated?: () => void;
 }
 
@@ -51,6 +59,7 @@ export function AddFuelEntryDialog({
   onOpenChange,
   vehicleId,
   onFuelEntryCreated,
+  latestOdometer,
 }: Props) {
   const defaultValues: z.infer<typeof formSchema> = {
     date: new Date(),
@@ -58,6 +67,7 @@ export function AddFuelEntryDialog({
     costPerGallon: '',
     totalGallons: '',
     location: '',
+    notes: '',
     type: 'regular',
     level: 'full',
   };
@@ -174,6 +184,9 @@ export function AddFuelEntryDialog({
                   }
                   aria-invalid={isInvalid}
                 />
+                <FieldDescription>
+                  Last Odometer: {latestOdometer.toLocaleString()}
+                </FieldDescription>
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
               </Field>
             );
@@ -330,6 +343,21 @@ export function AddFuelEntryDialog({
                     }}
                   />
                 )}
+              </Field>
+            );
+          }}
+        />
+        <form.Field
+          name="notes"
+          children={(field) => {
+            return (
+              <Field className="col-span-2">
+                <FieldLabel htmlFor={field.name}>Notes</FieldLabel>
+                <Textarea
+                  name={field.name}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                />
               </Field>
             );
           }}
