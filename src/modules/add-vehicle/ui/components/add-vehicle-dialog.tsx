@@ -104,6 +104,7 @@ export function AddVehicleDialog({
             onChangeDebounceMs: 500,
             onChange: () => {
               form.setFieldValue('make', '');
+              form.setFieldValue('model', '');
             },
           }}
           children={(field) => {
@@ -129,6 +130,12 @@ export function AddVehicleDialog({
         />
         <form.Field
           name="make"
+          listeners={{
+            onChangeDebounceMs: 500,
+            onChange: () => {
+              form.setFieldValue('model', '');
+            },
+          }}
           children={(field) => {
             const isInvalid =
               field.state.meta.isTouched && !field.state.meta.isValid;
