@@ -71,7 +71,7 @@ function RouteComponent() {
                 <EllipsisVertical />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuContent align="end" className="w-64">
               <p className="p-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">
                 Your Vehicles
               </p>
