@@ -362,7 +362,7 @@ export function AddFuelEntryDialog({
             );
           }}
         />
-        <Button type="submit" className="w-full">
+        <Button type="submit" className="col-span-2">
           Add Fuel Entry
         </Button>
       </form>
