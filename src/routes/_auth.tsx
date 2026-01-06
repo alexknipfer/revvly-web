@@ -1,12 +1,3 @@
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { AddVehicleDialog } from '@/components/add-vehicle-dialog';
 import { SignOutButton } from '@clerk/tanstack-react-start';
 import {
   createFileRoute,
@@ -15,12 +6,22 @@ import {
   redirect,
   useLocation,
 } from '@tanstack/react-router';
+import { convexQuery } from '@convex-dev/react-query';
 import { Car, Check, EllipsisVertical, Plus } from 'lucide-react';
 import { useState } from 'react';
-import { Toaster } from '@/components/ui/sonner';
-import { convexQuery } from '@convex-dev/react-query';
-import { api } from 'convex/_generated/api';
 import { useSuspenseQuery } from '@tanstack/react-query';
+
+import { Toaster } from '@/components/ui/sonner';
+import { api } from 'convex/_generated/api';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { AddVehicleDialog } from '@/modules/add-vehicle/ui/components/add-vehicle-dialog';
 
 export const Route = createFileRoute('/_auth')({
   head: () => ({
@@ -125,16 +126,16 @@ function RouteComponent() {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+        <AddVehicleDialog
+          open={addVehicleOpen}
+          onOpenChange={setAddVehicleOpen}
+          onVehicleCreated={() => setAddVehicleOpen(false)}
+        />
       </nav>
       <main className="px-2.5 py-4 max-w-7xl mx-auto">
         <Toaster />
         <Outlet />
       </main>
-      <AddVehicleDialog
-        open={addVehicleOpen}
-        onOpenChange={setAddVehicleOpen}
-        onVehicleCreated={() => setAddVehicleOpen(false)}
-      />
     </div>
   );
 }
