@@ -48,7 +48,10 @@ async function calculateVehicleTotals(
     totalGallonsUsed,
     totalMilesTracked,
     averageMpg,
-    latestOdometer: sortedEntries[sortedEntries.length - 1].odometer,
+    latestOdometer:
+      sortedEntries.length > 0
+        ? sortedEntries[sortedEntries.length - 1].odometer
+        : null,
   };
 }
 

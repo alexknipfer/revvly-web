@@ -40,7 +40,7 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   vehicleId: Id<'vehicles'>;
-  latestOdometer: number;
+  latestOdometer: number | null;
   onFuelEntryCreated?: () => void;
 }
 
@@ -184,9 +184,11 @@ export function AddFuelEntryDialog({
                   }
                   aria-invalid={isInvalid}
                 />
-                <FieldDescription>
-                  Last Odometer: {latestOdometer.toLocaleString()}
-                </FieldDescription>
+                {latestOdometer && (
+                  <FieldDescription>
+                    Last Odometer: {latestOdometer.toLocaleString()}
+                  </FieldDescription>
+                )}
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
               </Field>
             );
