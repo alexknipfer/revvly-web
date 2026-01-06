@@ -27,12 +27,4 @@ export default defineSchema({
     vehicleId: v.id('vehicles'),
     userId: v.string(),
   }).index('by_userid_vehicleid', ['userId', 'vehicleId']),
-  vehicle_models: defineTable({
-    body_styles: v.array(v.string()),
-    make: v.string(),
-    model: v.string(),
-    year: v.float64(),
-  })
-    .index('by_year', ['year'])
-    .index('by_year_make', ['year', 'make']),
 });

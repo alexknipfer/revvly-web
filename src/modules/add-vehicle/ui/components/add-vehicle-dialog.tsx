@@ -1,10 +1,10 @@
 import { z } from 'zod';
 import { api } from 'convex/_generated/api';
-import { useQuery } from 'convex/react';
 import { useForm, useStore } from '@tanstack/react-form';
 import { useNavigate } from '@tanstack/react-router';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useConvexMutation } from '@convex-dev/react-query';
+import { useServerFn } from '@tanstack/react-start';
 
 import { Combobox } from '@/components/ui/combobox';
 import { getSupportedVehicleYears } from '@/lib/utils';
@@ -12,6 +12,11 @@ import { DrawerDialog } from '@/components/ui/dialog-drawer';
 import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+
+import {
+  getVehicleMakesServerFn,
+  getVehicleModelsForMakeServerFn,
+} from '../../server/server-fns';
 
 const formSchema = z.object({
   year: z.string().min(1),
@@ -50,23 +55,19 @@ export function AddVehicleDialog({
   const selectedYear = useStore(form.store, (state) => state.values.year);
   const selectedMake = useStore(form.store, (state) => state.values.make);
 
-  const data = useQuery(
-    api.vehicles.getMakesByYear,
-    selectedYear
-      ? {
-          year: Number(selectedYear),
-        }
-      : 'skip',
-  );
-  const models = useQuery(
-    api.vehicles.getModelsByYearAndMake,
-    selectedYear && selectedMake
-      ? {
-          year: Number(selectedYear),
-          make: selectedMake,
-        }
-      : 'skip',
-  );
+  const getVehicleMakes = useServerFn(getVehicleMakesServerFn);
+  const { data: vehicleMakes = [] } = useQuery({
+    queryKey: ['vehicle-makes'],
+    queryFn: getVehicleMakes,
+  });
+  const getVehicleModels = useServerFn(getVehicleModelsForMakeServerFn);
+  const { data: vehicleModels = [] } = useQuery({
+    queryKey: ['vehicle-models', selectedMake, selectedYear],
+    queryFn: () =>
+      getVehicleModels({ data: { make: selectedMake, year: selectedYear } }),
+    enabled: !!selectedMake && !!selectedYear,
+  });
+
   const convexCreateUserMutation = useConvexMutation(api.userVehicles.create);
   const createUserVehicleMutation = useMutation({
     mutationFn: convexCreateUserMutation,
@@ -137,9 +138,9 @@ export function AddVehicleDialog({
                 <FieldLabel htmlFor={field.name}>Make *</FieldLabel>
                 <Combobox
                   label="Select Make"
-                  items={(data || []).map((make) => ({
-                    value: make,
-                    label: make,
+                  items={vehicleMakes.map((make) => ({
+                    value: make.name,
+                    label: make.name,
                   }))}
                   value={field.state.value}
                   onChange={field.handleChange}
@@ -161,9 +162,9 @@ export function AddVehicleDialog({
                 <FieldLabel htmlFor={field.name}>Model *</FieldLabel>
                 <Combobox
                   label="Select Model"
-                  items={(models || []).map((model) => ({
-                    value: model,
-                    label: model,
+                  items={vehicleModels.map(({ name }) => ({
+                    value: name,
+                    label: name,
                   }))}
                   value={field.state.value}
                   onChange={field.handleChange}

@@ -10,7 +10,7 @@ import {
 import { Car } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
-import { AddVehicleDialog } from '@/components/add-vehicle-dialog';
+import { AddVehicleDialog } from '@/modules/add-vehicle/ui/components/add-vehicle-dialog';
 
 export function VehiclesView() {
   const [addVehicleOpen, setAddVehicleOpen] = useState(false);
