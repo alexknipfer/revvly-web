@@ -1,5 +1,5 @@
 import { createRouter } from '@tanstack/react-router';
-import { QueryClient } from '@tanstack/react-query';
+import { QueryCache, QueryClient } from '@tanstack/react-query';
 import { ConvexQueryClient } from '@convex-dev/react-query';
 import { ConvexProvider, ConvexReactClient } from 'convex/react';
 import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query';
@@ -18,6 +18,11 @@ export function getRouter() {
   const convexQueryClient = new ConvexQueryClient(convex);
 
   const queryClient: QueryClient = new QueryClient({
+    queryCache: new QueryCache({
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    }),
     defaultOptions: {
       queries: {
         queryKeyHashFn: convexQueryClient.hashFn(),
