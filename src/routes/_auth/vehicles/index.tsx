@@ -7,12 +7,12 @@ export const Route = createFileRoute('/_auth/vehicles/')({
   component: RouteComponent,
   loader: async ({ context }) => {
     const vehicle = await context.queryClient.ensureQueryData(
-      convexQuery(api.userVehicles.getFirst, {}),
+      convexQuery(api.vehicles.getFirst, {}),
     );
 
     if (vehicle) {
       context.queryClient.ensureQueryData(
-        convexQuery(api.userVehicles.getById, {
+        convexQuery(api.vehicles.getById, {
           id: vehicle._id,
         }),
       );

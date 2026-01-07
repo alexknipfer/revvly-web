@@ -29,3 +29,10 @@ export async function tryCatch<T, E = Error>(
     return [error as E, null];
   }
 }
+
+export function defaultTo<T, Default>(
+  value: T | undefined,
+  defaultValue: Default,
+): T | Default {
+  return value ?? defaultValue;
+}

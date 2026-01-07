@@ -74,7 +74,7 @@ export function AddVehicleDialog({
     enabled: !!selectedMake && !!selectedYear,
   });
 
-  const convexCreateUserMutation = useConvexMutation(api.userVehicles.create);
+  const convexCreateUserMutation = useConvexMutation(api.vehicles.create);
   const createUserVehicleMutation = useMutation({
     mutationFn: convexCreateUserMutation,
     onSuccess: (newVehicleId) => {

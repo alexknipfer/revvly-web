@@ -9,5 +9,9 @@
   "eslint.useFlatConfig": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
+  },
+  "workbench.editor.customLabels.patterns": {
+    "**/src/routes/**/index.tsx": "${dirname}/index.tsx",
+    "**/src/modules/**/server-fns.ts": "${dirname(1)}/server-fns.ts"
   }
 }
