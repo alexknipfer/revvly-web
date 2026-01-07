@@ -22,6 +22,18 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { AddVehicleDialog } from '@/modules/add-vehicle/ui/components/add-vehicle-dialog';
+import { auth } from '@clerk/tanstack-react-start/server';
+import { createServerFn } from '@tanstack/react-start';
+
+const fetchClerkAuth = createServerFn({ method: 'GET' }).handler(async () => {
+  const authResponse = await auth();
+  const token = await authResponse.getToken({ template: 'convex' });
+
+  return {
+    userId: authResponse.userId,
+    token,
+  };
+});
 
 export const Route = createFileRoute('/_auth')({
   head: () => ({
@@ -33,12 +45,24 @@ export const Route = createFileRoute('/_auth')({
     ],
   }),
   component: RouteComponent,
-  beforeLoad: ({ context }) => {
-    if (!context.userId) {
+  beforeLoad: async ({ context }) => {
+    const auth = await fetchClerkAuth();
+    const { userId, token } = auth;
+
+    if (token && context.convexQueryClient.serverHttpClient?.setAuth) {
+      context.convexQueryClient.serverHttpClient.setAuth(token);
+    }
+
+    if (!userId) {
       throw redirect({
         to: '/',
       });
     }
+
+    return {
+      userId,
+      token,
+    };
   },
   loader: async ({ context }) => {
     await context.queryClient.prefetchQuery(
