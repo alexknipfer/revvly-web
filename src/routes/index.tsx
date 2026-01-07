@@ -8,12 +8,12 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-} from '@clerk/tanstack-react-start';
+// import {
+//   SignedIn,
+//   SignedOut,
+//   SignInButton,
+//   UserButton,
+// } from '@clerk/tanstack-react-start';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import {
   Fuel,
@@ -105,7 +105,7 @@ function Home() {
                   </a>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <SignedIn>
+                  {/* <SignedIn>
                     <UserButton />
                   </SignedIn>
                   <SignedOut>
@@ -118,7 +118,7 @@ function Home() {
                         Sign In
                       </Button>
                     </SignInButton>
-                  </SignedOut>
+                  </SignedOut> */}
                 </div>
               </div>
             </div>
@@ -155,7 +155,7 @@ function Home() {
             .
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <SignedOut>
+            {/* <SignedOut>
               <SignInButton>
                 <Button
                   size="lg"
@@ -165,8 +165,8 @@ function Home() {
                   <Sparkles className="ml-2 h-4 w-4" />
                 </Button>
               </SignInButton>
-            </SignedOut>
-            <SignedIn>
+            </SignedOut> */}
+            {/* <SignedIn>
               <Button
                 size="lg"
                 className="text-lg px-10 py-6 rounded-full bg-gradient-to-r from-indigo-500 via-violet-500 to-indigo-600 hover:from-indigo-600 hover:via-violet-600 hover:to-indigo-500 shadow-lg hover:shadow-xl hover:shadow-indigo-500/40 transition-all duration-300 hover:scale-105"
@@ -177,7 +177,7 @@ function Home() {
                   <Sparkles className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-            </SignedIn>
+            </SignedIn> */}
             <Button
               variant="outline"
               size="lg"
@@ -410,7 +410,7 @@ function Home() {
             fuel economy.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <SignedOut>
+            {/* <SignedOut>
               <SignInButton>
                 <Button
                   size="lg"
@@ -429,7 +429,7 @@ function Home() {
                 Go to Dashboard
                 <Sparkles className="ml-2 h-5 w-5" />
               </Button>
-            </SignedIn>
+            </SignedIn> */}
           </div>
         </div>
       </section>
