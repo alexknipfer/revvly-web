@@ -1,35 +1,46 @@
-import { useEffect } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import { api } from 'convex/_generated/api';
-import { useMutation } from 'convex/react';
 import { useForm, useStore } from '@tanstack/react-form';
 import { Id } from 'convex/_generated/dataModel';
 
 import { Combobox } from '@/components/ui/combobox';
 import { DrawerDialog } from '@/components/ui/dialog-drawer';
 import { Button } from '@/components/ui/button';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { GasStationSelector } from './gas-station-selector';
+import { DateTimePicker } from '@/components/ui/date-time-picker';
+import { NearbyGasStationDialog } from './nearby-gas-station-dialog';
 import { Loader2 } from 'lucide-react';
 import { useGeoLocation } from '@/hooks/use-geo-location';
+import { useMutation } from '@tanstack/react-query';
+import { useConvexMutation } from '@convex-dev/react-query';
+import { Textarea } from '@/components/ui/textarea';
 
 const fuelTypeSchema = z.enum(['regular', 'premium', 'diesel', 'e85']);
 const fuelLevelSchema = z.enum(['full', 'partial']);
 
 const formSchema = z.object({
+  date: z.date(),
   odometer: z.number().min(0),
-  costPerGallon: z.number().min(0),
-  totalGallons: z.number().min(0),
+  costPerGallon: z.string().min(0),
+  totalGallons: z.string().min(0),
   type: fuelTypeSchema,
   level: fuelLevelSchema,
   location: z.string(),
+  notes: z.string(),
 });
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   vehicleId: Id<'vehicles'>;
+  latestOdometer: number | null;
   onFuelEntryCreated?: () => void;
 }
 
@@ -48,12 +59,15 @@ export function AddFuelEntryDialog({
   onOpenChange,
   vehicleId,
   onFuelEntryCreated,
+  latestOdometer,
 }: Props) {
   const defaultValues: z.infer<typeof formSchema> = {
+    date: new Date(),
     odometer: 0,
-    costPerGallon: 0,
-    totalGallons: 0,
+    costPerGallon: '',
+    totalGallons: '',
     location: '',
+    notes: '',
     type: 'regular',
     level: 'full',
   };
@@ -71,7 +85,13 @@ export function AddFuelEntryDialog({
     requestLocation,
     loading,
     error: geoLocationError,
-  } = useGeoLocation();
+  } = useGeoLocation({
+    onSuccess: () => {
+      setGasStationDialogOpen(true);
+    },
+  });
+
+  const [gasStationDialogOpen, setGasStationDialogOpen] = useState(false);
 
   const costPerGallon = useStore(
     form.store,
@@ -82,29 +102,31 @@ export function AddFuelEntryDialog({
     (state) => state.values.totalGallons,
   );
 
-  const totalCost = costPerGallon * totalGallons;
+  const totalCost =
+    isNaN(parseFloat(costPerGallon)) || isNaN(parseFloat(totalGallons))
+      ? 0
+      : parseFloat(costPerGallon) * parseFloat(totalGallons);
 
-  useEffect(() => {
-    if (!open) {
+  const createFuelEntryMutation = useMutation({
+    mutationFn: useConvexMutation(api.fuelEntries.create),
+    onSuccess: () => {
+      onFuelEntryCreated?.();
+      onOpenChange(false);
       form.reset();
-    }
-  }, [open, form]);
-
-  const createFuelEntryMutation = useMutation(api.fuelEntries.create);
+    },
+  });
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    await createFuelEntryMutation({
+    createFuelEntryMutation.mutate({
+      date: data.date.toISOString(),
       odometer: data.odometer,
-      costPerGallon: data.costPerGallon,
-      totalGallons: data.totalGallons,
+      costPerGallon: parseFloat(data.costPerGallon),
+      totalGallons: parseFloat(data.totalGallons),
       type: data.type,
       level: data.level,
       location: data.location || undefined,
       vehicleId,
     });
-    onFuelEntryCreated?.();
-    onOpenChange(false);
-    form.reset();
   };
 
   return (
@@ -122,6 +144,28 @@ export function AddFuelEntryDialog({
         className="grid grid-cols-2 gap-4 overflow-y-auto"
       >
         <form.Field
+          name="date"
+          children={(field) => {
+            const isInvalid =
+              field.state.meta.isTouched && !field.state.meta.isValid;
+
+            return (
+              <Field data-invalid={isInvalid} className="col-span-2">
+                <FieldLabel htmlFor={field.name}>Date & Time *</FieldLabel>
+                <DateTimePicker
+                  value={field.state.value}
+                  onChange={(date) => field.handleChange(date)}
+                  defaultValue={new Date()}
+                  id={field.name}
+                  aria-invalid={isInvalid}
+                  showLabels={false}
+                />
+                {isInvalid && <FieldError errors={field.state.meta.errors} />}
+              </Field>
+            );
+          }}
+        />
+        <form.Field
           name="odometer"
           children={(field) => {
             const isInvalid =
@@ -133,13 +177,18 @@ export function AddFuelEntryDialog({
                 <Input
                   name={field.name}
                   type="number"
-                  step="0.1"
+                  step="0.001"
                   value={field.state.value.toString()}
                   onChange={(e) =>
-                    field.handleChange(parseFloat(e.target.value) || 0)
+                    field.handleChange(parseFloat(e.target.value))
                   }
                   aria-invalid={isInvalid}
                 />
+                {latestOdometer && (
+                  <FieldDescription>
+                    Last Odometer: {latestOdometer.toLocaleString()}
+                  </FieldDescription>
+                )}
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
               </Field>
             );
@@ -158,10 +207,8 @@ export function AddFuelEntryDialog({
                   name={field.name}
                   type="number"
                   step="0.01"
-                  value={field.state.value.toString()}
-                  onChange={(e) =>
-                    field.handleChange(parseFloat(e.target.value) || 0)
-                  }
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
                   aria-invalid={isInvalid}
                 />
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
@@ -181,11 +228,8 @@ export function AddFuelEntryDialog({
                 <Input
                   name={field.name}
                   type="number"
-                  step="0.01"
-                  value={field.state.value.toString()}
-                  onChange={(e) =>
-                    field.handleChange(parseFloat(e.target.value) || 0)
-                  }
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
                   aria-invalid={isInvalid}
                 />
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
@@ -266,7 +310,13 @@ export function AddFuelEntryDialog({
                     type="button"
                     variant="link"
                     size="sm"
-                    onClick={requestLocation}
+                    onClick={() => {
+                      if (!location) {
+                        requestLocation();
+                      } else {
+                        setGasStationDialogOpen(true);
+                      }
+                    }}
                   >
                     <span className="text-xs">Find Nearby Gas Stations</span>
                     {loading && <Loader2 className="w-4 h-4 animate-spin" />}
@@ -283,17 +333,38 @@ export function AddFuelEntryDialog({
                   />
                 )}
                 {location && (
-                  <GasStationSelector
-                    value={field.state.value}
-                    geolocation={location}
-                    onChange={field.handleChange}
+                  <NearbyGasStationDialog
+                    open={gasStationDialogOpen}
+                    onOpenChange={setGasStationDialogOpen}
+                    userLocation={location}
+                    onSelect={(value) => {
+                      field.handleChange(
+                        value.displayName.text + ' - ' + value.formattedAddress,
+                      );
+                      setGasStationDialogOpen(false);
+                    }}
                   />
                 )}
               </Field>
             );
           }}
         />
-        <Button type="submit" className="w-full">
+        <form.Field
+          name="notes"
+          children={(field) => {
+            return (
+              <Field className="col-span-2">
+                <FieldLabel htmlFor={field.name}>Notes</FieldLabel>
+                <Textarea
+                  name={field.name}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                />
+              </Field>
+            );
+          }}
+        />
+        <Button type="submit" className="col-span-2">
           Add Fuel Entry
         </Button>
       </form>

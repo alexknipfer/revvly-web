@@ -14,3 +14,6 @@ node_modules
 .tanstack/start/build/client-dist/
 .tanstack/tmp
 dist
+
+# Local Netlify folder
+.netlify

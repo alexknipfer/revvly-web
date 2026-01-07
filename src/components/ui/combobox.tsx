@@ -50,7 +50,7 @@ export function Combobox({ items, label, value, disabled, onChange }: Props) {
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="p-0 w-[var(--radix-popover-trigger-width)]"
+        className="p-0 max-h-20 md:max-h-none w-[var(--radix-popover-trigger-width)]"
         side="bottom"
         align="start"
       >

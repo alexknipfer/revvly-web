@@ -11,8 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthDashboardIndexRouteImport } from './routes/_auth/dashboard/index'
-import { Route as AuthDashboardManageVehiclesIndexRouteImport } from './routes/_auth/dashboard/manage-vehicles/index'
+import { Route as AuthVehiclesIndexRouteImport } from './routes/_auth/vehicles/index'
+import { Route as AuthVehiclesVehicleIdIndexRouteImport } from './routes/_auth/vehicles/$vehicleId/index'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
@@ -23,46 +23,46 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthDashboardIndexRoute = AuthDashboardIndexRouteImport.update({
-  id: '/dashboard/',
-  path: '/dashboard/',
+const AuthVehiclesIndexRoute = AuthVehiclesIndexRouteImport.update({
+  id: '/vehicles/',
+  path: '/vehicles/',
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthDashboardManageVehiclesIndexRoute =
-  AuthDashboardManageVehiclesIndexRouteImport.update({
-    id: '/dashboard/manage-vehicles/',
-    path: '/dashboard/manage-vehicles/',
+const AuthVehiclesVehicleIdIndexRoute =
+  AuthVehiclesVehicleIdIndexRouteImport.update({
+    id: '/vehicles/$vehicleId/',
+    path: '/vehicles/$vehicleId/',
     getParentRoute: () => AuthRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/dashboard': typeof AuthDashboardIndexRoute
-  '/dashboard/manage-vehicles': typeof AuthDashboardManageVehiclesIndexRoute
+  '/vehicles': typeof AuthVehiclesIndexRoute
+  '/vehicles/$vehicleId': typeof AuthVehiclesVehicleIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/dashboard': typeof AuthDashboardIndexRoute
-  '/dashboard/manage-vehicles': typeof AuthDashboardManageVehiclesIndexRoute
+  '/vehicles': typeof AuthVehiclesIndexRoute
+  '/vehicles/$vehicleId': typeof AuthVehiclesVehicleIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_auth': typeof AuthRouteWithChildren
-  '/_auth/dashboard/': typeof AuthDashboardIndexRoute
-  '/_auth/dashboard/manage-vehicles/': typeof AuthDashboardManageVehiclesIndexRoute
+  '/_auth/vehicles/': typeof AuthVehiclesIndexRoute
+  '/_auth/vehicles/$vehicleId/': typeof AuthVehiclesVehicleIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/dashboard/manage-vehicles'
+  fullPaths: '/' | '/vehicles' | '/vehicles/$vehicleId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/dashboard/manage-vehicles'
+  to: '/' | '/vehicles' | '/vehicles/$vehicleId'
   id:
     | '__root__'
     | '/'
     | '/_auth'
-    | '/_auth/dashboard/'
-    | '/_auth/dashboard/manage-vehicles/'
+    | '/_auth/vehicles/'
+    | '/_auth/vehicles/$vehicleId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -86,31 +86,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth/dashboard/': {
-      id: '/_auth/dashboard/'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthDashboardIndexRouteImport
+    '/_auth/vehicles/': {
+      id: '/_auth/vehicles/'
+      path: '/vehicles'
+      fullPath: '/vehicles'
+      preLoaderRoute: typeof AuthVehiclesIndexRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_auth/dashboard/manage-vehicles/': {
-      id: '/_auth/dashboard/manage-vehicles/'
-      path: '/dashboard/manage-vehicles'
-      fullPath: '/dashboard/manage-vehicles'
-      preLoaderRoute: typeof AuthDashboardManageVehiclesIndexRouteImport
+    '/_auth/vehicles/$vehicleId/': {
+      id: '/_auth/vehicles/$vehicleId/'
+      path: '/vehicles/$vehicleId'
+      fullPath: '/vehicles/$vehicleId'
+      preLoaderRoute: typeof AuthVehiclesVehicleIdIndexRouteImport
       parentRoute: typeof AuthRoute
     }
   }
 }
 
 interface AuthRouteChildren {
-  AuthDashboardIndexRoute: typeof AuthDashboardIndexRoute
-  AuthDashboardManageVehiclesIndexRoute: typeof AuthDashboardManageVehiclesIndexRoute
+  AuthVehiclesIndexRoute: typeof AuthVehiclesIndexRoute
+  AuthVehiclesVehicleIdIndexRoute: typeof AuthVehiclesVehicleIdIndexRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
-  AuthDashboardIndexRoute: AuthDashboardIndexRoute,
-  AuthDashboardManageVehiclesIndexRoute: AuthDashboardManageVehiclesIndexRoute,
+  AuthVehiclesIndexRoute: AuthVehiclesIndexRoute,
+  AuthVehiclesVehicleIdIndexRoute: AuthVehiclesVehicleIdIndexRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)

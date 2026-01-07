@@ -1,6 +1,59 @@
-import { v } from 'convex/values';
-import { mutation, query } from './_generated/server';
+import { ConvexError, v } from 'convex/values';
+import { mutation, query, QueryCtx } from './_generated/server';
 import { requireAuth } from './utils/auth';
+import { Id } from './_generated/dataModel';
+
+async function calculateVehicleTotals(
+  ctx: QueryCtx,
+  vehicleId: Id<'vehicles'>,
+  userId: string,
+) {
+  const entries = await ctx.db
+    .query('fuel_entries')
+    .withIndex('by_userid_vehicleid', (q) =>
+      q.eq('userId', userId).eq('vehicleId', vehicleId),
+    )
+    .order('asc')
+    .collect();
+
+  const sortedEntries = [...entries].sort((a, b) => a.odometer - b.odometer);
+
+  let totalGallonsUsed = 0;
+  let totalMilesTracked = 0;
+  let gallonsForMpgCalculation = 0;
+
+  for (let i = 0; i < sortedEntries.length; i++) {
+    const entry = sortedEntries[i];
+    totalGallonsUsed += entry.totalGallons;
+
+    // MPG calculation: only entries after the first one contribute to miles tracked
+    if (i > 0) {
+      const previousEntry = sortedEntries[i - 1];
+      const miles = entry.odometer - previousEntry.odometer;
+
+      if (miles > 0 && entry.mpg) {
+        totalMilesTracked += miles;
+        // Only count gallons from entries that have MPG (i.e., not the first entry)
+        gallonsForMpgCalculation += entry.totalGallons;
+      }
+    }
+  }
+
+  const averageMpg =
+    gallonsForMpgCalculation > 0
+      ? totalMilesTracked / gallonsForMpgCalculation
+      : 0;
+
+  return {
+    totalGallonsUsed,
+    totalMilesTracked,
+    averageMpg,
+    latestOdometer:
+      sortedEntries.length > 0
+        ? sortedEntries[sortedEntries.length - 1].odometer
+        : null,
+  };
+}
 
 export const create = mutation({
   args: {
@@ -36,13 +89,65 @@ export const getAll = query({
       .collect();
 
     return Promise.all(
-      vehicles.map(async (vehicle) => ({
-        ...vehicle,
-        imageUrl: vehicle.imageStorageId
-          ? await ctx.storage.getUrl(vehicle.imageStorageId)
-          : null,
-      })),
+      vehicles.map(async (vehicle) => {
+        return {
+          ...vehicle,
+          imageUrl: vehicle.imageStorageId
+            ? await ctx.storage.getUrl(vehicle.imageStorageId)
+            : null,
+        };
+      }),
     );
+  },
+});
+
+export const getFirst = query({
+  handler: async (ctx) => {
+    const identity = await requireAuth(ctx);
+
+    const vehicle = await ctx.db
+      .query('vehicles')
+      .withIndex('by_userid', (q) => q.eq('userId', identity.subject))
+      .first();
+
+    return vehicle;
+  },
+});
+
+export const getById = query({
+  args: {
+    id: v.id('vehicles'),
+  },
+  handler: async (ctx, { id }) => {
+    const identity = await requireAuth(ctx);
+
+    const vehicle = await ctx.db.get(id);
+
+    if (!vehicle) {
+      throw new ConvexError({ message: 'Vehicle not found' });
+    }
+
+    if (vehicle.userId !== identity.subject) {
+      throw new ConvexError({
+        message: 'You can only view your own vehicles.',
+      });
+    }
+
+    const totals = await calculateVehicleTotals(
+      ctx,
+      vehicle._id,
+      identity.subject,
+    );
+
+    const imageUrl = vehicle.imageStorageId
+      ? await ctx.storage.getUrl(vehicle.imageStorageId)
+      : null;
+
+    return {
+      ...vehicle,
+      imageUrl,
+      ...totals,
+    };
   },
 });
 
