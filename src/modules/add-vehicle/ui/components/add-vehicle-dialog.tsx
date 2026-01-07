@@ -12,6 +12,11 @@ import { DrawerDialog } from '@/components/ui/dialog-drawer';
 import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from '@/components/ui/native-select';
+import { useMediaQuery } from '@/hooks/use-media-query';
 
 import {
   getVehicleMakesServerFn,
@@ -38,6 +43,7 @@ export function AddVehicleDialog({
   onVehicleCreated,
 }: Props) {
   const navigate = useNavigate();
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const form = useForm({
     defaultValues: {
       year: '',
@@ -110,19 +116,40 @@ export function AddVehicleDialog({
           children={(field) => {
             const isInvalid =
               field.state.meta.isTouched && !field.state.meta.isValid;
+            const yearItems = getSupportedVehicleYears().map((year) => ({
+              value: year,
+              label: year,
+            }));
 
             return (
               <Field data-invalid={isInvalid}>
                 <FieldLabel htmlFor={field.name}>Year *</FieldLabel>
-                <Combobox
-                  label="Select Year"
-                  items={getSupportedVehicleYears().map((year) => ({
-                    value: year,
-                    label: year,
-                  }))}
-                  value={field.state.value}
-                  onChange={field.handleChange}
-                />
+                {isMobile ? (
+                  <NativeSelect
+                    name={field.name}
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    disabled={false}
+                    aria-invalid={isInvalid}
+                    className="w-full"
+                  >
+                    <NativeSelectOption value="">
+                      Select Year
+                    </NativeSelectOption>
+                    {yearItems.map((item) => (
+                      <NativeSelectOption key={item.value} value={item.value}>
+                        {item.label}
+                      </NativeSelectOption>
+                    ))}
+                  </NativeSelect>
+                ) : (
+                  <Combobox
+                    label="Select Year"
+                    items={yearItems}
+                    value={field.state.value}
+                    onChange={field.handleChange}
+                  />
+                )}
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
               </Field>
             );
@@ -139,20 +166,42 @@ export function AddVehicleDialog({
           children={(field) => {
             const isInvalid =
               field.state.meta.isTouched && !field.state.meta.isValid;
+            const makeItems = vehicleMakes.map((make) => ({
+              value: make.name,
+              label: make.name,
+            }));
+            const isDisabled = selectedYear === '';
 
             return (
               <Field data-invalid={isInvalid}>
                 <FieldLabel htmlFor={field.name}>Make *</FieldLabel>
-                <Combobox
-                  label="Select Make"
-                  items={vehicleMakes.map((make) => ({
-                    value: make.name,
-                    label: make.name,
-                  }))}
-                  value={field.state.value}
-                  onChange={field.handleChange}
-                  disabled={selectedYear === ''}
-                />
+                {isMobile ? (
+                  <NativeSelect
+                    name={field.name}
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    disabled={isDisabled}
+                    aria-invalid={isInvalid}
+                    className="w-full"
+                  >
+                    <NativeSelectOption value="">
+                      Select Make
+                    </NativeSelectOption>
+                    {makeItems.map((item) => (
+                      <NativeSelectOption key={item.value} value={item.value}>
+                        {item.label}
+                      </NativeSelectOption>
+                    ))}
+                  </NativeSelect>
+                ) : (
+                  <Combobox
+                    label="Select Make"
+                    items={makeItems}
+                    value={field.state.value}
+                    onChange={field.handleChange}
+                    disabled={isDisabled}
+                  />
+                )}
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
               </Field>
             );
@@ -163,20 +212,42 @@ export function AddVehicleDialog({
           children={(field) => {
             const isInvalid =
               field.state.meta.isTouched && !field.state.meta.isValid;
+            const modelItems = vehicleModels.map(({ name }) => ({
+              value: name,
+              label: name,
+            }));
+            const isDisabled = selectedMake === '';
 
             return (
               <Field data-invalid={isInvalid}>
                 <FieldLabel htmlFor={field.name}>Model *</FieldLabel>
-                <Combobox
-                  label="Select Model"
-                  items={vehicleModels.map(({ name }) => ({
-                    value: name,
-                    label: name,
-                  }))}
-                  value={field.state.value}
-                  onChange={field.handleChange}
-                  disabled={selectedMake === ''}
-                />
+                {isMobile ? (
+                  <NativeSelect
+                    name={field.name}
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    disabled={isDisabled}
+                    aria-invalid={isInvalid}
+                    className="w-full"
+                  >
+                    <NativeSelectOption value="">
+                      Select Model
+                    </NativeSelectOption>
+                    {modelItems.map((item) => (
+                      <NativeSelectOption key={item.value} value={item.value}>
+                        {item.label}
+                      </NativeSelectOption>
+                    ))}
+                  </NativeSelect>
+                ) : (
+                  <Combobox
+                    label="Select Model"
+                    items={modelItems}
+                    value={field.state.value}
+                    onChange={field.handleChange}
+                    disabled={isDisabled}
+                  />
+                )}
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
               </Field>
             );
