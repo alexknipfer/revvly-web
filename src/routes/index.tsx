@@ -8,13 +8,8 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-// import {
-//   SignedIn,
-//   SignedOut,
-//   SignInButton,
-//   UserButton,
-// } from '@clerk/tanstack-react-start';
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { SignInButton } from '@clerk/tanstack-react-start';
+import { createFileRoute } from '@tanstack/react-router';
 import {
   Fuel,
   BarChart3,
@@ -105,7 +100,18 @@ function Home() {
                   </a>
                 </div>
                 <div className="flex items-center space-x-3">
+                  <SignInButton forceRedirectUrl="/vehicles">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full transition-all duration-200 hover:scale-105 hover:shadow-lg"
+                    >
+                      Sign In
+                    </Button>
+                  </SignInButton>
+
                   {/* <SignedIn>
+
                     <UserButton />
                   </SignedIn>
                   <SignedOut>
