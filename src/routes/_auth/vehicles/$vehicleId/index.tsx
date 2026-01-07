@@ -16,7 +16,7 @@ export const Route = createFileRoute('/_auth/vehicles/$vehicleId/')({
         }),
       ),
       context.queryClient.ensureQueryData(
-        convexQuery(api.userVehicles.getById, {
+        convexQuery(api.vehicles.getById, {
           id: params.vehicleId as Id<'vehicles'>,
         }),
       ),

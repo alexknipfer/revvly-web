@@ -66,14 +66,14 @@ export const Route = createFileRoute('/_auth')({
   },
   loader: async ({ context }) => {
     await context.queryClient.prefetchQuery(
-      convexQuery(api.userVehicles.getAll, {}),
+      convexQuery(api.vehicles.getAll, {}),
     );
   },
 });
 
 function RouteComponent() {
   const { data: vehicles } = useSuspenseQuery(
-    convexQuery(api.userVehicles.getAll, {}),
+    convexQuery(api.vehicles.getAll, {}),
   );
 
   const [addVehicleOpen, setAddVehicleOpen] = useState(false);

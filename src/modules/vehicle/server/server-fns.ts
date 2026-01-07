@@ -92,7 +92,7 @@ export const uploadVehicleImageServerFn = createServerFn({
     }
 
     const [updateError] = await tryCatch(
-      convexClient.mutation(api.userVehicles.update, {
+      convexClient.mutation(api.vehicles.update, {
         id: vehicleId as Id<'vehicles'>,
         update: {
           imageStorageId: uploadResult.storageId,
