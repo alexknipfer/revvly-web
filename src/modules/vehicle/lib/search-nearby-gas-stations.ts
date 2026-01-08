@@ -1,6 +1,6 @@
-import { googlePlacesApiClient } from '@/lib/apis';
-import { tryCatch } from '@/lib/utils';
-import { GooglePlacesNearbyResponse } from '@/types/google';
+import { googlePlacesApiClient } from '@/modules/core/lib/apis';
+import { tryCatch } from '@/modules/core/lib/utils';
+import { GooglePlacesNearbyResponse } from '@/modules/core/types/google';
 
 export async function searchNearbyGasStations(data: {
   latitude: number;

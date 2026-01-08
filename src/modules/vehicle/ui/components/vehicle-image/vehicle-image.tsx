@@ -1,7 +1,7 @@
 import { Car } from 'lucide-react';
 
 import { AspectRatio } from '@/components/ui/aspect-ratio';
-import { VehicleWithImage } from '@/types/vehicles';
+import { VehicleWithImage } from '@/modules/core/types/vehicles';
 
 import { VehicleImageUpload } from './vehicle-image-upload';
 import { VehicleImageContext } from '@/modules/vehicle/ui/components/vehicle-image/context';
