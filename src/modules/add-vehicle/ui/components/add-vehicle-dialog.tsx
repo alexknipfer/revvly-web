@@ -65,6 +65,7 @@ export function AddVehicleDialog({
   const { data: vehicleMakes = [] } = useQuery({
     queryKey: ['vehicle-makes'],
     queryFn: getVehicleMakes,
+    enabled: !!selectedYear,
   });
   const getVehicleModels = useServerFn(getVehicleModelsForMakeServerFn);
   const { data: vehicleModels = [] } = useQuery({
