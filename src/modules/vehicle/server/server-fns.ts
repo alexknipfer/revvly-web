@@ -153,7 +153,7 @@ export const uploadFuelEntryReceiptServerFn = createServerFn({
 
     const [optimizeError, optimizedBuffer] = await tryCatch(
       sharp(buffer)
-        .resize(2048, 2048, {
+        .resize(1024, 1024, {
           fit: 'inside',
           withoutEnlargement: true,
         })
