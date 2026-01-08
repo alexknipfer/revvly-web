@@ -7,7 +7,7 @@ import { useConvexMutation } from '@convex-dev/react-query';
 import { useServerFn } from '@tanstack/react-start';
 
 import { Combobox } from '@/components/ui/combobox';
-import { getSupportedVehicleYears } from '@/lib/utils';
+import { getSupportedVehicleYears } from '@/modules/core/lib/utils';
 import { DrawerDialog } from '@/components/ui/dialog-drawer';
 import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';

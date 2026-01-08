@@ -7,7 +7,7 @@ import { DrawerDialog } from '@/components/ui/dialog-drawer';
 import z from 'zod';
 import { api } from 'convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
-import { defaultTo } from '@/lib/utils';
+import { defaultTo } from '@/modules/core/lib/utils';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';

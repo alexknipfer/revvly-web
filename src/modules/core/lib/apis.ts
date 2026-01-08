@@ -1,6 +1,6 @@
 import ky from 'ky';
 
-import { appConfig } from '@/lib/appConfig';
+import { appConfig } from '@/modules/core/lib/appConfig';
 
 export const googlePlacesApiClient = ky.create({
   prefixUrl: 'https://places.googleapis.com/v1/places',

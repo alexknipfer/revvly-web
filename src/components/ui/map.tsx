@@ -16,7 +16,7 @@ import {
 import { createPortal } from 'react-dom';
 import { X, Minus, Plus, Locate, Maximize, Loader2 } from 'lucide-react';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/modules/core/lib/utils';
 import React from 'react';
 
 type MapContextValue = {
