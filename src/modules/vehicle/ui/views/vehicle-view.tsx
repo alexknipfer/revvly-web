@@ -13,7 +13,7 @@ import { VehicleActionsMenu } from '../components/vehicle-actions-menu';
 import { VehicleTimeline } from '../components/vehicle-timeline';
 import { VehicleImage } from '../components/vehicle-image/vehicle-image';
 
-const routeApi = getRouteApi('/_auth/vehicles/$vehicleId/');
+const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
 
 interface StatItemProps {
   icon: React.ReactNode;

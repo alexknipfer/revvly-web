@@ -4,7 +4,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { api } from 'convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
 
-export const Route = createFileRoute('/_auth/vehicles/$vehicleId/')({
+export const Route = createFileRoute('/_auth/vehicles/$vehicleId')({
   component: RouteComponent,
   // TODO: Add a loading state
   pendingComponent: () => <div>Loading vehicle data...</div>,

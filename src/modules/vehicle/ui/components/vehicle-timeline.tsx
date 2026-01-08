@@ -14,7 +14,7 @@ import {
   ItemTitle,
 } from '@/components/ui/item';
 
-const routeApi = getRouteApi('/_auth/vehicles/$vehicleId/');
+const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
 
 export function VehicleTimeline() {
   const { vehicleId } = routeApi.useParams();
@@ -67,4 +67,3 @@ export function VehicleTimeline() {
 
   return <Timeline items={timelineItems} />;
 }
-

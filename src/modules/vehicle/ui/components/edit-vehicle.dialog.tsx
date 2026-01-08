@@ -20,7 +20,7 @@ interface Props {
   onSuccess?: () => void;
 }
 
-const routeApi = getRouteApi('/_auth/vehicles/$vehicleId/');
+const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
 
 const formSchema = z.object({
   name: z.string(),

@@ -27,7 +27,7 @@ import { EditVehicleDialog } from './edit-vehicle.dialog';
 import { api } from 'convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
 
-const routeApi = getRouteApi('/_auth/vehicles/$vehicleId/');
+const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
 
 export function VehicleActionsMenu() {
   const { vehicleId } = routeApi.useParams();
