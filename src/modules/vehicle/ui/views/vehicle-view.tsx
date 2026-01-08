@@ -4,7 +4,6 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { getRouteApi } from '@tanstack/react-router';
 import { Gauge, Milestone, Fuel } from 'lucide-react';
 
-import { VehicleImage } from '@/modules/vehicle/ui/components/vehicle-image/vehicle-image';
 import { Separator } from '@/components/ui/separator';
 import { Id } from 'convex/_generated/dataModel';
 import { AddFuelEntryDialog } from '@/modules/fuel-entry/ui/components/add-fuel-entry-dialog';
@@ -12,6 +11,7 @@ import { AddFuelEntryDialog } from '@/modules/fuel-entry/ui/components/add-fuel-
 import { vehicleByIdQueryOptions } from '../../lib/query-options';
 import { VehicleActionsMenu } from '../components/vehicle-actions-menu';
 import { VehicleTimeline } from '../components/vehicle-timeline';
+import { VehicleImage } from '../components/vehicle-image/vehicle-image';
 
 const routeApi = getRouteApi('/_auth/vehicles/$vehicleId/');
 
