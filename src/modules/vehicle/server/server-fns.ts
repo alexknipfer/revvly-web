@@ -1,10 +1,15 @@
-import { getAuthConvexClient } from '@/lib/auth';
-import { tryCatch } from '@/lib/utils';
 import { createServerFn } from '@tanstack/react-start';
-import { api } from 'convex/_generated/api';
-import { Id } from 'convex/_generated/dataModel';
 import ky from 'ky';
 import sharp from 'sharp';
+import { chat } from '@tanstack/ai';
+import z from 'zod';
+
+import { api } from 'convex/_generated/api';
+import { Id } from 'convex/_generated/dataModel';
+import { tryCatch } from '@/modules/core/lib/utils';
+import { getAuthConvexClient } from '@/modules/core/lib/auth';
+import { anthropicHaikuAdapter } from '@/modules/core/lib/anthropic';
+import { fuelTypeSchema } from '@/modules/core/types/vehicles';
 
 const MAX_FILE_SIZE = 8 * 1024 * 1024;
 
@@ -106,4 +111,97 @@ export const uploadVehicleImageServerFn = createServerFn({
     }
 
     return { success: true, storageId: uploadResult.storageId };
+  });
+
+const ReceiptOutputSchema = z.object({
+  error: z.string().optional(),
+  gasStationNameWithAddress: z.string().optional(),
+  totalGallons: z.number().optional(),
+  costPerGallon: z.number().optional(),
+  typeOfFuel: fuelTypeSchema.optional(),
+});
+
+type ReceiptOutput = z.infer<typeof ReceiptOutputSchema>;
+
+export const uploadFuelEntryReceiptServerFn = createServerFn({
+  method: 'POST',
+})
+  .inputValidator((data) => {
+    if (!(data instanceof FormData)) {
+      throw new Error('Expected FormData');
+    }
+
+    const image = data.get('image');
+
+    if (!(image instanceof File) || !image.type.startsWith('image/')) {
+      throw new Error('Expected image file');
+    }
+
+    if (image.size > MAX_FILE_SIZE) {
+      throw new Error('Image file size must be no larger than 5MB');
+    }
+
+    return {
+      image,
+    };
+  })
+  .handler(async ({ data }) => {
+    const { image } = data;
+
+    const arrayBuffer = await image.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    const [optimizeError, optimizedBuffer] = await tryCatch(
+      sharp(buffer)
+        .resize(2048, 2048, {
+          fit: 'inside',
+          withoutEnlargement: true,
+        })
+        .jpeg({
+          quality: 90,
+          mozjpeg: true,
+        })
+        .toBuffer(),
+    );
+
+    if (optimizeError) {
+      console.error('Failed to optimize image: ', optimizeError);
+      throw new Error('Failed to extract fuel entry details from receipt');
+    }
+
+    const [error, receiptOutput] = await tryCatch<ReceiptOutput>(
+      chat({
+        adapter: anthropicHaikuAdapter(),
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                content:
+                  'Extract the gas station name with address in the format of {name - address}, total gallons, cost per gallon, type of fuel from the image of a receipt. If the image is not a receipt or you cannot parse any of these details supply a value for error.',
+              },
+              {
+                type: 'image',
+                source: {
+                  type: 'data',
+                  value: optimizedBuffer.toString('base64'),
+                },
+              },
+            ],
+          },
+        ],
+        outputSchema: ReceiptOutputSchema,
+      }),
+    );
+
+    if (error) {
+      console.error(
+        'Failed to extract fuel entry details from receipt: ',
+        error,
+      );
+      throw new Error('Failed to extract fuel entry details from receipt');
+    }
+
+    return receiptOutput;
   });

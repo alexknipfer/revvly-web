@@ -1,17 +1,14 @@
-import { useState } from 'react';
-import { toast } from 'sonner';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { getRouteApi } from '@tanstack/react-router';
 import { Gauge, Milestone, Fuel } from 'lucide-react';
 
 import { Separator } from '@/components/ui/separator';
-import { Id } from 'convex/_generated/dataModel';
-import { AddFuelEntryDialog } from '@/modules/fuel-entry/ui/components/add-fuel-entry-dialog';
 
 import { vehicleByIdQueryOptions } from '../../lib/query-options';
 import { VehicleActionsMenu } from '../components/vehicle-actions-menu';
 import { VehicleTimeline } from '../components/vehicle-timeline';
 import { VehicleImage } from '../components/vehicle-image/vehicle-image';
+import { AddFuelEntryMenu } from '../components/fuel-entry/add-fuel-entry-menu';
 
 const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
 
@@ -40,7 +37,6 @@ function StatItem({ icon, label, value, description }: StatItemProps) {
 
 export function VehicleView() {
   const { vehicleId } = routeApi.useParams();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const { data: vehicle } = useSuspenseQuery(
     vehicleByIdQueryOptions({ vehicleId }),
@@ -56,17 +52,20 @@ export function VehicleView() {
         </div>
       </div>
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div className="flex justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-3xl font-bold">
                 {vehicle.name || vehicle.model}
               </h1>
-              <VehicleActionsMenu />
             </div>
             <p className="text-muted-foreground text-lg">
               {vehicle.make} {vehicle.model} {vehicle.year}
             </p>
+          </div>
+          <div className="space-x-2">
+            <VehicleActionsMenu />
+            <AddFuelEntryMenu />
           </div>
         </div>
         <div className="bg-card border rounded-lg shadow-sm p-4 sm:p-6">
@@ -105,15 +104,6 @@ export function VehicleView() {
         </div>
         <VehicleTimeline />
       </div>
-      <AddFuelEntryDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        vehicleId={vehicleId as Id<'vehicles'>}
-        latestOdometer={vehicle.latestOdometer}
-        onFuelEntryCreated={() =>
-          toast.success('Fuel entry added successfully')
-        }
-      />
     </div>
   );
 }

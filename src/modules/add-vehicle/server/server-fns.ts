@@ -1,7 +1,10 @@
-import { vpicApiClient } from '@/lib/apis';
-import { tryCatch } from '@/lib/utils';
+import { vpicApiClient } from '@/modules/core/lib/apis';
+import { tryCatch } from '@/modules/core/lib/utils';
 import { createServerFn } from '@tanstack/react-start';
-import { VehicleMakesResponse, VehicleModelsResponse } from '@/types/vpic';
+import {
+  VehicleMakesResponse,
+  VehicleModelsResponse,
+} from '@/modules/core/types/vpic';
 import z from 'zod';
 
 export const getVehicleMakesServerFn = createServerFn().handler(async () => {

@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 import { useConvexMutation } from '@convex-dev/react-query';
 import { useMutation } from '@tanstack/react-query';
 import { getRouteApi, useRouter } from '@tanstack/react-router';
-import { Ellipsis, Pencil, Trash } from 'lucide-react';
+import { Pencil, Trash } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -32,8 +32,9 @@ const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
 export function VehicleActionsMenu() {
   const { vehicleId } = routeApi.useParams();
   const router = useRouter();
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [activeDialog, setActiveDialog] = useState<'edit' | 'delete' | null>(
+    null,
+  );
 
   const convexDeleteVehicleMutation = useConvexMutation(
     api.vehicles.deleteById,
@@ -41,7 +42,7 @@ export function VehicleActionsMenu() {
   const deleteVehicleMutation = useMutation({
     mutationFn: convexDeleteVehicleMutation,
     onSuccess: () => {
-      setIsDeleteDialogOpen(false);
+      setActiveDialog(null);
       toast.success('Vehicle deleted successfully');
       router.navigate({ to: '/vehicles' });
     },
@@ -51,19 +52,19 @@ export function VehicleActionsMenu() {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="shrink-0">
-            <Ellipsis className="size-4" />
+          <Button variant="outline" className="shrink-0">
+            <Pencil className="size-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
-          <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
+          <DropdownMenuItem onClick={() => setActiveDialog('edit')}>
             <Pencil className="size-4" />
             Edit Vehicle
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             variant="destructive"
-            onClick={() => setIsDeleteDialogOpen(true)}
+            onClick={() => setActiveDialog('delete')}
           >
             <Trash className="size-4" />
             Delete Vehicle
@@ -71,16 +72,17 @@ export function VehicleActionsMenu() {
         </DropdownMenuContent>
       </DropdownMenu>
       <EditVehicleDialog
-        open={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
+        open={activeDialog === 'edit'}
+        onOpenChange={(open) => setActiveDialog(open ? 'edit' : null)}
         onSuccess={() => {
-          setIsEditDialogOpen(false);
+          setActiveDialog(null);
           toast.success('Vehicle updated successfully');
         }}
       />
+
       <AlertDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
+        open={activeDialog === 'delete'}
+        onOpenChange={(open) => setActiveDialog(open ? 'delete' : null)}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
