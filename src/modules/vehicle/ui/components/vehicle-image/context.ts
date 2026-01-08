@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import { VehicleWithImage } from '@/types/vehicles';
+import { VehicleWithImage } from '@/modules/core/types/vehicles';
 
 interface VehicleImageContextValue {
   vehicle: VehicleWithImage;

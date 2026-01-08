@@ -25,6 +25,7 @@ interface Props {
   description: string;
   footerContent?: React.ReactNode;
   onOpenChange?: (open: boolean) => void;
+  hideHeaderOnMobile?: boolean;
 }
 
 export function DrawerDialog({
@@ -34,6 +35,7 @@ export function DrawerDialog({
   description,
   footerContent,
   onOpenChange,
+  hideHeaderOnMobile = false,
 }: PropsWithChildren<Props>) {
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
@@ -59,7 +61,11 @@ export function DrawerDialog({
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="px-2">
-        <DrawerHeader className="text-left">
+        <DrawerHeader
+          className={`text-left ${
+            hideHeaderOnMobile ? 'sr-only md:not-sr-only' : ''
+          }`}
+        >
           <DrawerTitle>{title}</DrawerTitle>
           <DrawerDescription>{description}</DrawerDescription>
         </DrawerHeader>
