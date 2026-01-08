@@ -178,8 +178,13 @@ export const uploadFuelEntryReceiptServerFn = createServerFn({
             content: [
               {
                 type: 'text',
-                content:
-                  'Extract the gas station name with address in the format of {name - address}, total gallons, cost per gallon, type of fuel from the image of a receipt. If the image is not a receipt or you cannot parse any of these details supply a value for error.',
+                content: `
+                  You are an expert at extracting fuel entry details from receipts.
+                  You will be given an image of a receipt and you will need to extract the gas station name with address, total gallons, cost per gallon, type of fuel.
+                  If you are only able to extract some of the details, only return the details you are able to extract.
+                  The gas station name with address should be in the format of {name - address}. If you are not able to extract the address, only return the name.
+                  If you are only able to get an address, don't return a gas station.
+                `,
               },
               {
                 type: 'image',
