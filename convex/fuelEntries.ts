@@ -2,6 +2,7 @@ import { v } from 'convex/values';
 
 import { mutation, query } from './_generated/server';
 import { requireAuth, verifyVerhicleOwnership } from './utils/auth';
+import dayjs from 'dayjs';
 
 export const create = mutation({
   args: {
@@ -76,17 +77,24 @@ export const create = mutation({
 export const getAll = query({
   args: {
     vehicleId: v.id('vehicles'),
+    startDate: v.optional(v.string()),
   },
-  handler: async (ctx, { vehicleId }) => {
+  handler: async (
+    ctx,
+    { vehicleId, startDate = dayjs().subtract(1, 'year').toISOString() },
+  ) => {
     const identity = await requireAuth(ctx);
     await verifyVerhicleOwnership({ ctx, vehicleId, identity });
 
-    return await ctx.db
+    const results = await ctx.db
       .query('fuel_entries')
       .withIndex('by_userid_vehicleid', (q) =>
         q.eq('userId', identity.subject).eq('vehicleId', vehicleId),
       )
+      .filter((q) => q.gte(q.field('date'), startDate))
       .order('desc')
       .collect();
+
+    return results;
   },
 });
