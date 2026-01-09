@@ -104,7 +104,7 @@ export function VehicleView() {
         <Tabs defaultValue="overview" className="w-full">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="history">History</TabsTrigger>
+            <TabsTrigger value="vehicle-logs">Vehicle Logs</TabsTrigger>
           </TabsList>
           <TabsContent value="overview" className="mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -122,7 +122,7 @@ export function VehicleView() {
               />
             </div>
           </TabsContent>
-          <TabsContent value="history" className="mt-6">
+          <TabsContent value="vehicle-logs" className="mt-6">
             <VehicleTimeline />
           </TabsContent>
         </Tabs>
