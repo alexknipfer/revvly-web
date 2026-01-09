@@ -31,8 +31,33 @@ function formatDateForChart(dateString: string): string {
 }
 
 export function MpgTrendChart({ data }: MpgTrendChartProps) {
-  const chartData = data
-    .filter((entry) => entry.mpg != null && !isNaN(entry.mpg))
+  const validEntries = data.filter(
+    (entry) => entry.mpg != null && !isNaN(entry.mpg),
+  );
+
+  // Group entries by date and average MPG for same-day entries
+  const groupedByDate = validEntries.reduce<
+    Record<string, { date: string; mpg: number; count: number }>
+  >((acc, entry) => {
+    const dateKey = dayjs(entry.date).startOf('day').toISOString();
+    if (!acc[dateKey]) {
+      acc[dateKey] = {
+        date: entry.date,
+        mpg: 0,
+        count: 0,
+      };
+    }
+    acc[dateKey].mpg += entry.mpg;
+    acc[dateKey].count += 1;
+
+    return acc;
+  }, {});
+
+  const chartData = Object.values(groupedByDate)
+    .map((entry) => ({
+      date: entry.date,
+      mpg: entry.mpg / entry.count,
+    }))
     .sort((a, b) => dayjs(a.date).valueOf() - dayjs(b.date).valueOf())
     .map((entry) => ({
       ...entry,
@@ -77,7 +102,7 @@ export function MpgTrendChart({ data }: MpgTrendChartProps) {
                   <ChartTooltipContent
                     hideLabel
                     indicator="line"
-                    formatter={(value) => [`${value} MPG`, 'MPG']}
+                    formatter={(value) => `${Number(value).toFixed(1)} MPG`}
                   />
                 }
               />

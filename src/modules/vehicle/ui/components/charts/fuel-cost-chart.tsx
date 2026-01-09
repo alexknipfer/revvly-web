@@ -36,20 +36,20 @@ export function FuelCostChart({ data }: FuelCostChartProps) {
   );
 
   // Group entries by date and sum costs for same-day entries
-  const groupedByDate = validEntries.reduce(
-    (acc, entry) => {
-      const dateKey = dayjs(entry.date).startOf('day').toISOString();
-      if (!acc[dateKey]) {
-        acc[dateKey] = {
-          date: entry.date,
-          cost: 0,
-        };
-      }
-      acc[dateKey].cost += entry.cost;
-      return acc;
-    },
-    {} as Record<string, { date: string; cost: number }>,
-  );
+  const groupedByDate = validEntries.reduce<
+    Record<string, { date: string; cost: number }>
+  >((acc, entry) => {
+    const dateKey = dayjs(entry.date).startOf('day').toISOString();
+    if (!acc[dateKey]) {
+      acc[dateKey] = {
+        date: entry.date,
+        cost: 0,
+      };
+    }
+    acc[dateKey].cost += entry.cost;
+
+    return acc;
+  }, {});
 
   const chartData = Object.values(groupedByDate)
     .sort((a, b) => dayjs(a.date).valueOf() - dayjs(b.date).valueOf())
@@ -96,10 +96,7 @@ export function FuelCostChart({ data }: FuelCostChartProps) {
                   <ChartTooltipContent
                     hideLabel
                     indicator="line"
-                    formatter={(value) => [
-                      `$${Number(value).toFixed(2)}`,
-                      'Cost',
-                    ]}
+                    formatter={(value) => `$${Number(value).toFixed(2)}`}
                   />
                 }
               />
