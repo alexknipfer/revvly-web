@@ -33,6 +33,7 @@ function formatDateForChart(dateString: string): string {
 export function MpgTrendChart({ data }: MpgTrendChartProps) {
   const chartData = data
     .filter((entry) => entry.mpg != null && !isNaN(entry.mpg))
+    .sort((a, b) => dayjs(a.date).valueOf() - dayjs(b.date).valueOf())
     .map((entry) => ({
       ...entry,
       dateDisplay: formatDateForChart(entry.date),
