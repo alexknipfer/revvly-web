@@ -9,3 +9,10 @@ export const anthropicHaikuAdapter = createServerOnlyFn(() => {
     serverAppConfig().anthropic.apiKey,
   );
 });
+
+export const anthropicSonnetAdapter = createServerOnlyFn(() => {
+  return createAnthropicChat(
+    'claude-sonnet-4-5',
+    serverAppConfig().anthropic.apiKey,
+  );
+});

@@ -8,7 +8,7 @@ import { api } from 'convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
 import { tryCatch } from '@/modules/core/lib/utils';
 import { getAuthConvexClient } from '@/modules/core/lib/auth';
-import { anthropicHaikuAdapter } from '@/modules/core/lib/anthropic';
+import { anthropicSonnetAdapter } from '@/modules/core/lib/anthropic';
 import { fuelTypeSchema } from '@/modules/core/types/vehicles';
 
 const MAX_FILE_SIZE = 8 * 1024 * 1024;
@@ -171,7 +171,7 @@ export const uploadFuelEntryReceiptServerFn = createServerFn({
 
     const [error, receiptOutput] = await tryCatch<ReceiptOutput>(
       chat({
-        adapter: anthropicHaikuAdapter(),
+        adapter: anthropicSonnetAdapter(),
         messages: [
           {
             role: 'user',
