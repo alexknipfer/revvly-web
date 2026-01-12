@@ -25,6 +25,6 @@ export default defineSchema({
     notes: v.optional(v.string()),
     vehicleId: v.id('vehicles'),
     userId: v.string(),
-    missedFuelup: v.optional(v.boolean()),
+    missedFuelup: v.boolean(),
   }).index('by_userid_vehicleid', ['userId', 'vehicleId']),
 });
