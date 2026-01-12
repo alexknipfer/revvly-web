@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, X, Loader2 } from 'lucide-react';
 
@@ -28,10 +28,21 @@ export function UploadReceiptDialog({ open, onOpenChange, onComplete }: Props) {
   const [error, setError] = useState<string | null>(null);
 
   const handleRemoveFile = () => {
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
     setSelectedFile(null);
     setPreviewUrl(null);
     setError(null);
   };
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   const uploadFuelEntryReceipt = useServerFn(uploadFuelEntryReceiptServerFn);
   const { mutate: uploadFuelEntryReceiptMutation, isPending: isProcessing } =
@@ -59,35 +70,12 @@ export function UploadReceiptDialog({ open, onOpenChange, onComplete }: Props) {
       },
     });
 
-  const handleFileSelect = (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      setError('Please select an image file');
-      return;
-    }
-
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
-      setError('File size must be no larger than 5MB');
-      return;
-    }
-
-    setError(null);
-    setSelectedFile(file);
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        setPreviewUrl(reader.result);
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      'image/*': ['.jpeg', '.jpg', '.png', '.webp'],
+      'image/jpeg': ['.jpeg', '.jpg'],
+      'image/png': ['.png'],
     },
-    maxSize: 5 * 1024 * 1024, // 5MB
+    maxSize: 10 * 1024 * 1024,
     onDrop: (acceptedFiles, rejectedFiles) => {
       if (rejectedFiles.length > 0) {
         const rejection = rejectedFiles[0];
@@ -106,7 +94,9 @@ export function UploadReceiptDialog({ open, onOpenChange, onComplete }: Props) {
       const file = acceptedFiles[0];
 
       if (file) {
-        handleFileSelect(file);
+        setError(null);
+        setSelectedFile(file);
+        setPreviewUrl(URL.createObjectURL(file));
       }
     },
   });
