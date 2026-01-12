@@ -13,6 +13,7 @@ import {
   ItemDescription,
   ItemTitle,
 } from '@/components/ui/item';
+import { Badge } from '@/components/ui/badge';
 
 const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
 
@@ -39,7 +40,14 @@ export function VehicleTimeline() {
         content: (
           <Item className="p-0">
             <ItemContent>
-              <ItemTitle>{formattedDate}</ItemTitle>
+              <div className="flex items-center gap-2">
+                <ItemTitle>{formattedDate}</ItemTitle>
+                {entry.missedFuelup && (
+                  <Badge variant="outline" className="text-xs">
+                    Missed Fuel Up
+                  </Badge>
+                )}
+              </div>
               <ItemDescription>
                 <span className="mr-2.5">
                   {entry.totalGallons.toFixed(2)} gal

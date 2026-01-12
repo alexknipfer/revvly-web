@@ -20,6 +20,7 @@ export const create = mutation({
     location: v.optional(v.string()),
     notes: v.optional(v.string()),
     vehicleId: v.id('vehicles'),
+    missedFuelup: v.boolean(),
   },
   handler: async (
     ctx,
@@ -33,25 +34,28 @@ export const create = mutation({
       location,
       notes,
       vehicleId,
+      missedFuelup,
     },
   ) => {
     const identity = await requireAuth(ctx);
     await verifyVerhicleOwnership({ ctx, vehicleId, identity });
 
-    const latestFuelEntry = await ctx.db
-      .query('fuel_entries')
-      .withIndex('by_userid_vehicleid', (q) =>
-        q.eq('userId', identity.subject).eq('vehicleId', vehicleId),
-      )
-      .order('desc')
-      .first();
-
     let mpg: number | undefined = undefined;
     let totalMiles = 0;
 
-    if (latestFuelEntry) {
-      mpg = (odometer - latestFuelEntry.odometer) / totalGallons;
-      totalMiles = odometer - latestFuelEntry.odometer;
+    if (!missedFuelup) {
+      const latestFuelEntry = await ctx.db
+        .query('fuel_entries')
+        .withIndex('by_userid_vehicleid', (q) =>
+          q.eq('userId', identity.subject).eq('vehicleId', vehicleId),
+        )
+        .order('desc')
+        .first();
+
+      if (latestFuelEntry) {
+        mpg = (odometer - latestFuelEntry.odometer) / totalGallons;
+        totalMiles = odometer - latestFuelEntry.odometer;
+      }
     }
 
     const totalCost = costPerGallon * totalGallons;
@@ -70,6 +74,7 @@ export const create = mutation({
       vehicleId,
       notes,
       userId: identity.subject,
+      missedFuelup,
     });
   },
 });
