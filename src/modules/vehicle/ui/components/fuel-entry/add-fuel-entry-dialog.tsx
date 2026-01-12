@@ -13,6 +13,7 @@ import { DrawerDialog } from '@/components/ui/dialog-drawer';
 import { Button } from '@/components/ui/button';
 import {
   Field,
+  FieldContent,
   FieldDescription,
   FieldError,
   FieldLabel,
@@ -27,12 +28,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { vehicleByIdQueryOptions } from '../../../lib/query-options';
 import { fuelTypeSchema, fuelLevelSchema } from '@/modules/core/types/vehicles';
 import { defaultTo } from '@/modules/core/lib/utils';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const formSchema = z.object({
   date: z.date(),
   odometer: z.number().min(1, { error: 'Odometer is required' }),
   costPerGallon: z.string().min(1, { error: 'Cost per gallon is required' }),
   totalGallons: z.string().min(1, { error: 'Total gallons is required' }),
+  missedFuelup: z.boolean(),
   type: fuelTypeSchema,
   level: fuelLevelSchema,
   location: z.string(),
@@ -74,6 +77,7 @@ export function AddFuelEntryDialog({
     notes: '',
     type: 'regular',
     level: 'full',
+    missedFuelup: false,
   };
 
   const form = useForm({
@@ -131,6 +135,7 @@ export function AddFuelEntryDialog({
       level: data.level,
       location: data.location || undefined,
       vehicleId: vehicleId as Id<'vehicles'>,
+      missedFuelup: data.missedFuelup,
     });
   };
 
@@ -193,7 +198,17 @@ export function AddFuelEntryDialog({
 
             return (
               <Field data-invalid={isInvalid}>
-                <FieldLabel htmlFor={field.name}>Odometer *</FieldLabel>
+                <FieldLabel
+                  htmlFor={field.name}
+                  className="flex items-center justify-between"
+                >
+                  <span>Odometer *</span>
+                  {vehicle?.latestOdometer && (
+                    <span className="text-xs text-muted-foreground font-normal">
+                      Last: {vehicle.latestOdometer.toLocaleString()}
+                    </span>
+                  )}
+                </FieldLabel>
                 <Input
                   name={field.name}
                   type="number"
@@ -205,11 +220,6 @@ export function AddFuelEntryDialog({
                   aria-invalid={isInvalid}
                 />
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                {vehicle?.latestOdometer && (
-                  <FieldDescription>
-                    Last Odometer: {vehicle.latestOdometer.toLocaleString()}
-                  </FieldDescription>
-                )}
               </Field>
             );
           }}
@@ -269,7 +279,31 @@ export function AddFuelEntryDialog({
             readOnly
           />
         </Field>
-
+        <form.Field
+          name="missedFuelup"
+          children={(field) => {
+            return (
+              <Field className="col-span-2" orientation="horizontal">
+                <Checkbox
+                  id={field.name}
+                  name={field.name}
+                  checked={field.state.value}
+                  onCheckedChange={(checked) => {
+                    if (typeof checked === 'boolean') {
+                      field.handleChange(checked);
+                    }
+                  }}
+                />
+                <FieldContent>
+                  <FieldLabel htmlFor={field.name}>Missed Fuel Up</FieldLabel>
+                  <FieldDescription>
+                    This will not calculate the MPG for this fuel entry.
+                  </FieldDescription>
+                </FieldContent>
+              </Field>
+            );
+          }}
+        />
         <form.Field
           name="type"
           children={(field) => {
