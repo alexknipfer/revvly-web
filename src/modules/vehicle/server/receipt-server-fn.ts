@@ -1,10 +1,10 @@
 import { createServerFn } from '@tanstack/react-start';
 import sharp from 'sharp';
 
-import { chat } from '@tanstack/ai';
+// import { chat } from '@tanstack/ai';
 import z from 'zod';
 
-import { anthropicSonnetAdapter } from '@/modules/core/lib/anthropic';
+// import { anthropicSonnetAdapter } from '@/modules/core/lib/anthropic';
 import { fuelTypeSchema } from '@/modules/core/types/vehicles';
 import { logger } from '@/modules/core/lib/logger';
 import { tryCatch } from '@/modules/core/lib/utils';
@@ -23,103 +23,83 @@ const MAX_FILE_SIZE = 8 * 1024 * 1024;
 
 export const uploadFuelEntryReceiptServerFn = createServerFn({
   method: 'POST',
-})
-  .inputValidator((data) => {
-    logger.debug('Received receipt image form data in input validator');
-    if (!(data instanceof FormData)) {
-      throw new Error('Expected FormData');
-    }
+}).handler(async ({ data }) => {
+  // const { image } = data;
+  console.log('data', data);
 
-    const image = data.get('image');
+  // const [arrayBufferError, arrayBuffer] = await tryCatch(image.arrayBuffer());
+  // logger.debug('Received receipt image array buffer');
 
-    if (!(image instanceof File) || !image.type.startsWith('image/')) {
-      throw new Error('Expected image file');
-    }
+  // if (arrayBufferError) {
+  //   logger.error('Failed to get receipt image array buffer', {
+  //     error: arrayBufferError,
+  //   });
+  //   throw new Error('Failed to upload fuel entry receipt');
+  // }
 
-    if (image.size > MAX_FILE_SIZE) {
-      throw new Error('Image file size must be no larger than 5MB');
-    }
+  // const buffer = Buffer.from(arrayBuffer);
+  // logger.debug('Converted receipt image array buffer to buffer');
 
-    return {
-      image,
-    };
-  })
-  .handler(async ({ data }) => {
-    const { image } = data;
+  // const [optimizeError, optimizedBuffer] = await tryCatch(
+  //   sharp(buffer)
+  //     .resize(1024, 1024, {
+  //       fit: 'inside',
+  //       withoutEnlargement: true,
+  //     })
+  //     .jpeg({
+  //       quality: 90,
+  //       mozjpeg: true,
+  //     })
+  //     .toBuffer(),
+  // );
+  // logger.debug('Optimized receipt image');
 
-    const [arrayBufferError, arrayBuffer] = await tryCatch(image.arrayBuffer());
-    logger.debug('Received receipt image array buffer');
+  // if (optimizeError) {
+  //   logger.error('Failed to optimize receipt image: ', {
+  //     error: optimizeError,
+  //   });
+  //   throw new Error('Failed to extract fuel entry details from receipt');
+  // }
 
-    if (arrayBufferError) {
-      logger.error('Failed to get receipt image array buffer', {
-        error: arrayBufferError,
-      });
-      throw new Error('Failed to upload fuel entry receipt');
-    }
+  // const [error, receiptOutput] = await tryCatch<ReceiptOutput>(
+  //   chat({
+  //     adapter: anthropicSonnetAdapter(),
+  //     messages: [
+  //       {
+  //         role: 'user',
+  //         content: [
+  //           {
+  //             type: 'text',
+  //             content: `
+  //               You are an expert at extracting fuel entry details from receipts.
+  //               You will be given an image of a receipt and you will need to extract the gas station name with address, total gallons, cost per gallon, type of fuel.
+  //               If you are only able to extract some of the details, only return the details you are able to extract.
+  //               The gas station name with address should be in the format of {name - address}. If you are not able to extract the address, only return the name.
+  //               If you are only able to get an address, don't return a gas station.
+  //             `,
+  //           },
+  //           {
+  //             type: 'image',
+  //             source: {
+  //               type: 'data',
+  //               value: optimizedBuffer.toString('base64'),
+  //             },
+  //           },
+  //         ],
+  //       },
+  //     ],
+  //     outputSchema: ReceiptOutputSchema,
+  //   }),
+  // );
 
-    const buffer = Buffer.from(arrayBuffer);
-    logger.debug('Converted receipt image array buffer to buffer');
+  // if (error) {
+  //   logger.error('Failed to extract fuel entry details from receipt: ', {
+  //     error,
+  //   });
+  //   throw new Error('Failed to extract fuel entry details from receipt');
+  // }
 
-    const [optimizeError, optimizedBuffer] = await tryCatch(
-      sharp(buffer)
-        .resize(1024, 1024, {
-          fit: 'inside',
-          withoutEnlargement: true,
-        })
-        .jpeg({
-          quality: 90,
-          mozjpeg: true,
-        })
-        .toBuffer(),
-    );
-    logger.debug('Optimized receipt image');
-
-    if (optimizeError) {
-      logger.error('Failed to optimize receipt image: ', {
-        error: optimizeError,
-      });
-      throw new Error('Failed to extract fuel entry details from receipt');
-    }
-
-    const [error, receiptOutput] = await tryCatch<ReceiptOutput>(
-      chat({
-        adapter: anthropicSonnetAdapter(),
-        messages: [
-          {
-            role: 'user',
-            content: [
-              {
-                type: 'text',
-                content: `
-                  You are an expert at extracting fuel entry details from receipts.
-                  You will be given an image of a receipt and you will need to extract the gas station name with address, total gallons, cost per gallon, type of fuel.
-                  If you are only able to extract some of the details, only return the details you are able to extract.
-                  The gas station name with address should be in the format of {name - address}. If you are not able to extract the address, only return the name.
-                  If you are only able to get an address, don't return a gas station.
-                `,
-              },
-              {
-                type: 'image',
-                source: {
-                  type: 'data',
-                  value: optimizedBuffer.toString('base64'),
-                },
-              },
-            ],
-          },
-        ],
-        outputSchema: ReceiptOutputSchema,
-      }),
-    );
-
-    if (error) {
-      logger.error('Failed to extract fuel entry details from receipt: ', {
-        error,
-      });
-      throw new Error('Failed to extract fuel entry details from receipt');
-    }
-
-    return {
-      error: 'Successfully ran function',
-    };
-  });
+  return {
+    error: 'Successfully ran function',
+  };
+});
