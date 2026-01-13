@@ -112,7 +112,7 @@ export function UploadReceiptDialog({ open, onOpenChange, onComplete }: Props) {
     }
 
     const formData = new FormData();
-    formData.append('image', selectedFile);
+    // formData.append('image', selectedFile);
 
     uploadFuelEntryReceiptMutation({
       data: formData,
