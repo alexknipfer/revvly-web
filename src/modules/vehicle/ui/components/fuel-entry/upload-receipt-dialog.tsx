@@ -71,10 +71,10 @@ export function UploadReceiptDialog({ open, onOpenChange, onComplete }: Props) {
     });
 
   const { getRootProps, getInputProps } = useDropzone({
-    accept: {
-      'image/jpeg': ['.jpeg', '.jpg'],
-      'image/png': ['.png'],
-    },
+    // accept: {
+    //   'image/jpeg': ['.jpeg', '.jpg'],
+    //   'image/png': ['.png'],
+    // },
     maxSize: 10 * 1024 * 1024,
     onDrop: (acceptedFiles, rejectedFiles) => {
       if (rejectedFiles.length > 0) {
@@ -106,18 +106,16 @@ export function UploadReceiptDialog({ open, onOpenChange, onComplete }: Props) {
     onOpenChange(false);
   };
 
-  const handleProcessReceipt = async () => {
+  const handleProcessReceipt = () => {
     if (!selectedFile) {
       return;
     }
 
-    // Convert File to Blob to avoid serialization issues with File objects
-    // This matches the pattern used in vehicle image upload which works
-    const arrayBuffer = await selectedFile.arrayBuffer();
-    const blob = new Blob([arrayBuffer], { type: selectedFile.type });
-
+    // Match the exact pattern from vehicle image upload
+    // Add a string field first, then the image
     const formData = new FormData();
-    formData.append('image', blob, selectedFile.name);
+    formData.append('receipt', 'true');
+    formData.append('image', selectedFile);
 
     uploadFuelEntryReceiptMutation({
       data: formData,

@@ -31,12 +31,8 @@ export const uploadFuelEntryReceiptServerFn = createServerFn({
 
     const image = data.get('image');
 
-    // Accept both File and Blob (Blob is used to avoid serialization issues)
-    if (!(image instanceof File || image instanceof Blob)) {
-      throw new Error('Expected image file or blob');
-    }
-
-    if (!image.type.startsWith('image/')) {
+    // Match the exact pattern from vehicle image upload (even though it checks for File, it receives Blob)
+    if (!(image instanceof File) || !image.type.startsWith('image/')) {
       throw new Error('Expected image file');
     }
 
