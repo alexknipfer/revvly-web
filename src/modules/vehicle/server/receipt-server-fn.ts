@@ -1,25 +1,25 @@
 import { createServerFn } from '@tanstack/react-start';
-import sharp from 'sharp';
+// import sharp from 'sharp';
 
 // import { chat } from '@tanstack/ai';
-import z from 'zod';
+// import z from 'zod';
 
 // import { anthropicSonnetAdapter } from '@/modules/core/lib/anthropic';
-import { fuelTypeSchema } from '@/modules/core/types/vehicles';
-import { logger } from '@/modules/core/lib/logger';
-import { tryCatch } from '@/modules/core/lib/utils';
+// import { fuelTypeSchema } from '@/modules/core/types/vehicles';
+// import { logger } from '@/modules/core/lib/logger';
+// import { tryCatch } from '@/modules/core/lib/utils';
 
-const ReceiptOutputSchema = z.object({
-  error: z.string().optional(),
-  gasStationNameWithAddress: z.string().optional(),
-  totalGallons: z.number().optional(),
-  costPerGallon: z.number().optional(),
-  typeOfFuel: fuelTypeSchema.optional(),
-});
+// const ReceiptOutputSchema = z.object({
+//   error: z.string().optional(),
+//   gasStationNameWithAddress: z.string().optional(),
+//   totalGallons: z.number().optional(),
+//   costPerGallon: z.number().optional(),
+//   typeOfFuel: fuelTypeSchema.optional(),
+// });
 
-type ReceiptOutput = z.infer<typeof ReceiptOutputSchema>;
+// type ReceiptOutput = z.infer<typeof ReceiptOutputSchema>;
 
-const MAX_FILE_SIZE = 8 * 1024 * 1024;
+// const MAX_FILE_SIZE = 8 * 1024 * 1024;
 
 export const uploadFuelEntryReceiptServerFn = createServerFn({
   method: 'POST',
