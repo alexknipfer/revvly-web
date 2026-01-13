@@ -10,6 +10,8 @@ import { useMutation } from '@tanstack/react-query';
 
 import { uploadFuelEntryReceiptServerFn } from '../../../server/server-fns';
 import type { FuelType } from '@/modules/core/types/vehicles';
+import { Id } from 'convex/_generated/dataModel';
+import { useConvexUpload } from '@/modules/core/hooks/use-convex-upload';
 
 interface Props {
   open: boolean;
@@ -26,6 +28,8 @@ export function UploadReceiptDialog({ open, onOpenChange, onComplete }: Props) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [storageId, setStorageId] = useState<Id<'_storage'> | null>(null);
+  const { uploadFile, deleteFile, isUploading } = useConvexUpload();
 
   const handleRemoveFile = () => {
     if (previewUrl) {
@@ -68,6 +72,12 @@ export function UploadReceiptDialog({ open, onOpenChange, onComplete }: Props) {
           err instanceof Error ? err.message : 'Failed to process receipt',
         );
       },
+      onSettled: () => {
+        if (storageId) {
+          deleteFile(storageId);
+        }
+        setStorageId(null);
+      },
     });
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -106,17 +116,29 @@ export function UploadReceiptDialog({ open, onOpenChange, onComplete }: Props) {
     onOpenChange(false);
   };
 
-  const handleProcessReceipt = () => {
+  const handleProcessReceipt = async () => {
     if (!selectedFile) {
       return;
     }
 
-    const formData = new FormData();
-    formData.append('image', selectedFile);
+    const { fileUrl, storageId, error } = await uploadFile(selectedFile);
 
-    uploadFuelEntryReceiptMutation({
-      data: formData,
-    });
+    if (error) {
+      setError(error);
+      return;
+    }
+
+    if (storageId) {
+      setStorageId(storageId);
+    }
+
+    if (fileUrl) {
+      uploadFuelEntryReceiptMutation({
+        data: {
+          imageUrl: fileUrl,
+        },
+      });
+    }
   };
 
   return (
@@ -138,18 +160,18 @@ export function UploadReceiptDialog({ open, onOpenChange, onComplete }: Props) {
             variant="outline"
             onClick={handleCancel}
             className="flex-1"
-            disabled={isProcessing}
+            disabled={isProcessing || isUploading}
           >
             Cancel
           </Button>
           <Button
             type="button"
             onClick={handleProcessReceipt}
-            disabled={!selectedFile || isProcessing}
-            loading={isProcessing}
+            disabled={!selectedFile || isProcessing || isUploading}
+            loading={isProcessing || isUploading}
             className="flex-1"
           >
-            {isProcessing ? 'Processing...' : 'Process Receipt'}
+            {isProcessing || isUploading ? 'Processing...' : 'Process Receipt'}
           </Button>
         </div>
       }
@@ -182,7 +204,7 @@ export function UploadReceiptDialog({ open, onOpenChange, onComplete }: Props) {
                     className="w-full h-auto max-h-[400px] object-contain"
                   />
                 </div>
-                {!isProcessing && (
+                {!isProcessing && !isUploading && (
                   <Button
                     type="button"
                     variant="destructive"
@@ -195,7 +217,7 @@ export function UploadReceiptDialog({ open, onOpenChange, onComplete }: Props) {
                 )}
               </div>
             )}
-            {isProcessing && (
+            {(isProcessing || isUploading) && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-background/95 backdrop-blur-sm z-10 rounded-lg">
                 <div className="relative">
                   <Loader2 className="size-12 text-primary animate-spin" />
@@ -204,7 +226,11 @@ export function UploadReceiptDialog({ open, onOpenChange, onComplete }: Props) {
                   </div>
                 </div>
                 <div className="text-center space-y-1">
-                  <p className="text-sm font-medium">Processing receipt...</p>
+                  <p className="text-sm font-medium">
+                    {isProcessing
+                      ? 'Processing receipt...'
+                      : 'Uploading receipt...'}
+                  </p>
                   <p className="text-xs text-muted-foreground">
                     Extracting fuel entry details
                   </p>
