@@ -13,13 +13,4 @@ export default defineConfig({
   optimizeDeps: {
     include: ['@clerk/tanstack-react-start', 'cookie-es'],
   },
-  resolve: {
-    // Aliases are added as a workaround: https://github.com/clerk/javascript/issues/6996
-    alias: [
-      {
-        find: 'cookie',
-        replacement: 'cookie-es',
-      },
-    ],
-  },
 });
