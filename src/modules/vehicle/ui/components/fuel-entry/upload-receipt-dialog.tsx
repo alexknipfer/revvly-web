@@ -217,27 +217,26 @@ export function UploadReceiptDialog({ open, onOpenChange, onComplete }: Props) {
                 )}
               </div>
             )}
-            {isProcessing ||
-              (isUploading && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-background/95 backdrop-blur-sm z-10 rounded-lg">
-                  <div className="relative">
-                    <Loader2 className="size-12 text-primary animate-spin" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="size-8 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
-                    </div>
-                  </div>
-                  <div className="text-center space-y-1">
-                    <p className="text-sm font-medium">
-                      {isProcessing
-                        ? 'Processing receipt...'
-                        : 'Uploading receipt...'}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Extracting fuel entry details
-                    </p>
+            {(isProcessing || isUploading) && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-background/95 backdrop-blur-sm z-10 rounded-lg">
+                <div className="relative">
+                  <Loader2 className="size-12 text-primary animate-spin" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="size-8 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
                   </div>
                 </div>
-              ))}
+                <div className="text-center space-y-1">
+                  <p className="text-sm font-medium">
+                    {isProcessing
+                      ? 'Processing receipt...'
+                      : 'Uploading receipt...'}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Extracting fuel entry details
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
           {error && <FieldError errors={[{ message: error }]} />}
         </Field>

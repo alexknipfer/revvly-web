@@ -40,6 +40,8 @@ export function useConvexUpload() {
   };
 
   const uploadFile = async (file: File) => {
+    setIsUploading(true);
+
     const [generateUploadUrlError, uploadUrl] = await tryCatch(
       generateUploadUrlMutation({}),
     );
