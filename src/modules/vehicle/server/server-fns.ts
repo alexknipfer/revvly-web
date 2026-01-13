@@ -38,6 +38,7 @@ export const uploadVehicleImageServerFn = createServerFn({
     };
   })
   .handler(async ({ data }) => {
+    logger.debug('Received vehicle image form data in handler');
     const { vehicleId, image } = data;
 
     if (!vehicleId) {
