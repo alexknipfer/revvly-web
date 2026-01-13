@@ -185,43 +185,45 @@ export const uploadFuelEntryReceiptServerFn = createServerFn({
       throw new Error('Failed to extract fuel entry details from receipt');
     }
 
-    const [error, receiptOutput] = await tryCatch<ReceiptOutput>(
-      chat({
-        adapter: anthropicSonnetAdapter(),
-        messages: [
-          {
-            role: 'user',
-            content: [
-              {
-                type: 'text',
-                content: `
-                  You are an expert at extracting fuel entry details from receipts.
-                  You will be given an image of a receipt and you will need to extract the gas station name with address, total gallons, cost per gallon, type of fuel.
-                  If you are only able to extract some of the details, only return the details you are able to extract.
-                  The gas station name with address should be in the format of {name - address}. If you are not able to extract the address, only return the name.
-                  If you are only able to get an address, don't return a gas station.
-                `,
-              },
-              {
-                type: 'image',
-                source: {
-                  type: 'data',
-                  value: optimizedBuffer.toString('base64'),
-                },
-              },
-            ],
-          },
-        ],
-        outputSchema: ReceiptOutputSchema,
-      }),
-    );
+    // const [error, receiptOutput] = await tryCatch<ReceiptOutput>(
+    //   chat({
+    //     adapter: anthropicSonnetAdapter(),
+    //     messages: [
+    //       {
+    //         role: 'user',
+    //         content: [
+    //           {
+    //             type: 'text',
+    //             content: `
+    //               You are an expert at extracting fuel entry details from receipts.
+    //               You will be given an image of a receipt and you will need to extract the gas station name with address, total gallons, cost per gallon, type of fuel.
+    //               If you are only able to extract some of the details, only return the details you are able to extract.
+    //               The gas station name with address should be in the format of {name - address}. If you are not able to extract the address, only return the name.
+    //               If you are only able to get an address, don't return a gas station.
+    //             `,
+    //           },
+    //           {
+    //             type: 'image',
+    //             source: {
+    //               type: 'data',
+    //               value: optimizedBuffer.toString('base64'),
+    //             },
+    //           },
+    //         ],
+    //       },
+    //     ],
+    //     outputSchema: ReceiptOutputSchema,
+    //   }),
+    // );
 
-    if (error) {
-      logger.error('Failed to extract fuel entry details from receipt: ', {
-        error,
-      });
-      throw new Error('Failed to extract fuel entry details from receipt');
-    }
+    // if (error) {
+    //   logger.error('Failed to extract fuel entry details from receipt: ', {
+    //     error,
+    //   });
+    //   throw new Error('Failed to extract fuel entry details from receipt');
+    // }
 
-    return receiptOutput;
+    return {
+      error: 'Successfully ran function',
+    };
   });
