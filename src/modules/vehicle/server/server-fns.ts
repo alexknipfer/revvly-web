@@ -128,6 +128,7 @@ export const uploadFuelEntryReceiptServerFn = createServerFn({
   method: 'POST',
 })
   .inputValidator((data) => {
+    logger.debug('Received receipt image form data in input validator');
     if (!(data instanceof FormData)) {
       throw new Error('Expected FormData');
     }
