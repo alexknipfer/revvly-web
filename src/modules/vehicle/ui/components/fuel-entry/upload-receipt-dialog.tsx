@@ -106,13 +106,18 @@ export function UploadReceiptDialog({ open, onOpenChange, onComplete }: Props) {
     onOpenChange(false);
   };
 
-  const handleProcessReceipt = () => {
+  const handleProcessReceipt = async () => {
     if (!selectedFile) {
       return;
     }
 
+    // Convert File to Blob to avoid serialization issues with File objects
+    // This matches the pattern used in vehicle image upload which works
+    const arrayBuffer = await selectedFile.arrayBuffer();
+    const blob = new Blob([arrayBuffer], { type: selectedFile.type });
+
     const formData = new FormData();
-    // formData.append('image', selectedFile);
+    formData.append('image', blob, selectedFile.name);
 
     uploadFuelEntryReceiptMutation({
       data: formData,
