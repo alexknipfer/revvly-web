@@ -10,6 +10,7 @@ import { tryCatch } from '@/modules/core/lib/utils';
 import { getAuthConvexClient } from '@/modules/core/lib/auth';
 import { anthropicSonnetAdapter } from '@/modules/core/lib/anthropic';
 import { fuelTypeSchema } from '@/modules/core/types/vehicles';
+import { logger } from '@/modules/core/lib/logger';
 
 const MAX_FILE_SIZE = 8 * 1024 * 1024;
 
@@ -148,8 +149,18 @@ export const uploadFuelEntryReceiptServerFn = createServerFn({
   .handler(async ({ data }) => {
     const { image } = data;
 
-    const arrayBuffer = await image.arrayBuffer();
+    const [arrayBufferError, arrayBuffer] = await tryCatch(image.arrayBuffer());
+    logger.debug('Received receipt image array buffer');
+
+    if (arrayBufferError) {
+      logger.error('Failed to get receipt image array buffer', {
+        error: arrayBufferError,
+      });
+      throw new Error('Failed to upload fuel entry receipt');
+    }
+
     const buffer = Buffer.from(arrayBuffer);
+    logger.debug('Converted receipt image array buffer to buffer');
 
     const [optimizeError, optimizedBuffer] = await tryCatch(
       sharp(buffer)
@@ -163,9 +174,12 @@ export const uploadFuelEntryReceiptServerFn = createServerFn({
         })
         .toBuffer(),
     );
+    logger.debug('Optimized receipt image');
 
     if (optimizeError) {
-      console.error('Failed to optimize image: ', optimizeError);
+      logger.error('Failed to optimize receipt image: ', {
+        error: optimizeError,
+      });
       throw new Error('Failed to extract fuel entry details from receipt');
     }
 
@@ -201,10 +215,9 @@ export const uploadFuelEntryReceiptServerFn = createServerFn({
     );
 
     if (error) {
-      console.error(
-        'Failed to extract fuel entry details from receipt: ',
+      logger.error('Failed to extract fuel entry details from receipt: ', {
         error,
-      );
+      });
       throw new Error('Failed to extract fuel entry details from receipt');
     }
 
