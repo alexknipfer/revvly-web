@@ -1,8 +1,8 @@
 import { auth } from '@clerk/tanstack-react-start/server';
 
 import { ConvexHttpClient } from 'convex/browser';
-import { appConfig } from '@/lib/appConfig';
-import { tryCatch } from '@/lib/utils';
+import { appConfig } from '@/modules/core/lib/appConfig';
+import { tryCatch } from '@/modules/core/lib/utils';
 
 export const getAuthConvexClient = async (): Promise<ConvexHttpClient> => {
   const { isAuthenticated, getToken } = await auth();

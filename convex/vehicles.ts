@@ -1,6 +1,6 @@
 import { ConvexError, v } from 'convex/values';
 import { mutation, query, QueryCtx } from './_generated/server';
-import { requireAuth } from './utils/auth';
+import { requireAuth, verifyVerhicleOwnership } from './utils/auth';
 import { Id } from './_generated/dataModel';
 
 async function calculateVehicleTotals(
@@ -156,33 +156,39 @@ export const update = mutation({
     id: v.id('vehicles'),
     update: v.object({
       name: v.optional(v.string()),
-      make: v.optional(v.string()),
-      model: v.optional(v.string()),
-      year: v.optional(v.string()),
       plate: v.optional(v.string()),
       imageStorageId: v.optional(v.id('_storage')),
     }),
   },
   handler: async (ctx, { id, update }) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (identity === null) {
-      throw new Error(
-        'Unauthorized: User identity is required to access this data.',
-      );
-    }
-
-    const vehicle = await ctx.db.get(id);
-
-    if (!vehicle) {
-      throw new Error('Vehicle not found');
-    }
-
-    if (vehicle.userId !== identity.subject) {
-      throw new Error('You can only update your own vehicles.');
-    }
+    const identity = await requireAuth(ctx);
+    await verifyVerhicleOwnership({ ctx, vehicleId: id, identity });
 
     await ctx.db.patch(id, update);
+
+    return id;
+  },
+});
+
+export const deleteById = mutation({
+  args: {
+    id: v.id('vehicles'),
+  },
+  handler: async (ctx, { id }) => {
+    const identity = await requireAuth(ctx);
+    await verifyVerhicleOwnership({ ctx, vehicleId: id, identity });
+    await ctx.db.delete('vehicles', id);
+
+    const fuelEntries = await ctx.db
+      .query('fuel_entries')
+      .withIndex('by_userid_vehicleid', (q) =>
+        q.eq('userId', identity.subject).eq('vehicleId', id),
+      )
+      .collect();
+
+    for (const fuelEntry of fuelEntries) {
+      await ctx.db.delete('fuel_entries', fuelEntry._id);
+    }
 
     return id;
   },

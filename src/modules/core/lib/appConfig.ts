@@ -29,7 +29,7 @@ export const appConfig = {
 };
 
 export const serverAppConfig = createServerOnlyFn(() => ({
-  googleMaps: {
-    apiKey: loadServerEnvironmentVariable('GOOGLE_MAPS_API_KEY'),
+  anthropic: {
+    apiKey: loadServerEnvironmentVariable('ANTHROPIC_API_KEY'),
   },
 }));

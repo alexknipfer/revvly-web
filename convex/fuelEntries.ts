@@ -2,6 +2,7 @@ import { v } from 'convex/values';
 
 import { mutation, query } from './_generated/server';
 import { requireAuth, verifyVerhicleOwnership } from './utils/auth';
+import dayjs from 'dayjs';
 
 export const create = mutation({
   args: {
@@ -19,6 +20,7 @@ export const create = mutation({
     location: v.optional(v.string()),
     notes: v.optional(v.string()),
     vehicleId: v.id('vehicles'),
+    missedFuelup: v.boolean(),
   },
   handler: async (
     ctx,
@@ -32,25 +34,28 @@ export const create = mutation({
       location,
       notes,
       vehicleId,
+      missedFuelup,
     },
   ) => {
     const identity = await requireAuth(ctx);
     await verifyVerhicleOwnership({ ctx, vehicleId, identity });
 
-    const latestFuelEntry = await ctx.db
-      .query('fuel_entries')
-      .withIndex('by_userid_vehicleid', (q) =>
-        q.eq('userId', identity.subject).eq('vehicleId', vehicleId),
-      )
-      .order('desc')
-      .first();
-
     let mpg: number | undefined = undefined;
     let totalMiles = 0;
 
-    if (latestFuelEntry) {
-      mpg = (odometer - latestFuelEntry.odometer) / totalGallons;
-      totalMiles = odometer - latestFuelEntry.odometer;
+    if (!missedFuelup) {
+      const latestFuelEntry = await ctx.db
+        .query('fuel_entries')
+        .withIndex('by_userid_vehicleid', (q) =>
+          q.eq('userId', identity.subject).eq('vehicleId', vehicleId),
+        )
+        .order('desc')
+        .first();
+
+      if (latestFuelEntry) {
+        mpg = (odometer - latestFuelEntry.odometer) / totalGallons;
+        totalMiles = odometer - latestFuelEntry.odometer;
+      }
     }
 
     const totalCost = costPerGallon * totalGallons;
@@ -69,6 +74,7 @@ export const create = mutation({
       vehicleId,
       notes,
       userId: identity.subject,
+      missedFuelup,
     });
   },
 });
@@ -76,17 +82,24 @@ export const create = mutation({
 export const getAll = query({
   args: {
     vehicleId: v.id('vehicles'),
+    startDate: v.optional(v.string()),
   },
-  handler: async (ctx, { vehicleId }) => {
+  handler: async (
+    ctx,
+    { vehicleId, startDate = dayjs().subtract(1, 'year').toISOString() },
+  ) => {
     const identity = await requireAuth(ctx);
     await verifyVerhicleOwnership({ ctx, vehicleId, identity });
 
-    return await ctx.db
+    const results = await ctx.db
       .query('fuel_entries')
       .withIndex('by_userid_vehicleid', (q) =>
         q.eq('userId', identity.subject).eq('vehicleId', vehicleId),
       )
+      .filter((q) => q.gte(q.field('date'), startDate))
       .order('desc')
       .collect();
+
+    return results;
   },
 });

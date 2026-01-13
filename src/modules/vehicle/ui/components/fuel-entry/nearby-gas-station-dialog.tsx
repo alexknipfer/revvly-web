@@ -4,7 +4,7 @@ import type MapLibreGL from 'maplibre-gl';
 import { Fuel } from 'lucide-react';
 
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { type GooglePlace } from '@/types/google';
+import { type GooglePlace } from '@/modules/core/types/google';
 import {
   Dialog,
   DialogClose,
@@ -24,7 +24,7 @@ import {
   MarkerPopup,
 } from '@/components/ui/map';
 
-import { nearbyGasStationsQueryOptions } from '../../lib/query-options';
+import { nearbyGasStationsQueryOptions } from '../../../lib/query-options';
 
 interface Props {
   open: boolean;

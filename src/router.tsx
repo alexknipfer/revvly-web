@@ -4,7 +4,7 @@ import { ConvexQueryClient } from '@convex-dev/react-query';
 import { ConvexProvider, ConvexReactClient } from 'convex/react';
 import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query';
 
-import { appConfig } from '@/lib/appConfig';
+import { appConfig } from '@/modules/core/lib/appConfig';
 
 import { routeTree } from './routeTree.gen';
 import { toast } from 'sonner';

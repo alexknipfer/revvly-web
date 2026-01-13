@@ -2,6 +2,10 @@ import { useState } from 'react';
 import { z } from 'zod';
 import { api } from 'convex/_generated/api';
 import { useForm, useStore } from '@tanstack/react-form';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { useConvexMutation } from '@convex-dev/react-query';
+import { Loader2, Receipt } from 'lucide-react';
+import { getRouteApi } from '@tanstack/react-router';
 import { Id } from 'convex/_generated/dataModel';
 
 import { Combobox } from '@/components/ui/combobox';
@@ -9,6 +13,7 @@ import { DrawerDialog } from '@/components/ui/dialog-drawer';
 import { Button } from '@/components/ui/button';
 import {
   Field,
+  FieldContent,
   FieldDescription,
   FieldError,
   FieldLabel,
@@ -16,20 +21,21 @@ import {
 import { Input } from '@/components/ui/input';
 import { DateTimePicker } from '@/components/ui/date-time-picker';
 import { NearbyGasStationDialog } from './nearby-gas-station-dialog';
-import { Loader2 } from 'lucide-react';
+import { UploadReceiptDialog } from './upload-receipt-dialog';
 import { useGeoLocation } from '@/hooks/use-geo-location';
-import { useMutation } from '@tanstack/react-query';
-import { useConvexMutation } from '@convex-dev/react-query';
 import { Textarea } from '@/components/ui/textarea';
 
-const fuelTypeSchema = z.enum(['regular', 'premium', 'diesel', 'e85']);
-const fuelLevelSchema = z.enum(['full', 'partial']);
+import { vehicleByIdQueryOptions } from '../../../lib/query-options';
+import { fuelTypeSchema, fuelLevelSchema } from '@/modules/core/types/vehicles';
+import { defaultTo } from '@/modules/core/lib/utils';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const formSchema = z.object({
   date: z.date(),
-  odometer: z.number().min(0),
-  costPerGallon: z.string().min(0),
-  totalGallons: z.string().min(0),
+  odometer: z.number().min(1, { error: 'Odometer is required' }),
+  costPerGallon: z.string().min(1, { error: 'Cost per gallon is required' }),
+  totalGallons: z.string().min(1, { error: 'Total gallons is required' }),
+  missedFuelup: z.boolean(),
   type: fuelTypeSchema,
   level: fuelLevelSchema,
   location: z.string(),
@@ -39,8 +45,6 @@ const formSchema = z.object({
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  vehicleId: Id<'vehicles'>;
-  latestOdometer: number | null;
   onFuelEntryCreated?: () => void;
 }
 
@@ -54,13 +58,16 @@ const fuelLevels = fuelLevelSchema.options.map((level) => ({
   label: level.charAt(0).toUpperCase() + level.slice(1),
 }));
 
+const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
+
 export function AddFuelEntryDialog({
   open,
   onOpenChange,
-  vehicleId,
   onFuelEntryCreated,
-  latestOdometer,
 }: Props) {
+  const { vehicleId } = routeApi.useParams();
+  const { data: vehicle } = useQuery(vehicleByIdQueryOptions({ vehicleId }));
+
   const defaultValues: z.infer<typeof formSchema> = {
     date: new Date(),
     odometer: 0,
@@ -70,6 +77,7 @@ export function AddFuelEntryDialog({
     notes: '',
     type: 'regular',
     level: 'full',
+    missedFuelup: false,
   };
 
   const form = useForm({
@@ -92,6 +100,7 @@ export function AddFuelEntryDialog({
   });
 
   const [gasStationDialogOpen, setGasStationDialogOpen] = useState(false);
+  const [receiptUploadDialogOpen, setReceiptUploadDialogOpen] = useState(false);
 
   const costPerGallon = useStore(
     form.store,
@@ -125,7 +134,8 @@ export function AddFuelEntryDialog({
       type: data.type,
       level: data.level,
       location: data.location || undefined,
-      vehicleId,
+      vehicleId: vehicleId as Id<'vehicles'>,
+      missedFuelup: data.missedFuelup,
     });
   };
 
@@ -135,6 +145,7 @@ export function AddFuelEntryDialog({
       description="Log your fuel fill-up details"
       open={open}
       onOpenChange={onOpenChange}
+      hideHeaderOnMobile
     >
       <form
         onSubmit={(e) => {
@@ -143,6 +154,20 @@ export function AddFuelEntryDialog({
         }}
         className="grid grid-cols-2 gap-4 overflow-y-auto"
       >
+        <div className="col-span-2 flex items-center justify-center py-2 border-b border-border">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setReceiptUploadDialogOpen(true);
+            }}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <Receipt className="size-4 mr-2" />
+            Import from Receipt
+          </Button>
+        </div>
         <form.Field
           name="date"
           children={(field) => {
@@ -173,7 +198,17 @@ export function AddFuelEntryDialog({
 
             return (
               <Field data-invalid={isInvalid}>
-                <FieldLabel htmlFor={field.name}>Odometer *</FieldLabel>
+                <FieldLabel
+                  htmlFor={field.name}
+                  className="flex items-center justify-between"
+                >
+                  <span>Odometer *</span>
+                  {vehicle?.latestOdometer && (
+                    <span className="text-xs text-muted-foreground font-normal">
+                      Last: {vehicle.latestOdometer.toLocaleString()}
+                    </span>
+                  )}
+                </FieldLabel>
                 <Input
                   name={field.name}
                   type="number"
@@ -184,11 +219,6 @@ export function AddFuelEntryDialog({
                   }
                   aria-invalid={isInvalid}
                 />
-                {latestOdometer && (
-                  <FieldDescription>
-                    Last Odometer: {latestOdometer.toLocaleString()}
-                  </FieldDescription>
-                )}
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
               </Field>
             );
@@ -249,7 +279,31 @@ export function AddFuelEntryDialog({
             readOnly
           />
         </Field>
-
+        <form.Field
+          name="missedFuelup"
+          children={(field) => {
+            return (
+              <Field className="col-span-2" orientation="horizontal">
+                <Checkbox
+                  id={field.name}
+                  name={field.name}
+                  checked={field.state.value}
+                  onCheckedChange={(checked) => {
+                    if (typeof checked === 'boolean') {
+                      field.handleChange(checked);
+                    }
+                  }}
+                />
+                <FieldContent>
+                  <FieldLabel htmlFor={field.name}>Missed Fuel Up</FieldLabel>
+                  <FieldDescription>
+                    This will not calculate the MPG for this fuel entry.
+                  </FieldDescription>
+                </FieldContent>
+              </Field>
+            );
+          }}
+        />
         <form.Field
           name="type"
           children={(field) => {
@@ -368,6 +422,25 @@ export function AddFuelEntryDialog({
           Add Fuel Entry
         </Button>
       </form>
+      <UploadReceiptDialog
+        open={receiptUploadDialogOpen}
+        onOpenChange={setReceiptUploadDialogOpen}
+        onComplete={(data) => {
+          form.setFieldValue(
+            'costPerGallon',
+            defaultTo(data.costPerGallon?.toString(), ''),
+          );
+          form.setFieldValue(
+            'totalGallons',
+            defaultTo(data.totalGallons?.toString(), ''),
+          );
+          form.setFieldValue('location', defaultTo(data.gasStation, ''));
+
+          if (data.typeOfFuel) {
+            form.setFieldValue('type', data.typeOfFuel);
+          }
+        }}
+      />
     </DrawerDialog>
   );
 }

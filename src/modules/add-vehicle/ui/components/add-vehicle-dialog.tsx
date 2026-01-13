@@ -7,7 +7,7 @@ import { useConvexMutation } from '@convex-dev/react-query';
 import { useServerFn } from '@tanstack/react-start';
 
 import { Combobox } from '@/components/ui/combobox';
-import { getSupportedVehicleYears } from '@/lib/utils';
+import { getSupportedVehicleYears } from '@/modules/core/lib/utils';
 import { DrawerDialog } from '@/components/ui/dialog-drawer';
 import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
@@ -65,6 +65,7 @@ export function AddVehicleDialog({
   const { data: vehicleMakes = [] } = useQuery({
     queryKey: ['vehicle-makes'],
     queryFn: getVehicleMakes,
+    enabled: !!selectedYear,
   });
   const getVehicleModels = useServerFn(getVehicleModelsForMakeServerFn);
   const { data: vehicleModels = [] } = useQuery({
@@ -74,7 +75,7 @@ export function AddVehicleDialog({
     enabled: !!selectedMake && !!selectedYear,
   });
 
-  const convexCreateUserMutation = useConvexMutation(api.userVehicles.create);
+  const convexCreateUserMutation = useConvexMutation(api.vehicles.create);
   const createUserVehicleMutation = useMutation({
     mutationFn: convexCreateUserMutation,
     onSuccess: (newVehicleId) => {

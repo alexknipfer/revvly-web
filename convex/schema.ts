@@ -8,7 +8,6 @@ export default defineSchema({
     model: v.string(),
     year: v.string(),
     plate: v.string(),
-    // Removed: totalMilesTracked, totalGallonsUsed, averageMpg
     imageStorageId: v.optional(v.id('_storage')),
     userId: v.string(),
   }).index('by_userid', ['userId']),
@@ -26,5 +25,6 @@ export default defineSchema({
     notes: v.optional(v.string()),
     vehicleId: v.id('vehicles'),
     userId: v.string(),
+    missedFuelup: v.boolean(),
   }).index('by_userid_vehicleid', ['userId', 'vehicleId']),
 });
