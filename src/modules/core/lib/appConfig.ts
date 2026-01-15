@@ -1,9 +1,13 @@
 import { createServerOnlyFn } from '@tanstack/react-start';
 
+import { captureException } from '@/modules/core/lib/logger';
+
 const loadEnvironmentVariable = (key: string) => {
   const envVar = import.meta.env[key];
   if (!envVar) {
-    throw new Error(`Must configure ${key} environment variable.`);
+    const error = new Error(`Must configure ${key} environment variable.`);
+    captureException(error);
+    throw error;
   }
 
   return envVar;
@@ -13,7 +17,9 @@ const loadServerEnvironmentVariable = (key: string) => {
   const envVar = process.env[key];
 
   if (!envVar) {
-    throw new Error(`Must configure ${key} environment variable.`);
+    const error = new Error(`Must configure ${key} environment variable.`);
+    captureException(error);
+    throw error;
   }
 
   return envVar;
