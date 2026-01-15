@@ -1,0 +1,61 @@
+---
+description: Guidelines on best practices for structuring the React frontend.
+alwaysApply: false
+---
+
+# React frontend guidelines
+
+## Creating forms guidelines
+
+- ALWAYS use Tanstack Form with zod to define form schemas.
+- Use Tanstack Form along with Field components to create form elements
+- Below is an example of how to create a form
+
+```tsx
+import { useForm } from '@tanstack/react-form';
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
+
+const formSchema = z.object({
+  firstName: z.string().min(1, { error: 'First name is required ' }),
+});
+
+function FormComponent() {
+  const form = useForm({
+    defaultValues,
+    validators: {
+      onSubmit: formSchema,
+    },
+    onSubmit: ({ value }) => onSubmit(value),
+  });
+
+  return (
+    <form.Field
+      name="firstName"
+      children={(field) => {
+        const isInvalid =
+          field.state.meta.isTouched && !field.state.meta.isValid;
+
+        return (
+          <Field data-invalid={isInvalid}>
+            <FieldLabel htmlFor={field.name}>First Name *</FieldLabel>
+            <Input
+              name={field.name}
+              type="text"
+              value={field.state.value}
+              onChange={(e) => field.handleChange(e.target.value)}
+              aria-invalid={isInvalid}
+            />
+            {isInvalid && <FieldError errors={field.state.meta.errors} />}
+          </Field>
+        );
+      }}
+    />
+  );
+}
+```
