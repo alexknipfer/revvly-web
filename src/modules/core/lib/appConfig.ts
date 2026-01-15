@@ -26,6 +26,10 @@ export const appConfig = {
   googleMaps: {
     apiKey: loadEnvironmentVariable('VITE_GOOGLE_MAPS_API_KEY'),
   },
+  sentry: {
+    dsn: loadEnvironmentVariable('VITE_SENTRY_DSN'),
+    environment: loadEnvironmentVariable('VITE_SENTRY_ENVIRONMENT'),
+  },
 };
 
 export const serverAppConfig = createServerOnlyFn(() => ({

@@ -3,12 +3,14 @@ import { QueryCache, QueryClient } from '@tanstack/react-query';
 import { ConvexQueryClient } from '@convex-dev/react-query';
 import { ConvexProvider, ConvexReactClient } from 'convex/react';
 import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query';
+import * as Sentry from '@sentry/tanstackstart-react';
+import { toast } from 'sonner';
+import { ConvexError } from 'convex/values';
 
 import { appConfig } from '@/modules/core/lib/appConfig';
 
 import { routeTree } from './routeTree.gen';
-import { toast } from 'sonner';
-import { ConvexError } from 'convex/values';
+import { DefaultErrorBoundary } from '@/components/default-error-boundary';
 
 export function getRouter() {
   const convex = new ConvexReactClient(appConfig.convex.url, {
@@ -48,6 +50,7 @@ export function getRouter() {
   const router = createRouter({
     routeTree,
     defaultPreload: 'intent',
+    defaultErrorComponent: DefaultErrorBoundary,
     context: { queryClient, convexClient: convex, convexQueryClient },
     Wrap: ({ children }) => (
       <ConvexProvider client={convexQueryClient.convexClient}>
@@ -55,6 +58,16 @@ export function getRouter() {
       </ConvexProvider>
     ),
   });
+
+  if (!router.isServer) {
+    Sentry.init({
+      dsn: appConfig.sentry.dsn,
+      sendDefaultPii: true,
+      enableLogs: true,
+      environment: appConfig.sentry.environment,
+      enabled: appConfig.sentry.environment !== 'local',
+    });
+  }
 
   setupRouterSsrQueryIntegration({
     router,
