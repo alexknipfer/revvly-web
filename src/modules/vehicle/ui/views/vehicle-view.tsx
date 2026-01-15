@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { vehicleByIdQueryOptions } from '../../lib/query-options';
 import { VehicleActionsMenu } from '../components/vehicle-actions-menu';
-import { VehicleTimeline } from '../components/vehicle-timeline';
+import { VehicleTimeline } from '../components/vehicle-timeline/vehicle-timeline';
 import { VehicleImage } from '../components/vehicle-image/vehicle-image';
 import { AddFuelEntryMenu } from '../components/fuel-entry/add-fuel-entry-menu';
 import { MpgTrendChart } from '../components/charts/mpg-trend-chart';
