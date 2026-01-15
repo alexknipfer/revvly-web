@@ -1,11 +1,13 @@
+import z from 'zod';
+import { createServerFn } from '@tanstack/react-start';
+
 import { vpicApiClient } from '@/modules/core/lib/apis';
 import { tryCatch } from '@/modules/core/lib/utils';
-import { createServerFn } from '@tanstack/react-start';
 import {
   VehicleMakesResponse,
   VehicleModelsResponse,
 } from '@/modules/core/types/vpic';
-import z from 'zod';
+import { captureException } from '@/modules/core/lib/logger';
 
 export const getVehicleMakesServerFn = createServerFn().handler(async () => {
   const [error, response] = await tryCatch(
@@ -15,7 +17,7 @@ export const getVehicleMakesServerFn = createServerFn().handler(async () => {
   );
 
   if (error) {
-    console.error('Failed to get vehicle makes', error);
+    captureException(error);
     throw new Error('Failed to get vehicle makes');
   }
 
@@ -42,7 +44,7 @@ export const getVehicleModelsForMakeServerFn = createServerFn()
     );
 
     if (error) {
-      console.error('Failed to get vehicle models', error);
+      captureException(error);
       throw new Error('Failed to get vehicle models');
     }
 
