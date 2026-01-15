@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, X, Loader2 } from 'lucide-react';
+import { Upload, X, Loader2, Receipt } from 'lucide-react';
 
 import { DrawerDialog } from '@/components/ui/dialog-drawer';
 import { Button } from '@/components/ui/button';
@@ -14,8 +14,6 @@ import { Id } from 'convex/_generated/dataModel';
 import { useConvexUpload } from '@/modules/core/hooks/use-convex-upload';
 
 interface Props {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
   onComplete?: (data: {
     gasStation?: string;
     totalGallons?: number;
@@ -24,7 +22,8 @@ interface Props {
   }) => void;
 }
 
-export function UploadReceiptDialog({ open, onOpenChange, onComplete }: Props) {
+export function UploadReceiptDialog({ onComplete }: Props) {
+  const [open, setOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +58,7 @@ export function UploadReceiptDialog({ open, onOpenChange, onComplete }: Props) {
         }
 
         handleRemoveFile();
-        onOpenChange(false);
+        setOpen(false);
         onComplete?.({
           gasStation: data.gasStationNameWithAddress,
           totalGallons: data.totalGallons,
@@ -113,7 +112,7 @@ export function UploadReceiptDialog({ open, onOpenChange, onComplete }: Props) {
 
   const handleCancel = () => {
     handleRemoveFile();
-    onOpenChange(false);
+    setOpen(false);
   };
 
   const handleProcessReceipt = async () => {
@@ -142,105 +141,122 @@ export function UploadReceiptDialog({ open, onOpenChange, onComplete }: Props) {
   };
 
   return (
-    <DrawerDialog
-      title="Upload Receipt"
-      description="Upload a receipt image to automatically fill fuel entry details"
-      open={open}
-      onOpenChange={(open) => {
-        if (!open) {
-          handleRemoveFile();
-        }
+    <>
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={() => {
+          setOpen(true);
+        }}
+        className="text-muted-foreground hover:text-foreground"
+      >
+        <Receipt className="size-4 mr-2" />
+        Import from Receipt
+      </Button>
 
-        onOpenChange(open);
-      }}
-      footerContent={
-        <div className="flex gap-2 w-full">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleCancel}
-            className="flex-1"
-            disabled={isProcessing || isUploading}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="button"
-            onClick={handleProcessReceipt}
-            disabled={!selectedFile || isProcessing || isUploading}
-            loading={isProcessing || isUploading}
-            className="flex-1"
-          >
-            {isProcessing || isUploading ? 'Processing...' : 'Process Receipt'}
-          </Button>
-        </div>
-      }
-    >
-      <div className="space-y-4">
-        <Field>
-          <div className="relative">
-            {!previewUrl ? (
-              <div
-                {...getRootProps()}
-                className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 flex flex-col items-center justify-center gap-4 hover:border-muted-foreground/50 transition-colors cursor-pointer"
-              >
-                <input {...getInputProps()} id="receipt-upload" />
-                <Upload className="size-8 text-muted-foreground" />
-                <div className="text-center">
-                  <p className="text-sm font-medium">
-                    Click to upload or drag and drop
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    PNG, JPG, WEBP up to 5MB
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="relative">
-                <div className="border rounded-lg overflow-hidden bg-muted">
-                  <img
-                    src={previewUrl}
-                    alt="Receipt preview"
-                    className="w-full h-auto max-h-[400px] object-contain"
-                  />
-                </div>
-                {!isProcessing && !isUploading && (
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="icon"
-                    className="absolute top-2 right-2"
-                    onClick={handleRemoveFile}
-                  >
-                    <X className="size-4" />
-                  </Button>
-                )}
-              </div>
-            )}
-            {(isProcessing || isUploading) && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-background/95 backdrop-blur-sm z-10 rounded-lg">
-                <div className="relative">
-                  <Loader2 className="size-12 text-primary animate-spin" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="size-8 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+      <DrawerDialog
+        title="Upload Receipt"
+        description="Upload a receipt image to automatically fill fuel entry details"
+        open={open}
+        onOpenChange={(open) => {
+          if (!open) {
+            handleRemoveFile();
+          }
+
+          setOpen(open);
+        }}
+        footerContent={
+          <div className="flex gap-2 w-full">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleCancel}
+              className="flex-1"
+              disabled={isProcessing || isUploading}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleProcessReceipt}
+              disabled={!selectedFile || isProcessing || isUploading}
+              loading={isProcessing || isUploading}
+              className="flex-1"
+            >
+              {isProcessing || isUploading
+                ? 'Processing...'
+                : 'Process Receipt'}
+            </Button>
+          </div>
+        }
+      >
+        <div className="space-y-4">
+          <Field>
+            <div className="relative">
+              {!previewUrl ? (
+                <div
+                  {...getRootProps()}
+                  className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 flex flex-col items-center justify-center gap-4 hover:border-muted-foreground/50 transition-colors cursor-pointer"
+                >
+                  <input {...getInputProps()} id="receipt-upload" />
+                  <Upload className="size-8 text-muted-foreground" />
+                  <div className="text-center">
+                    <p className="text-sm font-medium">
+                      Click to upload or drag and drop
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      PNG, JPG, WEBP up to 5MB
+                    </p>
                   </div>
                 </div>
-                <div className="text-center space-y-1">
-                  <p className="text-sm font-medium">
-                    {isProcessing
-                      ? 'Processing receipt...'
-                      : 'Uploading receipt...'}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Extracting fuel entry details
-                  </p>
+              ) : (
+                <div className="relative">
+                  <div className="border rounded-lg overflow-hidden bg-muted">
+                    <img
+                      src={previewUrl}
+                      alt="Receipt preview"
+                      className="w-full h-auto max-h-[400px] object-contain"
+                    />
+                  </div>
+                  {!isProcessing && !isUploading && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2"
+                      onClick={handleRemoveFile}
+                    >
+                      <X className="size-4" />
+                    </Button>
+                  )}
                 </div>
-              </div>
-            )}
-          </div>
-          {error && <FieldError errors={[{ message: error }]} />}
-        </Field>
-      </div>
-    </DrawerDialog>
+              )}
+              {(isProcessing || isUploading) && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-background/95 backdrop-blur-sm z-10 rounded-lg">
+                  <div className="relative">
+                    <Loader2 className="size-12 text-primary animate-spin" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="size-8 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+                    </div>
+                  </div>
+                  <div className="text-center space-y-1">
+                    <p className="text-sm font-medium">
+                      {isProcessing
+                        ? 'Processing receipt...'
+                        : 'Uploading receipt...'}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Extracting fuel entry details
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+            {error && <FieldError errors={[{ message: error }]} />}
+          </Field>
+        </div>
+      </DrawerDialog>
+    </>
   );
 }
