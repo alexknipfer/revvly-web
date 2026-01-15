@@ -6,9 +6,10 @@ import {
   redirect,
   useLocation,
 } from '@tanstack/react-router';
+import * as Sentry from '@sentry/tanstackstart-react';
 import { convexQuery } from '@convex-dev/react-query';
 import { Car, Check, EllipsisVertical, Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 
 import { Toaster } from '@/components/ui/sonner';
@@ -72,12 +73,19 @@ export const Route = createFileRoute('/_auth')({
 });
 
 function RouteComponent() {
+  const { userId } = Route.useRouteContext();
   const { data: vehicles } = useSuspenseQuery(
     convexQuery(api.vehicles.getAll, {}),
   );
 
   const [addVehicleOpen, setAddVehicleOpen] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    Sentry.setUser({
+      id: userId,
+    });
+  }, [userId]);
 
   return (
     <div className="bg-slate-900 min-h-svh text-foreground">

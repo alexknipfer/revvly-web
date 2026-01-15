@@ -1,3 +1,3 @@
 import * as Sentry from '@sentry/tanstackstart-react';
 
-export const { logger } = Sentry;
+export const { logger, captureException } = Sentry;

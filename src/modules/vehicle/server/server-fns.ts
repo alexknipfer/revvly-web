@@ -10,13 +10,15 @@ import { tryCatch } from '@/modules/core/lib/utils';
 import { getAuthConvexClient } from '@/modules/core/lib/auth';
 import { anthropicSonnetAdapter } from '@/modules/core/lib/anthropic';
 import { fuelTypeSchema } from '@/modules/core/types/vehicles';
-import { logger } from '@/modules/core/lib/logger';
+import { captureException } from '@/modules/core/lib/logger';
+import { appendSentryUser } from '@/modules/core/server/middleware/append-sentry-user';
 
 const MAX_FILE_SIZE = 8 * 1024 * 1024;
 
 export const uploadVehicleImageServerFn = createServerFn({
   method: 'POST',
 })
+  .middleware([appendSentryUser])
   .inputValidator((data) => {
     if (!(data instanceof FormData)) {
       throw new Error('Expected FormData');
@@ -38,7 +40,6 @@ export const uploadVehicleImageServerFn = createServerFn({
     };
   })
   .handler(async ({ data }) => {
-    logger.debug('Received vehicle image form data in handler');
     const { vehicleId, image } = data;
 
     if (!vehicleId) {
@@ -50,7 +51,7 @@ export const uploadVehicleImageServerFn = createServerFn({
     );
 
     if (convexClientError) {
-      console.error('Failed to get convex client: ', convexClientError);
+      captureException(convexClientError);
       throw new Error('Failed to get convex client');
     }
 
@@ -71,7 +72,7 @@ export const uploadVehicleImageServerFn = createServerFn({
     );
 
     if (optimizeError) {
-      console.error('Failed to optimize image: ', optimizeError);
+      captureException(optimizeError);
       throw new Error('Failed to upload image');
     }
 
@@ -80,7 +81,7 @@ export const uploadVehicleImageServerFn = createServerFn({
     );
 
     if (uploadUrlError) {
-      console.error('Failed to generate upload url: ', uploadUrlError);
+      captureException(uploadUrlError);
       throw new Error('Failed to upload image');
     }
 
@@ -94,7 +95,7 @@ export const uploadVehicleImageServerFn = createServerFn({
     );
 
     if (uploadError) {
-      console.error('Failed to upload image: ', uploadError);
+      captureException(uploadError);
       throw new Error('Failed to upload image');
     }
 
@@ -108,7 +109,7 @@ export const uploadVehicleImageServerFn = createServerFn({
     );
 
     if (updateError) {
-      console.error('Failed to update vehicle: ', updateError);
+      captureException(updateError);
       throw new Error('Failed to update vehicle with image');
     }
 
@@ -132,6 +133,7 @@ type ReceiptOutput = z.infer<typeof ReceiptOutputSchema>;
 export const uploadFuelEntryReceiptServerFn = createServerFn({
   method: 'POST',
 })
+  .middleware([appendSentryUser])
   .inputValidator(UploadFuelEntryReceiptInputSchema)
   .handler(async ({ data }) => {
     const { imageUrl } = data;
@@ -168,13 +170,7 @@ export const uploadFuelEntryReceiptServerFn = createServerFn({
     );
 
     if (error) {
-      console.error(
-        'Failed to extract fuel entry details from receipt: ',
-        error,
-      );
-      logger.error('Failed to extract fuel entry details from receipt: ', {
-        error,
-      });
+      captureException(error);
       throw new Error('Failed to extract fuel entry details from receipt');
     }
 
