@@ -101,21 +101,7 @@ export const getById = query({
       throw new ConvexError({ message: 'Unauthorized' });
     }
 
-    const latestFuelEntry = await ctx.db
-      .query('fuel_entries')
-      .withIndex('by_userid_vehicleid', (q) =>
-        q.eq('userId', identity.subject).eq('vehicleId', entry.vehicleId),
-      )
-      .filter((q) =>
-        q.and(q.lt(q.field('date'), entry.date), q.neq(q.field('_id'), id)),
-      )
-      .order('desc')
-      .first();
-
-    return {
-      ...entry,
-      latestOdometer: latestFuelEntry?.odometer ?? null,
-    };
+    return entry;
   },
 });
 
