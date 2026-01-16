@@ -6,7 +6,7 @@ import { useServerFn } from '@tanstack/react-start';
 
 import { ImageCropDialog } from '@/components/image-crop-dialog';
 import { uploadVehicleImageServerFn } from '@/modules/vehicle/server/server-fns';
-import { useVehicleImageContext } from '@/modules/vehicle/ui/components/vehicle-image/context';
+import { useVehicleImageContext } from '@/modules/vehicle/components/vehicle-image/context';
 
 export function VehicleImageUpload({ className }: { className?: string }) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);

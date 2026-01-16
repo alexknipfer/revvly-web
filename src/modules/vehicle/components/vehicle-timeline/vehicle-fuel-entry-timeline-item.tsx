@@ -9,7 +9,7 @@ import {
   ItemDescription,
   ItemTitle,
 } from '@/components/ui/item';
-import { EditFuelEntryDialog } from '@/modules/vehicle/ui/components/fuel-entry/edit-fuel-entry-dialog';
+import { EditFuelEntryDialog } from '@/modules/fuel-entry/components/edit-fuel-entry-dialog';
 import { Doc } from 'convex/_generated/dataModel';
 
 interface Props {

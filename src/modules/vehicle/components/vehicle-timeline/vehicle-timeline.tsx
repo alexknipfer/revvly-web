@@ -16,9 +16,9 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty';
 import { Button } from '@/components/ui/button';
-import { AddFuelEntryDialog } from '@/modules/vehicle/ui/components/fuel-entry/add-fuel-entry-dialog';
+import { AddFuelEntryDialog } from '@/modules/fuel-entry/components/add-fuel-entry-dialog';
 import { toast } from 'sonner';
-import { VehicleFuelEntryTimelineItem } from '@/modules/vehicle/ui/components/vehicle-timeline/vehicle-fuel-entry-timeline-item';
+import { VehicleFuelEntryTimelineItem } from '@/modules/vehicle/components/vehicle-timeline/vehicle-fuel-entry-timeline-item';
 
 const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
 

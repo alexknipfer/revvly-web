@@ -6,12 +6,12 @@ import z from 'zod';
 
 import { api } from 'convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
-import { tryCatch } from '@/modules/core/lib/utils';
-import { getAuthConvexClient } from '@/modules/core/lib/auth';
-import { anthropicSonnetAdapter } from '@/modules/core/lib/anthropic';
-import { fuelTypeSchema } from '@/modules/core/types/vehicles';
-import { captureException } from '@/modules/core/lib/logger';
-import { appendSentryUser } from '@/modules/core/server/middleware/append-sentry-user';
+import { tryCatch } from '@/lib/utils';
+import { getAuthConvexClient } from '@/lib/auth';
+import { anthropicSonnetAdapter } from '@/lib/anthropic';
+import { fuelTypeSchema } from '@/types/vehicles';
+import { captureException } from '@/lib/logger';
+import { appendSentryUser } from '@/middleware/append-sentry-user';
 
 const MAX_FILE_SIZE = 8 * 1024 * 1024;
 

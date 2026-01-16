@@ -1,6 +1,15 @@
-import { googlePlacesApiClient } from '@/modules/core/lib/apis';
-import { tryCatch } from '@/modules/core/lib/utils';
-import { GooglePlacesNearbyResponse } from '@/modules/core/types/google';
+import ky from 'ky';
+
+import { appConfig } from '@/lib/appConfig';
+import { tryCatch } from '@/lib/utils';
+import { GooglePlacesNearbyResponse } from '@/types/google';
+
+const googlePlacesApiClient = ky.create({
+  prefixUrl: 'https://places.googleapis.com/v1/places',
+  headers: {
+    'X-Goog-Api-Key': appConfig.googleMaps.apiKey,
+  },
+});
 
 export async function searchNearbyGasStations(data: {
   latitude: number;

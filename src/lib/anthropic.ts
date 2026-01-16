@@ -1,7 +1,7 @@
 import { createAnthropicChat } from '@tanstack/ai-anthropic';
 import { createServerOnlyFn } from '@tanstack/react-start';
 
-import { serverAppConfig } from '@/modules/core/lib/appConfig';
+import { serverAppConfig } from '@/lib/appConfig';
 
 export const anthropicHaikuAdapter = createServerOnlyFn(() => {
   return createAnthropicChat(

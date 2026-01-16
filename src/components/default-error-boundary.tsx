@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { captureException } from '@/modules/core/lib/logger';
+import { captureException } from '@/lib/logger';
 
 export function DefaultErrorBoundary({ error }: ErrorComponentProps) {
   const router = useRouter();

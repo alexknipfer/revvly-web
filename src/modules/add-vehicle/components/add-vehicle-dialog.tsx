@@ -7,7 +7,7 @@ import { useConvexMutation } from '@convex-dev/react-query';
 import { useServerFn } from '@tanstack/react-start';
 
 import { Combobox } from '@/components/ui/combobox';
-import { getSupportedVehicleYears } from '@/modules/core/lib/utils';
+import { getSupportedVehicleYears } from '@/lib/utils';
 import { DrawerDialog } from '@/components/ui/dialog-drawer';
 import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
@@ -21,7 +21,7 @@ import { useMediaQuery } from '@/hooks/use-media-query';
 import {
   getVehicleMakesServerFn,
   getVehicleModelsForMakeServerFn,
-} from '../../server/server-fns';
+} from '../server/server-fns';
 
 const formSchema = z.object({
   year: z.string().min(1),

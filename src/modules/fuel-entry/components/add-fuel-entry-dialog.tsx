@@ -8,12 +8,13 @@ import { Id } from 'convex/_generated/dataModel';
 import { DrawerDialog } from '@/components/ui/dialog-drawer';
 import { Button } from '@/components/ui/button';
 
-import { vehicleByIdQueryOptions } from '../../../lib/query-options';
-import { fuelTypeSchema, fuelLevelSchema } from '@/modules/core/types/vehicles';
-import { defaultTo } from '@/modules/core/lib/utils';
-import { useAppForm } from '@/modules/core/hooks/use-form';
+import { fuelTypeSchema, fuelLevelSchema } from '@/types/vehicles';
+import { defaultTo } from '@/lib/utils';
+import { useAppForm } from '@/hooks/use-form';
+import { vehicleByIdQueryOptions } from '@/api/query-options';
+
 import { FuelEntryFieldGroup } from './fuel-entry-field-group';
-import { UploadReceiptDialog } from '@/modules/vehicle/ui/components/fuel-entry/upload-receipt-dialog';
+import { UploadReceiptDialog } from './upload-receipt-dialog';
 
 const formSchema = z.object({
   fuelEntryFields: z.object({

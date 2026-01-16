@@ -6,11 +6,11 @@ import { useConvexMutation } from '@convex-dev/react-query';
 import { api } from 'convex/_generated/api';
 import { DrawerDialog } from '@/components/ui/dialog-drawer';
 import { Button } from '@/components/ui/button';
-import { useAppForm } from '@/modules/core/hooks/use-form';
+import { useAppForm } from '@/hooks/use-form';
 import { FuelEntryFieldGroup } from './fuel-entry-field-group';
-import { fuelTypeSchema, fuelLevelSchema } from '@/modules/core/types/vehicles';
+import { fuelTypeSchema, fuelLevelSchema } from '@/types/vehicles';
 import { Id } from 'convex/_generated/dataModel';
-import { fuelEntryByIdQueryOptions } from '@/modules/vehicle/lib/query-options';
+import { fuelEntryByIdQueryOptions } from '@/api/query-options';
 
 const formSchema = z.object({
   fuelEntryFields: z.object({
@@ -86,6 +86,7 @@ export function EditFuelEntryDialog({
       location: data.fuelEntryFields.location || undefined,
       notes: data.fuelEntryFields.notes || undefined,
       missedFuelup: data.fuelEntryFields.missedFuelup,
+      date: data.fuelEntryFields.date.toISOString(),
     });
   };
 

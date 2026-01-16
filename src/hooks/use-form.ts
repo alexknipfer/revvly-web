@@ -6,7 +6,7 @@ import {
   CheckboxField,
   ComboboxField,
   TextareaField,
-} from '../../../components/forms';
+} from '../components/forms';
 
 // Export form contexts for use in custom components
 export const { fieldContext, formContext, useFieldContext, useFormContext } =

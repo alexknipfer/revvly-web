@@ -1,9 +1,10 @@
-import { searchNearbyGasStations } from '@/modules/vehicle/lib/search-nearby-gas-stations';
 import { convexQuery } from '@convex-dev/react-query';
 import { queryOptions } from '@tanstack/react-query';
 
 import { api } from 'convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
+
+import { searchNearbyGasStations } from './google-places';
 
 interface VehicleByIdArgs {
   vehicleId: string;

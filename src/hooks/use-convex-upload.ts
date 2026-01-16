@@ -2,8 +2,8 @@ import ky from 'ky';
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useConvexMutation } from '@convex-dev/react-query';
+import { tryCatch } from '@/lib/utils';
 
-import { tryCatch } from '@/modules/core/lib/utils';
 import { api } from 'convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
 

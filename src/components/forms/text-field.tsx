@@ -1,4 +1,4 @@
-import { useFieldContext } from '../../modules/core/hooks/use-form';
+import { useFieldContext } from '../../hooks/use-form';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 

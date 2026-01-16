@@ -1,6 +1,6 @@
 import { createServerOnlyFn } from '@tanstack/react-start';
 
-import { captureException } from '@/modules/core/lib/logger';
+import { captureException } from '@/lib/logger';
 
 const loadEnvironmentVariable = (key: string) => {
   const envVar = import.meta.env[key];

@@ -7,7 +7,7 @@ import * as Sentry from '@sentry/tanstackstart-react';
 import { toast } from 'sonner';
 import { ConvexError } from 'convex/values';
 
-import { appConfig } from '@/modules/core/lib/appConfig';
+import { appConfig } from '@/lib/appConfig';
 
 import { routeTree } from './routeTree.gen';
 import { DefaultErrorBoundary } from '@/components/default-error-boundary';
