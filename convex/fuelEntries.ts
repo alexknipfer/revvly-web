@@ -122,6 +122,7 @@ export const getById = query({
 export const update = mutation({
   args: {
     id: v.id('fuel_entries'),
+    date: v.string(),
     odometer: v.number(),
     costPerGallon: v.number(),
     totalGallons: v.number(),
@@ -140,6 +141,7 @@ export const update = mutation({
     ctx,
     {
       id,
+      date,
       odometer,
       costPerGallon,
       totalGallons,
@@ -178,13 +180,17 @@ export const update = mutation({
           .eq('vehicleId', currentEntry.vehicleId),
       )
       .filter((q) =>
-        q.and(
-          q.lt(q.field('date'), currentEntry.date),
-          q.neq(q.field('_id'), id),
-        ),
+        q.and(q.lt(q.field('date'), date), q.neq(q.field('_id'), id)),
       )
       .order('desc')
       .first();
+
+    if (previousEntry && odometer <= previousEntry.odometer) {
+      throw new ConvexError({
+        message:
+          'Your current odometer value is less than your previous fuel entry',
+      });
+    }
 
     let mpg: number | undefined = undefined;
     let totalMiles = 0;

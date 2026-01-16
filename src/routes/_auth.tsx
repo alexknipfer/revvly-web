@@ -22,7 +22,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { AddVehicleDialog } from '@/modules/add-vehicle/ui/components/add-vehicle-dialog';
+import { AddVehicleDialog } from '@/modules/add-vehicle/components/add-vehicle-dialog';
 import { auth } from '@clerk/tanstack-react-start/server';
 import { createServerFn } from '@tanstack/react-start';
 

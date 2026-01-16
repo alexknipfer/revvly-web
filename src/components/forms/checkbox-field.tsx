@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { useFieldContext } from '../../modules/core/hooks/use-form';
+import { useFieldContext } from '../../hooks/use-form';
 import {
   Field,
   FieldContent,
