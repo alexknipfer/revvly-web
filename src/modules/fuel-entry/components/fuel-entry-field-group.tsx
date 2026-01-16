@@ -144,7 +144,7 @@ export const FuelEntryFieldGroup = withFieldGroup({
               labelSuffix={
                 latestOdometer ? (
                   <span className="text-xs text-muted-foreground font-normal">
-                    Last: {latestOdometer.toLocaleString()}
+                    Latest: {latestOdometer.toLocaleString()}
                   </span>
                 ) : undefined
               }

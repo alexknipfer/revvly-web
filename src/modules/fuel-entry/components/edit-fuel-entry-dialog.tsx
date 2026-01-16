@@ -31,6 +31,7 @@ const formSchema = z.object({
 interface Props {
   open: boolean;
   fuelEntryId: Id<'fuel_entries'>;
+  latestOdometer: number | null;
   onOpenChange: (open: boolean) => void;
   onFuelEntryUpdated?: () => void;
 }
@@ -38,6 +39,7 @@ interface Props {
 export function EditFuelEntryDialog({
   open,
   fuelEntryId,
+  latestOdometer,
   onOpenChange,
   onFuelEntryUpdated,
 }: Props) {
@@ -118,7 +120,7 @@ export function EditFuelEntryDialog({
             <FuelEntryFieldGroup
               form={form}
               fields="fuelEntryFields"
-              latestOdometer={fuelEntry.latestOdometer}
+              latestOdometer={latestOdometer}
             />
             <form.Subscribe
               selector={(state) => state.isDirty}
