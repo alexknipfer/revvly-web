@@ -1,6 +1,7 @@
 import z from 'zod';
 import { useConvexMutation } from '@convex-dev/react-query';
-import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { Loader } from 'lucide-react';
 
 import { fuelEntryByIdQueryOptions } from '@/api/query-options';
 import { Button } from '@/components/ui/button';
@@ -37,7 +38,11 @@ export function EditFuelEntryForm({
   fetchFuelEntryEnabled,
   onSuccess,
 }: Props) {
-  const { data: fuelEntry } = useSuspenseQuery(
+  const {
+    data: fuelEntry,
+    error,
+    isPending,
+  } = useQuery(
     fuelEntryByIdQueryOptions({
       id: fuelEntryId,
       enabled: fetchFuelEntryEnabled,
@@ -85,6 +90,18 @@ export function EditFuelEntryForm({
       date: data.fuelEntryFields.date.toISOString(),
     });
   };
+
+  if (isPending) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loader className="size-4 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    throw new Error('Failed to fetch fuel entry');
+  }
 
   return (
     <form

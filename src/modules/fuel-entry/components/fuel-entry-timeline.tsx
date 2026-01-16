@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Suspense, useMemo, useState } from 'react';
-import { Fuel, Loader, Pencil } from 'lucide-react';
+import { Fuel, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 import { getRouteApi } from '@tanstack/react-router';
 
@@ -138,22 +138,14 @@ function FuelEntryTimelineItem({ entry }: { entry: Doc<'fuel_entries'> }) {
         onOpenChange={setEditDialogOpen}
         hideHeaderOnMobile
       >
-        <Suspense
-          fallback={
-            <div className="flex items-center justify-center h-full">
-              <Loader className="size-4 animate-spin" />
-            </div>
-          }
-        >
-          <EditFuelEntryForm
-            fuelEntryId={entry._id}
-            onSuccess={() => {
-              toast.success('Fuel entry updated successfully');
-              setEditDialogOpen(false);
-            }}
-            fetchFuelEntryEnabled={editDialogOpen}
-          />
-        </Suspense>
+        <EditFuelEntryForm
+          fuelEntryId={entry._id}
+          onSuccess={() => {
+            toast.success('Fuel entry updated successfully');
+            setEditDialogOpen(false);
+          }}
+          fetchFuelEntryEnabled={editDialogOpen}
+        />
       </DrawerDialog>
     </>
   );

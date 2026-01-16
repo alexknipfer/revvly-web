@@ -47,8 +47,8 @@ export const fuelEntryByIdQueryOptions = ({
   id,
   enabled = true,
 }: FuelEntryByIdArgs) =>
-  queryOptions(
-    convexQuery(
+  queryOptions({
+    ...convexQuery(
       api.fuelEntries.getById,
       enabled
         ? {
@@ -56,7 +56,8 @@ export const fuelEntryByIdQueryOptions = ({
           }
         : 'skip',
     ),
-  );
+    enabled,
+  });
 
 export const fuelEntriesOptions = (vehicleId: string) =>
   queryOptions(
