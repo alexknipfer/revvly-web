@@ -57,3 +57,10 @@ export const fuelEntryByIdQueryOptions = ({
         : 'skip',
     ),
   );
+
+export const fuelEntriesOptions = (vehicleId: string) =>
+  queryOptions(
+    convexQuery(api.fuelEntries.getAll, {
+      vehicleId: vehicleId as Id<'vehicles'>,
+    }),
+  );

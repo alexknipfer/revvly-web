@@ -9,9 +9,8 @@ import { vehicleByIdQueryOptions } from '@/api/query-options';
 import { VehicleStatCard } from '@/modules/vehicle/components/vehicle-stat-card';
 import { MpgTrendChart } from '@/modules/fuel-entry/components/charts/mpg-trend-chart';
 import { FuelCostChart } from '@/modules/fuel-entry/components/charts/fuel-cost-chart';
-import { VehicleTimeline } from '@/modules/vehicle/components/vehicle-timeline/vehicle-timeline';
+import { FuelEntryTimeline } from '@/modules/fuel-entry/components/fuel-entry-timeline';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { hasDefined } from '@/lib/utils';
 
 import { api } from 'convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
@@ -21,18 +20,17 @@ export const Route = createFileRoute('/_auth/vehicles/$vehicleId')({
   // TODO: Add a loading state
   pendingComponent: () => <div>Loading vehicle data...</div>,
   loader: async ({ context, params }) => {
-    await Promise.all([
-      context.queryClient.ensureQueryData(
-        convexQuery(api.fuelEntries.getAll, {
-          vehicleId: params.vehicleId as Id<'vehicles'>,
-        }),
-      ),
-      context.queryClient.ensureQueryData(
-        convexQuery(api.vehicles.getById, {
-          id: params.vehicleId as Id<'vehicles'>,
-        }),
-      ),
-    ]);
+    context.queryClient.prefetchQuery(
+      convexQuery(api.fuelEntries.getAll, {
+        vehicleId: params.vehicleId as Id<'vehicles'>,
+      }),
+    );
+
+    await context.queryClient.ensureQueryData(
+      convexQuery(api.vehicles.getById, {
+        id: params.vehicleId as Id<'vehicles'>,
+      }),
+    );
   },
 });
 
@@ -41,11 +39,6 @@ function RouteComponent() {
 
   const { data: vehicle } = useSuspenseQuery(
     vehicleByIdQueryOptions({ vehicleId }),
-  );
-  const { data: fuelEntries } = useSuspenseQuery(
-    convexQuery(api.fuelEntries.getAll, {
-      vehicleId: vehicleId as Id<'vehicles'>,
-    }),
   );
 
   return (
@@ -113,22 +106,12 @@ function RouteComponent() {
           </TabsList>
           <TabsContent value="overview" className="mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <MpgTrendChart
-                data={fuelEntries.filter(hasDefined('mpg')).map((entry) => ({
-                  date: entry.date,
-                  mpg: entry.mpg,
-                }))}
-              />
-              <FuelCostChart
-                data={fuelEntries.map((entry) => ({
-                  date: entry.date,
-                  cost: entry.totalCost,
-                }))}
-              />
+              <MpgTrendChart vehicleId={vehicleId} />
+              <FuelCostChart vehicleId={vehicleId} />
             </div>
           </TabsContent>
           <TabsContent value="vehicle-logs" className="mt-6">
-            <VehicleTimeline />
+            <FuelEntryTimeline vehicleId={vehicleId} />
           </TabsContent>
         </Tabs>
       </div>
