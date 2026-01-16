@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { Loader } from 'lucide-react';
 import { Suspense } from 'react';
 import { useSuspenseQuery } from '@tanstack/react-query';
+import { getRouteApi } from '@tanstack/react-router';
 
 import {
   Card,
@@ -19,6 +20,8 @@ import {
 } from '@/components/ui/chart';
 import { fuelEntriesOptions } from '@/api/query-options';
 
+const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
+
 const chartConfig = {
   cost: {
     label: 'Cost',
@@ -26,23 +29,20 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-interface Props {
-  vehicleId: string;
-}
-
 function formatDateForChart(dateString: string): string {
   return dayjs(dateString).format('MMM D');
 }
 
-export function FuelCostChart({ vehicleId }: Props) {
+export function FuelCostChart() {
   return (
     <Suspense fallback={<FuelCostChartSkeleton />}>
-      <Chart vehicleId={vehicleId} />
+      <Chart />
     </Suspense>
   );
 }
 
-function Chart({ vehicleId }: Props) {
+function Chart() {
+  const { vehicleId } = routeApi.useParams();
   const { data: fuelEntries } = useSuspenseQuery(fuelEntriesOptions(vehicleId));
 
   // Group entries by date and sum costs for same-day entries

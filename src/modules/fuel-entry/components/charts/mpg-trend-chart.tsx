@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/chart';
 import { hasDefined } from '@/lib/utils';
 import { fuelEntriesOptions } from '@/api/query-options';
+import { getRouteApi } from '@tanstack/react-router';
 
 const chartConfig = {
   mpg: {
@@ -27,23 +28,22 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-interface Props {
-  vehicleId: string;
-}
+const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
 
 function formatDateForChart(dateString: string): string {
   return dayjs(dateString).format('MMM D');
 }
 
-export function MpgTrendChart({ vehicleId }: Props) {
+export function MpgTrendChart() {
   return (
     <Suspense fallback={<MpgTrendChartSkeleton />}>
-      <Chart vehicleId={vehicleId} />
+      <Chart />
     </Suspense>
   );
 }
 
-function Chart({ vehicleId }: Props) {
+function Chart() {
+  const { vehicleId } = routeApi.useParams();
   const { data: fuelEntries } = useSuspenseQuery(fuelEntriesOptions(vehicleId));
 
   // Group entries by date and average MPG for same-day entries

@@ -106,12 +106,12 @@ function RouteComponent() {
           </TabsList>
           <TabsContent value="overview" className="mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <MpgTrendChart vehicleId={vehicleId} />
-              <FuelCostChart vehicleId={vehicleId} />
+              <MpgTrendChart />
+              <FuelCostChart />
             </div>
           </TabsContent>
           <TabsContent value="vehicle-logs" className="mt-6">
-            <FuelEntryTimeline vehicleId={vehicleId} />
+            <FuelEntryTimeline />
           </TabsContent>
         </Tabs>
       </div>

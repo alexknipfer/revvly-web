@@ -10,6 +10,9 @@ import { fuelTypeSchema, fuelLevelSchema } from '@/types/vehicles';
 import { withFieldGroup, useFieldContext } from '@/hooks/use-form';
 
 import { NearbyGasStationDialog } from './nearby-gas-station-dialog';
+import { getRouteApi } from '@tanstack/react-router';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { vehicleByIdQueryOptions } from '@/api/query-options';
 
 type FuelEntryFields = {
   date: Date;
@@ -109,12 +112,16 @@ function LocationField() {
   );
 }
 
+const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
+
 export const FuelEntryFieldGroup = withFieldGroup({
   defaultValues,
-  props: {
-    latestOdometer: null as number | null,
-  },
-  render: function Render({ group, latestOdometer }) {
+  render: function Render({ group }) {
+    const { vehicleId } = routeApi.useParams();
+    const { data: vehicle } = useSuspenseQuery(
+      vehicleByIdQueryOptions({ vehicleId }),
+    );
+
     const costPerGallon = useStore(
       group.store,
       (state) => state.values.costPerGallon,
@@ -142,9 +149,9 @@ export const FuelEntryFieldGroup = withFieldGroup({
               label="Odometer *"
               step="0.001"
               labelSuffix={
-                latestOdometer ? (
+                vehicle.latestOdometer ? (
                   <span className="text-xs text-muted-foreground font-normal">
-                    Latest: {latestOdometer.toLocaleString()}
+                    Latest: {vehicle.latestOdometer.toLocaleString()}
                   </span>
                 ) : undefined
               }

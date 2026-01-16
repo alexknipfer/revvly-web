@@ -1,16 +1,14 @@
-import { z } from 'zod';
-import { Loader } from 'lucide-react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import z from 'zod';
 import { useConvexMutation } from '@convex-dev/react-query';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 
-import { api } from 'convex/_generated/api';
-import { DrawerDialog } from '@/components/ui/dialog-drawer';
+import { fuelEntryByIdQueryOptions } from '@/api/query-options';
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/hooks/use-form';
-import { FuelEntryFieldGroup } from './fuel-entry-field-group';
-import { fuelTypeSchema, fuelLevelSchema } from '@/types/vehicles';
+import { FuelEntryFieldGroup } from '@/modules/fuel-entry/components/fuel-entry-field-group';
+import { fuelLevelSchema, fuelTypeSchema } from '@/types/vehicles';
+import { api } from 'convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
-import { fuelEntryByIdQueryOptions } from '@/api/query-options';
 
 const formSchema = z.object({
   fuelEntryFields: z.object({
@@ -29,25 +27,22 @@ const formSchema = z.object({
 });
 
 interface Props {
-  open: boolean;
   fuelEntryId: Id<'fuel_entries'>;
-  latestOdometer: number | null;
-  onOpenChange: (open: boolean) => void;
-  onFuelEntryUpdated?: () => void;
+  onSuccess?: () => void;
+  fetchFuelEntryEnabled?: boolean;
 }
 
-export function EditFuelEntryDialog({
-  open,
+export function EditFuelEntryForm({
   fuelEntryId,
-  latestOdometer,
-  onOpenChange,
-  onFuelEntryUpdated,
+  fetchFuelEntryEnabled,
+  onSuccess,
 }: Props) {
-  const {
-    data: fuelEntry,
-    isPending,
-    isError,
-  } = useQuery(fuelEntryByIdQueryOptions({ id: fuelEntryId, enabled: open }));
+  const { data: fuelEntry } = useSuspenseQuery(
+    fuelEntryByIdQueryOptions({
+      id: fuelEntryId,
+      enabled: fetchFuelEntryEnabled,
+    }),
+  );
 
   const form = useAppForm({
     defaultValues: {
@@ -72,8 +67,7 @@ export function EditFuelEntryDialog({
   const updateFuelEntryMutation = useMutation({
     mutationFn: useConvexMutation(api.fuelEntries.update),
     onSuccess: () => {
-      onFuelEntryUpdated?.();
-      onOpenChange(false);
+      onSuccess?.();
     },
   });
 
@@ -92,53 +86,31 @@ export function EditFuelEntryDialog({
     });
   };
 
-  if (isError) {
-    throw new Error('Failed to load fuel entry');
-  }
-
   return (
-    <DrawerDialog
-      title="Edit Fuel Entry"
-      description="Update your fuel fill-up details"
-      open={open}
-      onOpenChange={onOpenChange}
-      hideHeaderOnMobile
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        form.handleSubmit();
+      }}
+      className="grid grid-cols-2 gap-4 overflow-y-auto"
     >
-      {isPending ? (
-        <div className="flex items-center justify-center h-full">
-          <Loader className="size-4 animate-spin" />
-        </div>
-      ) : (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            form.handleSubmit();
-          }}
-          className="grid grid-cols-2 gap-4 overflow-y-auto"
-        >
-          <form.AppForm>
-            <FuelEntryFieldGroup
-              form={form}
-              fields="fuelEntryFields"
-              latestOdometer={latestOdometer}
-            />
-            <form.Subscribe
-              selector={(state) => state.isDirty}
-              children={(isDirty) => (
-                <Button
-                  type="submit"
-                  className="col-span-2"
-                  disabled={updateFuelEntryMutation.isPending || !isDirty}
-                >
-                  {updateFuelEntryMutation.isPending
-                    ? 'Updating...'
-                    : 'Update Fuel Entry'}
-                </Button>
-              )}
-            />
-          </form.AppForm>
-        </form>
-      )}
-    </DrawerDialog>
+      <form.AppForm>
+        <FuelEntryFieldGroup form={form} fields="fuelEntryFields" />
+        <form.Subscribe
+          selector={(state) => state.isDirty}
+          children={(isDirty) => (
+            <Button
+              type="submit"
+              className="col-span-2"
+              disabled={updateFuelEntryMutation.isPending || !isDirty}
+            >
+              {updateFuelEntryMutation.isPending
+                ? 'Updating...'
+                : 'Update Fuel Entry'}
+            </Button>
+          )}
+        />
+      </form.AppForm>
+    </form>
   );
 }
