@@ -1,7 +1,8 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Suspense, useMemo, useState } from 'react';
-import { Fuel, Pencil } from 'lucide-react';
+import { Fuel, Loader, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
+import { getRouteApi } from '@tanstack/react-router';
 
 import { Timeline } from '@/components/timeline';
 import {
@@ -21,47 +22,36 @@ import {
   ItemDescription,
   ItemTitle,
 } from '@/components/ui/item';
-import {
-  fuelEntriesOptions,
-  vehicleByIdQueryOptions,
-} from '@/api/query-options';
+import { fuelEntriesOptions } from '@/api/query-options';
+import { DrawerDialog } from '@/components/ui/dialog-drawer';
 
-import { EditFuelEntryDialog } from './edit-fuel-entry-dialog';
-import { AddFuelEntryDialog } from './add-fuel-entry-dialog';
 import { Doc } from 'convex/_generated/dataModel';
 
-interface Props {
-  vehicleId: string;
-}
+import { AddFuelEntryDialog } from './add-fuel-entry-dialog';
+import { EditFuelEntryForm } from './forms/edit-fuel-entry-form';
 
-export function FuelEntryTimeline({ vehicleId }: Props) {
+const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
+
+export function FuelEntryTimeline() {
   return (
     <Suspense fallback={<FuelEntryTimelineSkeleton />}>
-      <FuelEntryTimelineContent vehicleId={vehicleId} />
+      <FuelEntryTimelineContent />
     </Suspense>
   );
 }
 
-function FuelEntryTimelineContent({ vehicleId }: Props) {
+function FuelEntryTimelineContent() {
+  const { vehicleId } = routeApi.useParams();
   const [fuelEntryDialogOpen, setFuelEntryDialogOpen] = useState(false);
 
-  const { data: vehicle } = useSuspenseQuery(
-    vehicleByIdQueryOptions({ vehicleId }),
-  );
   const { data: fuelEntries } = useSuspenseQuery(fuelEntriesOptions(vehicleId));
 
   const timelineItems = useMemo(() => {
     return fuelEntries.map((entry) => ({
       icon: <Fuel className="size-4" />,
-      content: (
-        <FuelEntryTimelineItem
-          key={entry._id}
-          entry={entry}
-          latestOdometer={vehicle.latestOdometer}
-        />
-      ),
+      content: <FuelEntryTimelineItem key={entry._id} entry={entry} />,
     }));
-  }, [fuelEntries, vehicle.latestOdometer]);
+  }, [fuelEntries]);
 
   if (fuelEntries.length === 0) {
     return (
@@ -92,20 +82,10 @@ function FuelEntryTimelineContent({ vehicleId }: Props) {
     );
   }
 
-  return (
-    <>
-      <Timeline items={timelineItems} />
-    </>
-  );
+  return <Timeline items={timelineItems} />;
 }
 
-function FuelEntryTimelineItem({
-  entry,
-  latestOdometer,
-}: {
-  entry: Doc<'fuel_entries'>;
-  latestOdometer: number | null;
-}) {
+function FuelEntryTimelineItem({ entry }: { entry: Doc<'fuel_entries'> }) {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   const date = new Date(entry.date);
@@ -151,13 +131,30 @@ function FuelEntryTimelineItem({
           </div>
         </ItemContent>
       </Item>
-      <EditFuelEntryDialog
+      <DrawerDialog
+        title="Edit Fuel Entry"
+        description="Update your fuel fill-up details"
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
-        fuelEntryId={entry._id}
-        latestOdometer={latestOdometer}
-        onFuelEntryUpdated={() => setEditDialogOpen(false)}
-      />
+        hideHeaderOnMobile
+      >
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center h-full">
+              <Loader className="size-4 animate-spin" />
+            </div>
+          }
+        >
+          <EditFuelEntryForm
+            fuelEntryId={entry._id}
+            onSuccess={() => {
+              toast.success('Fuel entry updated successfully');
+              setEditDialogOpen(false);
+            }}
+            fetchFuelEntryEnabled={editDialogOpen}
+          />
+        </Suspense>
+      </DrawerDialog>
     </>
   );
 }
