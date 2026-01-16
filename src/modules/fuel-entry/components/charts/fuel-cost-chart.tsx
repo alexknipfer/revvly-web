@@ -1,5 +1,8 @@
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from 'recharts';
 import dayjs from 'dayjs';
+import { Loader } from 'lucide-react';
+import { Suspense } from 'react';
+import { useSuspenseQuery } from '@tanstack/react-query';
 
 import {
   Card,
@@ -14,6 +17,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from '@/components/ui/chart';
+import { fuelEntriesOptions } from '@/api/query-options';
 
 const chartConfig = {
   cost: {
@@ -22,21 +26,27 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-interface FuelCostChartProps {
-  data: Array<{ date: string; cost: number }>;
+interface Props {
+  vehicleId: string;
 }
 
 function formatDateForChart(dateString: string): string {
   return dayjs(dateString).format('MMM D');
 }
 
-export function FuelCostChart({ data }: FuelCostChartProps) {
-  const validEntries = data.filter(
-    (entry) => entry.cost != null && !isNaN(entry.cost),
+export function FuelCostChart({ vehicleId }: Props) {
+  return (
+    <Suspense fallback={<FuelCostChartSkeleton />}>
+      <Chart vehicleId={vehicleId} />
+    </Suspense>
   );
+}
+
+function Chart({ vehicleId }: Props) {
+  const { data: fuelEntries } = useSuspenseQuery(fuelEntriesOptions(vehicleId));
 
   // Group entries by date and sum costs for same-day entries
-  const groupedByDate = validEntries.reduce<
+  const groupedByDate = fuelEntries.reduce<
     Record<string, { date: string; cost: number }>
   >((acc, entry) => {
     const dateKey = dayjs(entry.date).startOf('day').toISOString();
@@ -46,7 +56,7 @@ export function FuelCostChart({ data }: FuelCostChartProps) {
         cost: 0,
       };
     }
-    acc[dateKey].cost += entry.cost;
+    acc[dateKey].cost += entry.totalCost;
 
     return acc;
   }, {});
@@ -115,6 +125,22 @@ export function FuelCostChart({ data }: FuelCostChartProps) {
             No fuel cost data available for the last 12 months
           </div>
         )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function FuelCostChartSkeleton() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Fuel Cost</CardTitle>
+        <CardDescription>Last 12 months</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center justify-center h-48 text-muted-foreground">
+          <Loader className="size-4 animate-spin" />
+        </div>
       </CardContent>
     </Card>
   );

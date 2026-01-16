@@ -1,5 +1,8 @@
+import { Suspense } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from 'recharts';
 import dayjs from 'dayjs';
+import { Loader } from 'lucide-react';
+import { useSuspenseQuery } from '@tanstack/react-query';
 
 import {
   Card,
@@ -14,6 +17,8 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from '@/components/ui/chart';
+import { hasDefined } from '@/lib/utils';
+import { fuelEntriesOptions } from '@/api/query-options';
 
 const chartConfig = {
   mpg: {
@@ -22,36 +27,44 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-interface MpgTrendChartProps {
-  data: Array<{ date: string; mpg: number }>;
+interface Props {
+  vehicleId: string;
 }
 
 function formatDateForChart(dateString: string): string {
   return dayjs(dateString).format('MMM D');
 }
 
-export function MpgTrendChart({ data }: MpgTrendChartProps) {
-  const validEntries = data.filter(
-    (entry) => entry.mpg != null && !isNaN(entry.mpg),
+export function MpgTrendChart({ vehicleId }: Props) {
+  return (
+    <Suspense fallback={<MpgTrendChartSkeleton />}>
+      <Chart vehicleId={vehicleId} />
+    </Suspense>
   );
+}
+
+function Chart({ vehicleId }: Props) {
+  const { data: fuelEntries } = useSuspenseQuery(fuelEntriesOptions(vehicleId));
 
   // Group entries by date and average MPG for same-day entries
-  const groupedByDate = validEntries.reduce<
-    Record<string, { date: string; mpg: number; count: number }>
-  >((acc, entry) => {
-    const dateKey = dayjs(entry.date).startOf('day').toISOString();
-    if (!acc[dateKey]) {
-      acc[dateKey] = {
-        date: entry.date,
-        mpg: 0,
-        count: 0,
-      };
-    }
-    acc[dateKey].mpg += entry.mpg;
-    acc[dateKey].count += 1;
+  const groupedByDate = fuelEntries
+    .filter(hasDefined('mpg'))
+    .reduce<
+      Record<string, { date: string; mpg: number; count: number }>
+    >((acc, entry) => {
+      const dateKey = dayjs(entry.date).startOf('day').toISOString();
+      if (!acc[dateKey]) {
+        acc[dateKey] = {
+          date: entry.date,
+          mpg: 0,
+          count: 0,
+        };
+      }
+      acc[dateKey].mpg += entry.mpg;
+      acc[dateKey].count += 1;
 
-    return acc;
-  }, {});
+      return acc;
+    }, {});
 
   const chartData = Object.values(groupedByDate)
     .map((entry) => ({
@@ -121,6 +134,22 @@ export function MpgTrendChart({ data }: MpgTrendChartProps) {
             No MPG data available for the last 12 months
           </div>
         )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function MpgTrendChartSkeleton() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>MPG Trend</CardTitle>
+        <CardDescription>Last 12 months</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center justify-center h-48 text-muted-foreground">
+          <Loader className="size-4 animate-spin" />
+        </div>
       </CardContent>
     </Card>
   );
