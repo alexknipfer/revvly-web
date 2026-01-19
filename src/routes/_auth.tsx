@@ -47,7 +47,11 @@ export const Route = createFileRoute('/_auth')({
   }),
   component: RouteComponent,
   beforeLoad: async ({ context }) => {
-    const auth = await fetchClerkAuth();
+    // Cache to prevent slow client side navigations. See: https://github.com/TanStack/router/issues/3997
+    const auth = await context.queryClient.ensureQueryData({
+      queryKey: ['auth'],
+      queryFn: fetchClerkAuth,
+    });
     const { userId, token } = auth;
 
     if (token && context.convexQueryClient.serverHttpClient?.setAuth) {

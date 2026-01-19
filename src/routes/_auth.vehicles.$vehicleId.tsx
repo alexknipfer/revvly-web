@@ -1,6 +1,10 @@
 import { convexQuery } from '@convex-dev/react-query';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { z } from 'zod';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { Fuel, Plus, Wrench } from 'lucide-react';
 
 import { AddFuelEntryMenu } from '@/modules/fuel-entry/components/add-fuel-entry-menu';
 import { VehicleActionsMenu } from '@/modules/vehicle/components/vehicle-actions-menu';
@@ -10,6 +14,7 @@ import { VehicleStatCard } from '@/modules/vehicle/components/vehicle-stat-card'
 import { MpgTrendChart } from '@/modules/fuel-entry/components/charts/mpg-trend-chart';
 import { FuelCostChart } from '@/modules/fuel-entry/components/charts/fuel-cost-chart';
 import { FuelEntryTimeline } from '@/modules/fuel-entry/components/fuel-entry-timeline';
+import { ServiceTimeline } from '@/modules/service/components/service-timeline';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Card,
@@ -18,16 +23,39 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 import { api } from 'convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
+import { AddFuelEntryDialog } from '@/modules/fuel-entry/components/add-fuel-entry-dialog';
+import { AddServiceDialog } from '@/modules/service/components/add-service-dialog';
+import { Button } from '@/components/ui/button';
+
+const searchSchema = z.object({
+  activeTab: z
+    .enum(['overview', 'fuel-logs', 'service-logs'])
+    .optional()
+    .catch('overview'),
+});
 
 export const Route = createFileRoute('/_auth/vehicles/$vehicleId')({
   component: RouteComponent,
   pendingComponent: LoadingComponent,
+  validateSearch: searchSchema,
   loader: async ({ context, params }) => {
     context.queryClient.prefetchQuery(
       convexQuery(api.fuelEntries.getAll, {
+        vehicleId: params.vehicleId as Id<'vehicles'>,
+      }),
+    );
+
+    context.queryClient.prefetchQuery(
+      convexQuery(api.services.getAll, {
         vehicleId: params.vehicleId as Id<'vehicles'>,
       }),
     );
@@ -42,6 +70,11 @@ export const Route = createFileRoute('/_auth/vehicles/$vehicleId')({
 
 function RouteComponent() {
   const { vehicleId } = Route.useParams();
+  const { activeTab } = Route.useSearch();
+  const navigate = useNavigate({ from: Route.fullPath });
+
+  const [fuelEntryDialogOpen, setFuelEntryDialogOpen] = useState(false);
+  const [serviceDialogOpen, setServiceDialogOpen] = useState(false);
 
   const { data: vehicle } = useSuspenseQuery(
     vehicleByIdQueryOptions({ vehicleId }),
@@ -100,15 +133,62 @@ function RouteComponent() {
               </div>
               <div className="hidden md:flex space-x-2 shrink-0">
                 <VehicleActionsMenu />
-                <AddFuelEntryMenu />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="shrink-0">
+                      <Plus className="size-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    <DropdownMenuItem
+                      onClick={() => setFuelEntryDialogOpen(true)}
+                    >
+                      <Fuel className="size-4" />
+                      Add Fuel Entry
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setServiceDialogOpen(true)}
+                    >
+                      <Wrench className="size-4" />
+                      Add Service
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                  <AddFuelEntryDialog
+                    open={fuelEntryDialogOpen}
+                    onOpenChange={setFuelEntryDialogOpen}
+                    onFuelEntryCreated={() => {
+                      setFuelEntryDialogOpen(false);
+                      toast.success('Fuel entry added successfully');
+                    }}
+                  />
+                  <AddServiceDialog
+                    open={serviceDialogOpen}
+                    onOpenChange={setServiceDialogOpen}
+                    onServiceCreated={() => {
+                      setServiceDialogOpen(false);
+                      toast.success('Service entry added successfully');
+                    }}
+                  />
+                </DropdownMenu>
               </div>
             </div>
           </div>
         </div>
-        <Tabs defaultValue="overview" className="w-full">
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) =>
+            navigate({
+              search: {
+                activeTab: value as 'overview' | 'fuel-logs' | 'service-logs',
+              },
+            })
+          }
+          className="w-full"
+        >
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="vehicle-logs">Vehicle Logs</TabsTrigger>
+            <TabsTrigger value="fuel-logs">Fuel Logs</TabsTrigger>
+            <TabsTrigger value="service-logs">Service Logs</TabsTrigger>
           </TabsList>
           <TabsContent value="overview" className="mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -116,8 +196,11 @@ function RouteComponent() {
               <FuelCostChart />
             </div>
           </TabsContent>
-          <TabsContent value="vehicle-logs" className="mt-6">
+          <TabsContent value="fuel-logs" className="mt-6">
             <FuelEntryTimeline />
+          </TabsContent>
+          <TabsContent value="service-logs" className="mt-6">
+            <ServiceTimeline />
           </TabsContent>
         </Tabs>
       </div>
