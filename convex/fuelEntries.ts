@@ -1,5 +1,4 @@
 import { ConvexError } from 'convex/values';
-import dayjs from 'dayjs';
 import { z } from 'zod';
 import { zid } from 'convex-helpers/server/zod4';
 
@@ -225,22 +224,20 @@ export const getAll = zQuery({
     vehicleId: zid('vehicles'),
     startDate: z.iso.datetime().optional(),
   },
-  handler: async (
-    ctx,
-    { vehicleId, startDate = dayjs().subtract(1, 'year').toISOString() },
-  ) => {
+  handler: async (ctx, { vehicleId, startDate }) => {
     const identity = await requireAuth(ctx);
     await verifyVerhicleOwnership({ ctx, vehicleId, identity });
 
-    const results = await ctx.db
+    const query = ctx.db
       .query('fuel_entries')
       .withIndex('by_userid_vehicleid', (q) =>
         q.eq('userId', identity.subject).eq('vehicleId', vehicleId),
-      )
-      .filter((q) => q.gte(q.field('date'), startDate))
-      .order('desc')
-      .collect();
+      );
 
-    return results;
+    if (startDate) {
+      query.filter((q) => q.gte(q.field('date'), startDate));
+    }
+
+    return query.order('desc').collect();
   },
 });
