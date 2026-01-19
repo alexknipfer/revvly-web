@@ -9,7 +9,7 @@ import { Id } from 'convex/_generated/dataModel';
 import { tryCatch } from '@/lib/utils';
 import { getAuthConvexClient } from '@/lib/auth';
 import { anthropicSonnetAdapter } from '@/lib/anthropic';
-import { fuelTypeSchema } from '@/types/vehicles';
+import { fuelTypeSchema } from '@/types/fuel-entry';
 import { captureException } from '@/lib/logger';
 import { appendSentryUser } from '@/middleware/append-sentry-user';
 

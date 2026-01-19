@@ -3,7 +3,7 @@ import { useConvexMutation } from '@convex-dev/react-query';
 import { useMutation } from '@tanstack/react-query';
 
 import { useAppForm } from '@/hooks/use-form';
-import { fuelLevelSchema, fuelTypeSchema } from '@/types/vehicles';
+import { fuelLevelSchema, fuelTypeSchema } from '@/types/fuel-entry';
 import { api } from 'convex/_generated/api';
 import { defaultTo } from '@/lib/utils';
 import { Button } from '@/components/ui/button';

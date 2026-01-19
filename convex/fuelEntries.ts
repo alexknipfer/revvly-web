@@ -1,27 +1,28 @@
-import { ConvexError, v } from 'convex/values';
-
-import { mutation, query } from './_generated/server';
-import { requireAuth, verifyVerhicleOwnership } from './utils/auth';
+import { ConvexError } from 'convex/values';
 import dayjs from 'dayjs';
+import { z } from 'zod';
+import { zid } from 'convex-helpers/server/zod4';
 
-export const create = mutation({
-  args: {
-    date: v.string(),
-    odometer: v.number(),
-    costPerGallon: v.number(),
-    totalGallons: v.number(),
-    type: v.union(
-      v.literal('regular'),
-      v.literal('premium'),
-      v.literal('diesel'),
-      v.literal('e85'),
-    ),
-    level: v.union(v.literal('full'), v.literal('partial')),
-    location: v.optional(v.string()),
-    notes: v.optional(v.string()),
-    vehicleId: v.id('vehicles'),
-    missedFuelup: v.boolean(),
-  },
+import { fuelTypeSchema, fuelLevelSchema } from '../src/types/fuel-entry';
+
+import { requireAuth, verifyVerhicleOwnership } from './utils/auth';
+import { zMutation, zQuery } from './utils/zod';
+
+const fuelEntryFields = z.object({
+  date: z.iso.datetime(),
+  odometer: z.number(),
+  costPerGallon: z.number(),
+  totalGallons: z.number(),
+  type: fuelTypeSchema,
+  level: fuelLevelSchema,
+  location: z.string().optional(),
+  notes: z.string().optional(),
+  vehicleId: zid('vehicles'),
+  missedFuelup: z.boolean(),
+});
+
+export const create = zMutation({
+  args: fuelEntryFields,
   handler: async (
     ctx,
     {
@@ -85,9 +86,9 @@ export const create = mutation({
   },
 });
 
-export const getById = query({
+export const getById = zQuery({
   args: {
-    id: v.id('fuel_entries'),
+    id: zid('fuel_entries'),
   },
   handler: async (ctx, { id }) => {
     const identity = await requireAuth(ctx);
@@ -105,24 +106,12 @@ export const getById = query({
   },
 });
 
-export const update = mutation({
-  args: {
-    id: v.id('fuel_entries'),
-    date: v.string(),
-    odometer: v.number(),
-    costPerGallon: v.number(),
-    totalGallons: v.number(),
-    type: v.union(
-      v.literal('regular'),
-      v.literal('premium'),
-      v.literal('diesel'),
-      v.literal('e85'),
-    ),
-    level: v.union(v.literal('full'), v.literal('partial')),
-    location: v.optional(v.string()),
-    notes: v.optional(v.string()),
-    missedFuelup: v.boolean(),
-  },
+const updateFuelEntryFields = fuelEntryFields.extend({
+  id: zid('fuel_entries'),
+});
+
+export const update = zMutation({
+  args: updateFuelEntryFields,
   handler: async (
     ctx,
     {
@@ -231,10 +220,10 @@ export const update = mutation({
   },
 });
 
-export const getAll = query({
+export const getAll = zQuery({
   args: {
-    vehicleId: v.id('vehicles'),
-    startDate: v.optional(v.string()),
+    vehicleId: zid('vehicles'),
+    startDate: z.iso.datetime().optional(),
   },
   handler: async (
     ctx,
