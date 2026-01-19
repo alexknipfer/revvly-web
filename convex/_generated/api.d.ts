@@ -9,10 +9,14 @@
  */
 
 import type * as fuelEntries from "../fuelEntries.js";
+import type * as fuelEntries_validators from "../fuelEntries/validators.js";
 import type * as migrations from "../migrations.js";
+import type * as services_validators from "../services/validators.js";
 import type * as storage from "../storage.js";
 import type * as utils_auth from "../utils/auth.js";
+import type * as utils_zod from "../utils/zod.js";
 import type * as vehicles from "../vehicles.js";
+import type * as vehicles_validators from "../vehicles/validators.js";
 
 import type {
   ApiFromModules,
@@ -22,10 +26,14 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   fuelEntries: typeof fuelEntries;
+  "fuelEntries/validators": typeof fuelEntries_validators;
   migrations: typeof migrations;
+  "services/validators": typeof services_validators;
   storage: typeof storage;
   "utils/auth": typeof utils_auth;
+  "utils/zod": typeof utils_zod;
   vehicles: typeof vehicles;
+  "vehicles/validators": typeof vehicles_validators;
 }>;
 
 /**

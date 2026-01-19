@@ -1,0 +1,8 @@
+import { defineTable } from 'convex/server';
+
+import { fuelEntryFields } from './validators';
+
+export const fuelEntriesTable = defineTable(fuelEntryFields).index(
+  'by_userid_vehicleid',
+  ['userId', 'vehicleId'],
+);
