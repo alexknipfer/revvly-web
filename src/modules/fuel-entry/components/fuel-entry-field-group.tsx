@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { useGeoLocation } from '@/hooks/use-geo-location';
-import { fuelTypeSchema, fuelLevelSchema } from '@/types/vehicles';
+import { fuelTypeSchema, fuelLevelSchema } from '@/types/fuel-entry';
 import { withFieldGroup, useFieldContext } from '@/hooks/use-form';
 
 import { NearbyGasStationDialog } from './nearby-gas-station-dialog';

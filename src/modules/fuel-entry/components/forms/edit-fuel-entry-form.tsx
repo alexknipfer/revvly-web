@@ -7,7 +7,7 @@ import { fuelEntryByIdQueryOptions } from '@/api/query-options';
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/hooks/use-form';
 import { FuelEntryFieldGroup } from '@/modules/fuel-entry/components/fuel-entry-field-group';
-import { fuelLevelSchema, fuelTypeSchema } from '@/types/vehicles';
+import { fuelLevelSchema, fuelTypeSchema } from '@/types/fuel-entry';
 import { api } from 'convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
 
