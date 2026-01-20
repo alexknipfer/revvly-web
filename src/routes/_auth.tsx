@@ -8,8 +8,10 @@ import {
 } from '@tanstack/react-router';
 import * as Sentry from '@sentry/tanstackstart-react';
 import { convexQuery } from '@convex-dev/react-query';
-import { Car, Check, EllipsisVertical, Plus } from 'lucide-react';
+import { Car, Check, CirclePlus, EllipsisVertical } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { auth } from '@clerk/tanstack-react-start/server';
+import { createServerFn } from '@tanstack/react-start';
 import { useSuspenseQuery } from '@tanstack/react-query';
 
 import { Toaster } from '@/components/ui/sonner';
@@ -23,8 +25,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { AddVehicleDialog } from '@/modules/add-vehicle/components/add-vehicle-dialog';
-import { auth } from '@clerk/tanstack-react-start/server';
-import { createServerFn } from '@tanstack/react-start';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 const fetchClerkAuth = createServerFn({ method: 'GET' }).handler(async () => {
   const authResponse = await auth();
@@ -92,8 +93,8 @@ function RouteComponent() {
   }, [userId]);
 
   return (
-    <div className="bg-slate-900 min-h-svh text-foreground">
-      <nav className="text-foreground border-b border-b-accent w-full sticky top-0 z-10 bg-slate-900">
+    <div className="bg-background min-h-svh text-foreground">
+      <nav className="text-foreground border-b border-b-accent w-full sticky top-0 z-10 bg-background">
         <div className="max-w-7xl mx-auto w-full grid grid-cols-3 sm:grid-cols-2 items-center pl-2.5 pr-2.5 ">
           <Link
             to="/vehicles"
@@ -132,7 +133,7 @@ function RouteComponent() {
                       )}
                     </div>
                     <div className="flex flex-1 flex-col">
-                      <span className="text-sm font-medium text-popover-foreground">
+                      <span className="text-sm text-popover-foreground">
                         {vehicle.name}
                       </span>
                       <span className="text-xs text-muted-foreground">
@@ -147,16 +148,22 @@ function RouteComponent() {
               ))}
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                className="flex items-center gap-3 px-3 py-2.5 cursor-pointer text-popover-foreground font-medium"
+                className="flex items-center justify-between gap-3 text-sm cursor-pointer text-muted-foreground"
                 onClick={() => setAddVehicleOpen(true)}
               >
-                <div className="flex size-5 items-center justify-center rounded-full bg-primary">
-                  <Plus className="size-4 text-primary-foreground" />
-                </div>
                 <span>Add Vehicle</span>
+                <CirclePlus />
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild className="w-full">
+              <div className="px-2 py-1.5 flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Theme</span>
+                <ThemeToggle />
+              </div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                asChild
+                className="w-full text-muted-foreground"
+              >
                 <SignOutButton />
               </DropdownMenuItem>
             </DropdownMenuContent>
