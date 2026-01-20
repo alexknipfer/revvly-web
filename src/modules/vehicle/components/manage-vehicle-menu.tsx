@@ -58,7 +58,7 @@ export function ManageVehicleMenu() {
             </Button>
           }
         />
-        <DropdownMenuContent align="start" className="min-w-fit">
+        <DropdownMenuContent align="start" className="w-40">
           <DropdownMenuItem onClick={() => setActiveDialog('edit')}>
             <Pencil className="size-4" />
             Edit Vehicle

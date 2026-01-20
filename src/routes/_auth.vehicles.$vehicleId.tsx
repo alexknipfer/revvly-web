@@ -181,7 +181,7 @@ function VehicleActionsMenu() {
           </Button>
         }
       ></DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="min-w-fit">
+      <DropdownMenuContent align="start" className="w-40">
         <DropdownMenuItem onClick={() => setFuelEntryDialogOpen(true)}>
           <Fuel className="size-4" />
           Add Fuel Entry
