@@ -120,38 +120,41 @@ function RouteComponent() {
                 Your Vehicles
               </p>
               {vehicles.map((vehicle) => (
-                <DropdownMenuItem key={vehicle._id}>
-                  <Link
-                    to={`/vehicles/$vehicleId`}
-                    params={{ vehicleId: vehicle._id }}
-                    className="flex items-center gap-3 cursor-pointer w-full"
-                  >
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted">
-                      {vehicle.imageUrl ? (
-                        <img
-                          src={vehicle.imageUrl}
-                          alt={vehicle.name}
-                          width={36}
-                          height={36}
-                          className="object-cover rounded-full w-full h-full"
-                        />
-                      ) : (
-                        <Car className="h-4 w-4 text-muted-foreground" />
+                <DropdownMenuItem
+                  key={vehicle._id}
+                  render={
+                    <Link
+                      to={`/vehicles/$vehicleId`}
+                      params={{ vehicleId: vehicle._id }}
+                      className="flex items-center gap-3 cursor-pointer w-full"
+                    >
+                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-mute">
+                        {vehicle.imageUrl ? (
+                          <img
+                            src={vehicle.imageUrl}
+                            alt={vehicle.name}
+                            width={36}
+                            height={36}
+                            className="object-cover rounded-full w-full h-full"
+                          />
+                        ) : (
+                          <Car className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </div>
+                      <div className="flex flex-1 flex-col">
+                        <span className="text-sm text-popover-foreground">
+                          {vehicle.name}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {vehicle.model}
+                        </span>
+                      </div>
+                      {location.pathname === `/vehicles/${vehicle._id}` && (
+                        <Check className="h-4 w-4 text-primary" />
                       )}
-                    </div>
-                    <div className="flex flex-1 flex-col">
-                      <span className="text-sm text-popover-foreground">
-                        {vehicle.name}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {vehicle.model}
-                      </span>
-                    </div>
-                    {location.pathname === `/vehicles/${vehicle._id}` && (
-                      <Check className="h-4 w-4 text-primary" />
-                    )}
-                  </Link>
-                </DropdownMenuItem>
+                    </Link>
+                  }
+                />
               ))}
               <DropdownMenuSeparator />
               <DropdownMenuItem
