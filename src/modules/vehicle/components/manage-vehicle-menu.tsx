@@ -29,7 +29,7 @@ import { Id } from 'convex/_generated/dataModel';
 
 const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
 
-export function VehicleActionsMenu() {
+export function ManageVehicleMenu() {
   const { vehicleId } = routeApi.useParams();
   const router = useRouter();
   const [activeDialog, setActiveDialog] = useState<'edit' | 'delete' | null>(

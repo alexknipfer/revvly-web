@@ -6,8 +6,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { Fuel, Plus, Wrench } from 'lucide-react';
 
-import { AddFuelEntryMenu } from '@/modules/fuel-entry/components/add-fuel-entry-menu';
-import { VehicleActionsMenu } from '@/modules/vehicle/components/vehicle-actions-menu';
+import { ManageVehicleMenu } from '@/modules/vehicle/components/manage-vehicle-menu';
 import { VehicleImage } from '@/modules/vehicle/components/vehicle-image/vehicle-image';
 import { vehicleByIdQueryOptions } from '@/api/query-options';
 import { VehicleStatCard } from '@/modules/vehicle/components/vehicle-stat-card';
@@ -29,12 +28,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-
-import { api } from 'convex/_generated/api';
-import { Id } from 'convex/_generated/dataModel';
 import { AddFuelEntryDialog } from '@/modules/fuel-entry/components/add-fuel-entry-dialog';
 import { AddServiceDialog } from '@/modules/service/components/add-service-dialog';
 import { Button } from '@/components/ui/button';
+
+import { api } from 'convex/_generated/api';
+import { Id } from 'convex/_generated/dataModel';
 
 const searchSchema = z.object({
   activeTab: z
@@ -73,9 +72,6 @@ function RouteComponent() {
   const { activeTab } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
 
-  const [fuelEntryDialogOpen, setFuelEntryDialogOpen] = useState(false);
-  const [serviceDialogOpen, setServiceDialogOpen] = useState(false);
-
   const { data: vehicle } = useSuspenseQuery(
     vehicleByIdQueryOptions({ vehicleId }),
   );
@@ -97,8 +93,8 @@ function RouteComponent() {
                     {vehicle.name || vehicle.model}
                   </h1>
                   <div className="flex md:hidden gap-2 shrink-0">
+                    <ManageVehicleMenu />
                     <VehicleActionsMenu />
-                    <AddFuelEntryMenu />
                   </div>
                 </div>
                 <p className="text-muted-foreground text-base md:text-lg mb-3 md:mb-4">
@@ -132,44 +128,8 @@ function RouteComponent() {
                 </div>
               </div>
               <div className="hidden md:flex space-x-2 shrink-0">
+                <ManageVehicleMenu />
                 <VehicleActionsMenu />
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="shrink-0">
-                      <Plus className="size-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start">
-                    <DropdownMenuItem
-                      onClick={() => setFuelEntryDialogOpen(true)}
-                    >
-                      <Fuel className="size-4" />
-                      Add Fuel Entry
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => setServiceDialogOpen(true)}
-                    >
-                      <Wrench className="size-4" />
-                      Add Service
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                  <AddFuelEntryDialog
-                    open={fuelEntryDialogOpen}
-                    onOpenChange={setFuelEntryDialogOpen}
-                    onFuelEntryCreated={() => {
-                      setFuelEntryDialogOpen(false);
-                      toast.success('Fuel entry added successfully');
-                    }}
-                  />
-                  <AddServiceDialog
-                    open={serviceDialogOpen}
-                    onOpenChange={setServiceDialogOpen}
-                    onServiceCreated={() => {
-                      setServiceDialogOpen(false);
-                      toast.success('Service entry added successfully');
-                    }}
-                  />
-                </DropdownMenu>
               </div>
             </div>
           </div>
@@ -205,6 +165,47 @@ function RouteComponent() {
         </Tabs>
       </div>
     </div>
+  );
+}
+
+function VehicleActionsMenu() {
+  const [fuelEntryDialogOpen, setFuelEntryDialogOpen] = useState(false);
+  const [serviceDialogOpen, setServiceDialogOpen] = useState(false);
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" className="shrink-0">
+          <Plus className="size-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start">
+        <DropdownMenuItem onClick={() => setFuelEntryDialogOpen(true)}>
+          <Fuel className="size-4" />
+          Add Fuel Entry
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setServiceDialogOpen(true)}>
+          <Wrench className="size-4" />
+          Add Service
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+      <AddFuelEntryDialog
+        open={fuelEntryDialogOpen}
+        onOpenChange={setFuelEntryDialogOpen}
+        onFuelEntryCreated={() => {
+          setFuelEntryDialogOpen(false);
+          toast.success('Fuel entry added successfully');
+        }}
+      />
+      <AddServiceDialog
+        open={serviceDialogOpen}
+        onOpenChange={setServiceDialogOpen}
+        onServiceCreated={() => {
+          setServiceDialogOpen(false);
+          toast.success('Service entry added successfully');
+        }}
+      />
+    </DropdownMenu>
   );
 }
 
