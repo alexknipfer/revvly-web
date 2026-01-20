@@ -22,7 +22,13 @@ export function getRouter() {
   const queryClient: QueryClient = new QueryClient({
     queryCache: new QueryCache({
       onError: (error) => {
-        toast.error(error.message);
+        if (error instanceof ConvexError) {
+          toast.error(error.data.message);
+        } else if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error('An unknown error occurred');
+        }
       },
     }),
     defaultOptions: {
