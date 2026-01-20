@@ -38,26 +38,12 @@ export const nearbyGasStationsQueryOptions = ({
     enabled,
   });
 
-interface FuelEntryByIdArgs {
-  id: string;
-  enabled?: boolean;
-}
-
-export const fuelEntryByIdQueryOptions = ({
-  id,
-  enabled = true,
-}: FuelEntryByIdArgs) =>
-  queryOptions({
-    ...convexQuery(
-      api.fuelEntries.getById,
-      enabled
-        ? {
-            id: id as Id<'fuel_entries'>,
-          }
-        : 'skip',
-    ),
-    enabled,
-  });
+export const fuelEntryByIdQueryOptions = (id: string) =>
+  queryOptions(
+    convexQuery(api.fuelEntries.getById, {
+      id: id as Id<'fuel_entries'>,
+    }),
+  );
 
 export const fuelEntriesOptions = (vehicleId: string) =>
   queryOptions(

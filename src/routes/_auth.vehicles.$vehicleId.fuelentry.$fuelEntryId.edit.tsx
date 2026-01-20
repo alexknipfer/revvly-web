@@ -2,11 +2,17 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
 
 import { EditFuelEntryForm } from '@/modules/fuel-entry/components/forms/edit-fuel-entry-form';
+import { fuelEntryByIdQueryOptions } from '@/api/query-options';
 
 export const Route = createFileRoute(
   '/_auth/vehicles/$vehicleId/fuelentry/$fuelEntryId/edit',
 )({
   component: RouteComponent,
+  loader: async ({ context, params }) => {
+    await context.queryClient.ensureQueryData(
+      fuelEntryByIdQueryOptions(params.fuelEntryId),
+    );
+  },
 });
 
 function RouteComponent() {

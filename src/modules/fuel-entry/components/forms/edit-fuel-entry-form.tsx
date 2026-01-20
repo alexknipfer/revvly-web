@@ -1,7 +1,6 @@
 import z from 'zod';
 import { useConvexMutation } from '@convex-dev/react-query';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { Loader } from 'lucide-react';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { getRouteApi } from '@tanstack/react-router';
 
 import { fuelEntryByIdQueryOptions } from '@/api/query-options';
@@ -10,6 +9,7 @@ import { useAppForm } from '@/hooks/use-form';
 import { FuelEntryFieldGroup } from '@/modules/fuel-entry/components/fuel-entry-field-group';
 import { fuelLevelSchema, fuelTypeSchema } from '@/types/fuel-entry';
 import { api } from 'convex/_generated/api';
+import { defaultTo } from '@/lib/utils';
 
 const formSchema = z.object({
   fuelEntryFields: z.object({
@@ -29,38 +29,30 @@ const formSchema = z.object({
 
 interface Props {
   onSuccess?: () => void;
-  fetchFuelEntryEnabled?: boolean;
 }
 
 const routeApi = getRouteApi(
   '/_auth/vehicles/$vehicleId/fuelentry/$fuelEntryId/edit',
 );
 
-export function EditFuelEntryForm({ fetchFuelEntryEnabled, onSuccess }: Props) {
+export function EditFuelEntryForm({ onSuccess }: Props) {
   const { vehicleId, fuelEntryId } = routeApi.useParams();
-  const {
-    data: fuelEntry,
-    error,
-    isPending,
-  } = useQuery(
-    fuelEntryByIdQueryOptions({
-      id: fuelEntryId,
-      enabled: fetchFuelEntryEnabled,
-    }),
+  const { data: fuelEntry } = useSuspenseQuery(
+    fuelEntryByIdQueryOptions(fuelEntryId),
   );
 
   const form = useAppForm({
     defaultValues: {
       fuelEntryFields: {
-        date: new Date(fuelEntry?.date ?? ''),
-        odometer: fuelEntry?.odometer ?? 0,
-        costPerGallon: fuelEntry?.costPerGallon.toString() ?? '',
-        totalGallons: fuelEntry?.totalGallons.toString() ?? '',
-        missedFuelup: fuelEntry?.missedFuelup ?? false,
-        type: fuelEntry?.type as 'regular' | 'premium' | 'diesel' | 'e85',
-        level: fuelEntry?.level as 'full' | 'partial',
-        location: fuelEntry?.location ?? '',
-        notes: fuelEntry?.notes ?? '',
+        date: new Date(fuelEntry.date),
+        odometer: fuelEntry.odometer,
+        costPerGallon: fuelEntry.costPerGallon.toString(),
+        totalGallons: fuelEntry.totalGallons.toString(),
+        missedFuelup: fuelEntry.missedFuelup,
+        type: fuelEntry.type as 'regular' | 'premium' | 'diesel' | 'e85',
+        level: fuelEntry.level as 'full' | 'partial',
+        location: defaultTo(fuelEntry.location, ''),
+        notes: defaultTo(fuelEntry.notes, ''),
       },
     },
     validators: {
@@ -91,18 +83,6 @@ export function EditFuelEntryForm({ fetchFuelEntryEnabled, onSuccess }: Props) {
       vehicleId,
     });
   };
-
-  if (isPending) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Loader className="size-4 animate-spin" />
-      </div>
-    );
-  }
-
-  if (error) {
-    throw new Error('Failed to fetch fuel entry');
-  }
 
   return (
     <form
