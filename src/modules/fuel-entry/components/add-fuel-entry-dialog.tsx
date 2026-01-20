@@ -1,6 +1,11 @@
-import { DrawerDialog } from '@/components/ui/dialog-drawer';
-
+import {
+  DialogHeader,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import { AddFuelEntryForm } from './forms/add-fuel-entry-form';
+import { Dialog } from '@/components/ui/dialog';
 
 interface Props {
   open: boolean;
@@ -14,14 +19,14 @@ export function AddFuelEntryDialog({
   onFuelEntryCreated,
 }: Props) {
   return (
-    <DrawerDialog
-      title="Add Fuel Entry"
-      description="Log your fuel fill-up details"
-      open={open}
-      onOpenChange={onOpenChange}
-      hideHeaderOnMobile
-    >
-      <AddFuelEntryForm onSuccess={onFuelEntryCreated} />
-    </DrawerDialog>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Add Fuel Entry</DialogTitle>
+          <DialogDescription>Log your fuel fill-up details</DialogDescription>
+        </DialogHeader>
+        <AddFuelEntryForm onSuccess={onFuelEntryCreated} />
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -1,6 +1,11 @@
-import { DrawerDialog } from '@/components/ui/dialog-drawer';
-
 import { AddServiceForm } from './forms/add-service-form';
+import {
+  Dialog,
+  DialogDescription,
+  DialogHeader,
+  DialogContent,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface Props {
   open: boolean;
@@ -14,14 +19,16 @@ export function AddServiceDialog({
   onServiceCreated,
 }: Props) {
   return (
-    <DrawerDialog
-      title="Add Service"
-      description="Log vehicle maintenance and repairs"
-      open={open}
-      onOpenChange={onOpenChange}
-      hideHeaderOnMobile
-    >
-      <AddServiceForm onSuccess={onServiceCreated} />
-    </DrawerDialog>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add Service</DialogTitle>
+          <DialogDescription>
+            Log vehicle maintenance and repairs
+          </DialogDescription>
+        </DialogHeader>
+        <AddServiceForm onSuccess={onServiceCreated} />
+      </DialogContent>
+    </Dialog>
   );
 }
