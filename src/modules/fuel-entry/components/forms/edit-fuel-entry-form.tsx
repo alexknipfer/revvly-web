@@ -2,6 +2,7 @@ import z from 'zod';
 import { useConvexMutation } from '@convex-dev/react-query';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Loader } from 'lucide-react';
+import { getRouteApi } from '@tanstack/react-router';
 
 import { fuelEntryByIdQueryOptions } from '@/api/query-options';
 import { Button } from '@/components/ui/button';
@@ -33,11 +34,14 @@ interface Props {
   fetchFuelEntryEnabled?: boolean;
 }
 
+const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
+
 export function EditFuelEntryForm({
   fuelEntryId,
   fetchFuelEntryEnabled,
   onSuccess,
 }: Props) {
+  const { vehicleId } = routeApi.useParams();
   const {
     data: fuelEntry,
     error,
@@ -58,7 +62,7 @@ export function EditFuelEntryForm({
         totalGallons: fuelEntry?.totalGallons.toString() ?? '',
         missedFuelup: fuelEntry?.missedFuelup ?? false,
         type: fuelEntry?.type as 'regular' | 'premium' | 'diesel' | 'e85',
-        level: fuelEntry?.level ?? 'full',
+        level: fuelEntry?.level as 'full' | 'partial',
         location: fuelEntry?.location ?? '',
         notes: fuelEntry?.notes ?? '',
       },
@@ -88,6 +92,7 @@ export function EditFuelEntryForm({
       notes: data.fuelEntryFields.notes || undefined,
       missedFuelup: data.fuelEntryFields.missedFuelup,
       date: data.fuelEntryFields.date.toISOString(),
+      vehicleId,
     });
   };
 

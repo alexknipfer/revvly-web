@@ -2,12 +2,12 @@ import z from 'zod';
 import { useConvexMutation } from '@convex-dev/react-query';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Loader } from 'lucide-react';
+import { getRouteApi } from '@tanstack/react-router';
 
 import { serviceByIdQueryOptions } from '@/api/query-options';
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/hooks/use-form';
 import { ServiceFieldGroup } from '@/modules/service/components/service-field-group';
-import { serviceTypeSchema } from '@/types/service';
 import { api } from 'convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
 
@@ -16,7 +16,7 @@ const formSchema = z.object({
     date: z.date(),
     odometer: z.number().min(1, { message: 'Odometer is required' }),
     cost: z.string().min(1, { message: 'Cost is required' }),
-    type: serviceTypeSchema,
+    type: z.string().min(1, { message: 'Service type is required' }),
     location: z.string(),
     notes: z.string(),
   }),
@@ -28,11 +28,14 @@ interface Props {
   fetchServiceEnabled?: boolean;
 }
 
+const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
+
 export function EditServiceForm({
   serviceId,
   fetchServiceEnabled,
   onSuccess,
 }: Props) {
+  const { vehicleId } = routeApi.useParams();
   const {
     data: service,
     error,
@@ -69,8 +72,6 @@ export function EditServiceForm({
   });
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    if (!service) return;
-
     updateServiceMutation.mutate({
       id: serviceId,
       odometer: data.serviceFields.odometer,
@@ -79,7 +80,7 @@ export function EditServiceForm({
       location: data.serviceFields.location || undefined,
       notes: data.serviceFields.notes || undefined,
       date: data.serviceFields.date.toISOString(),
-      vehicleId: service.vehicleId,
+      vehicleId,
     });
   };
 
