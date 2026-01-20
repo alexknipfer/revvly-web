@@ -5,7 +5,7 @@ type ServiceEntryFields = {
   date: Date;
   odometer: number;
   cost: string;
-  type: string;
+  type: Array<string>;
   location: string;
   notes: string;
 };
@@ -14,17 +14,14 @@ const defaultValues: ServiceEntryFields = {
   date: new Date(),
   odometer: 0,
   cost: '',
-  type: '',
+  type: [],
   location: '',
   notes: '',
 };
 
-const serviceTypes = serviceTypeSchema.options
-  .sort((a, b) => a.localeCompare(b))
-  .map((type) => ({
-    value: type,
-    label: type,
-  }));
+const serviceTypes = serviceTypeSchema.options.sort((a, b) =>
+  a.localeCompare(b),
+);
 
 export const ServiceFieldGroup = withFieldGroup({
   defaultValues,
@@ -44,7 +41,7 @@ export const ServiceFieldGroup = withFieldGroup({
         </group.AppField>
         <group.AppField name="type">
           {(field) => (
-            <field.ComboboxField
+            <field.MultiselectField
               label="Service Type *"
               items={serviceTypes}
               className="col-span-2"

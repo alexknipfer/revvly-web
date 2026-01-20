@@ -16,7 +16,7 @@ const formSchema = z.object({
     date: z.date(),
     odometer: z.number().min(1, { message: 'Odometer is required' }),
     cost: z.string().min(1, { message: 'Cost is required' }),
-    type: serviceTypeSchema,
+    type: z.array(serviceTypeSchema),
     location: z.string(),
     notes: z.string(),
   }),
@@ -28,19 +28,21 @@ interface Props {
   onSuccess?: () => void;
 }
 
+const defaultValues: z.infer<typeof formSchema> = {
+  serviceFields: {
+    date: new Date(),
+    odometer: 0,
+    cost: '',
+    type: [],
+    location: '',
+    notes: '',
+  },
+};
+
 export function AddServiceForm({ onSuccess }: Props) {
   const { vehicleId } = routeApi.useParams();
   const form = useAppForm({
-    defaultValues: {
-      serviceFields: {
-        date: new Date(),
-        odometer: 0,
-        cost: '',
-        type: '' as z.infer<typeof serviceTypeSchema>,
-        location: '',
-        notes: '',
-      },
-    },
+    defaultValues,
     validators: {
       onSubmit: formSchema,
     },
@@ -56,15 +58,16 @@ export function AddServiceForm({ onSuccess }: Props) {
   });
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    createServiceMutation.mutate({
-      date: data.serviceFields.date.toISOString(),
-      odometer: data.serviceFields.odometer,
-      cost: parseFloat(data.serviceFields.cost),
-      type: data.serviceFields.type,
-      location: data.serviceFields.location || undefined,
-      notes: data.serviceFields.notes || undefined,
-      vehicleId: vehicleId as Id<'vehicles'>,
-    });
+    console.log(data);
+    // createServiceMutation.mutate({
+    //   date: data.serviceFields.date.toISOString(),
+    //   odometer: data.serviceFields.odometer,
+    //   cost: parseFloat(data.serviceFields.cost),
+    //   type: data.serviceFields.type,
+    //   location: data.serviceFields.location || undefined,
+    //   notes: data.serviceFields.notes || undefined,
+    //   vehicleId: vehicleId as Id<'vehicles'>,
+    // });
   };
 
   return (
