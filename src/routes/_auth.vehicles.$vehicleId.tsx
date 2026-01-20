@@ -174,11 +174,13 @@ function VehicleActionsMenu() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="shrink-0">
-          <Plus className="size-4" />
-        </Button>
-      </DropdownMenuTrigger>
+      <DropdownMenuTrigger
+        render={
+          <Button variant="outline" className="shrink-0">
+            <Plus className="size-4" />
+          </Button>
+        }
+      ></DropdownMenuTrigger>
       <DropdownMenuContent align="start">
         <DropdownMenuItem onClick={() => setFuelEntryDialogOpen(true)}>
           <Fuel className="size-4" />

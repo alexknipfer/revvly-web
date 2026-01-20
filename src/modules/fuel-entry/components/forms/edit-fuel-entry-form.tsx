@@ -10,6 +10,7 @@ import { FuelEntryFieldGroup } from '@/modules/fuel-entry/components/fuel-entry-
 import { fuelLevelSchema, fuelTypeSchema } from '@/types/fuel-entry';
 import { api } from 'convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
+import { getRouteApi } from 'node_modules/@tanstack/react-router/dist/esm/route';
 
 const formSchema = z.object({
   fuelEntryFields: z.object({
@@ -33,11 +34,14 @@ interface Props {
   fetchFuelEntryEnabled?: boolean;
 }
 
+const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
+
 export function EditFuelEntryForm({
   fuelEntryId,
   fetchFuelEntryEnabled,
   onSuccess,
 }: Props) {
+  const { vehicleId } = routeApi.useParams();
   const {
     data: fuelEntry,
     error,

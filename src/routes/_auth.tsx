@@ -103,7 +103,14 @@ function RouteComponent() {
             <span className="font-bold tracking-widest uppercase">Revvly</span>
           </Link>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild className="justify-self-end">
+            <DropdownMenuTrigger
+              render={
+                <Button variant="ghost" size="icon">
+                  <EllipsisVertical />
+                </Button>
+              }
+              className="justify-self-end"
+            >
               <Button variant="ghost" size="icon">
                 <EllipsisVertical />
               </Button>
@@ -161,11 +168,9 @@ function RouteComponent() {
               </div>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                asChild
+                render={<SignOutButton />}
                 className="w-full text-muted-foreground"
-              >
-                <SignOutButton />
-              </DropdownMenuItem>
+              />
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

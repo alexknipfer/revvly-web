@@ -8,11 +8,10 @@ export function ThemeToggle() {
 
   return (
     <ToggleGroup
-      type="single"
       variant="outline"
       size="xs"
-      value={theme}
-      onValueChange={(value) => {
+      value={[theme]}
+      onValueChange={([value]) => {
         setTheme(value);
       }}
     >

@@ -16,7 +16,7 @@ const fuelEntryFields = z.object({
   level: fuelLevelSchema,
   location: z.string().optional(),
   notes: z.string().optional(),
-  vehicleId: zid('vehicles'),
+  // vehicleId: zid('vehicles'),
   missedFuelup: z.boolean(),
 });
 

@@ -1,5 +1,3 @@
-'use client';
-
 import { ChevronDownIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -83,7 +81,19 @@ export function DateTimePicker({
           </Label>
         )}
         <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
+          <PopoverTrigger
+            render={
+              <Button
+                variant="outline"
+                id={`${id || 'date'}-picker`}
+                className="w-full justify-between font-normal"
+                aria-invalid={ariaInvalid}
+              >
+                {date ? date.toLocaleDateString() : 'Select date'}
+                <ChevronDownIcon />
+              </Button>
+            }
+          >
             <Button
               variant="outline"
               id={`${id || 'date'}-picker`}
