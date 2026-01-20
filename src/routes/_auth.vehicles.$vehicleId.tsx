@@ -38,7 +38,7 @@ import { Id } from 'convex/_generated/dataModel';
 const searchSchema = z.object({
   activeTab: z
     .enum(['overview', 'fuel-logs', 'service-logs'])
-    .optional()
+    .default('overview')
     .catch('overview'),
 });
 
