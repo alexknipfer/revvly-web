@@ -1,7 +1,7 @@
+import { useTheme } from 'next-themes';
 import { Laptop, MoonStar, Sun } from 'lucide-react';
 
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { useTheme } from 'next-themes';
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
