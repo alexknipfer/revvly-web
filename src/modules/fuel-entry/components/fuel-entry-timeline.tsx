@@ -1,7 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { Suspense, useMemo, useState } from 'react';
-import { Fuel, Pencil } from 'lucide-react';
-import { toast } from 'sonner';
+import { Suspense, useMemo } from 'react';
+import { Fuel, Pencil, Plus } from 'lucide-react';
 import { getRouteApi, Link } from '@tanstack/react-router';
 
 import { Timeline } from '@/components/timeline';
@@ -36,8 +35,6 @@ export function FuelEntryTimeline() {
 
 function FuelEntryTimelineContent() {
   const { vehicleId } = routeApi.useParams();
-  const [fuelEntryDialogOpen, setFuelEntryDialogOpen] = useState(false);
-
   const { data: fuelEntries } = useSuspenseQuery(fuelEntriesOptions(vehicleId));
 
   const timelineItems = useMemo(() => {
@@ -47,7 +44,7 @@ function FuelEntryTimelineContent() {
     }));
   }, [fuelEntries]);
 
-  if (fuelEntries.length === 0) {
+  if (fuelEntries.length > 0) {
     return (
       <Empty>
         <EmptyHeader>
@@ -61,9 +58,18 @@ function FuelEntryTimelineContent() {
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Button onClick={() => setFuelEntryDialogOpen(true)}>
-            Add Fuel Entry
-          </Button>
+          <Button
+            nativeButton={false}
+            render={
+              <Link
+                to="/vehicles/$vehicleId/fuelentry/new"
+                params={{ vehicleId }}
+              >
+                <Plus className="size-4" />
+                Add Fuel Entry
+              </Link>
+            }
+          />
         </EmptyContent>
       </Empty>
     );
