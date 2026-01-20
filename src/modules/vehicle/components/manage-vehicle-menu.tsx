@@ -51,12 +51,14 @@ export function ManageVehicleMenu() {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="shrink-0">
-            <Pencil className="size-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
+        <DropdownMenuTrigger
+          render={
+            <Button variant="outline" className="shrink-0">
+              <Pencil className="size-4" />
+            </Button>
+          }
+        />
+        <DropdownMenuContent align="start" className="w-40">
           <DropdownMenuItem onClick={() => setActiveDialog('edit')}>
             <Pencil className="size-4" />
             Edit Vehicle
@@ -93,18 +95,20 @@ export function ManageVehicleMenu() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction asChild>
-              <Button
-                loading={deleteVehicleMutation.isPending}
-                onClick={() =>
-                  deleteVehicleMutation.mutate({
-                    id: vehicleId as Id<'vehicles'>,
-                  })
-                }
-              >
-                Delete
-              </Button>
-            </AlertDialogAction>
+            <AlertDialogAction
+              render={
+                <Button
+                  loading={deleteVehicleMutation.isPending}
+                  onClick={() =>
+                    deleteVehicleMutation.mutate({
+                      id: vehicleId as Id<'vehicles'>,
+                    })
+                  }
+                >
+                  Delete
+                </Button>
+              }
+            />
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

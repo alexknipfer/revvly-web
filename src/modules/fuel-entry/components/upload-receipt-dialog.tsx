@@ -8,10 +8,11 @@ import { Field, FieldError } from '@/components/ui/field';
 import { useServerFn } from '@tanstack/react-start';
 import { useMutation } from '@tanstack/react-query';
 
-import { uploadFuelEntryReceiptServerFn } from '../../vehicle/server/server-fns';
 import type { FuelType } from '@/types/fuel-entry';
 import { Id } from 'convex/_generated/dataModel';
 import { useConvexUpload } from '@/hooks/use-convex-upload';
+
+import { uploadFuelEntryReceiptServerFn } from '../server/server-fns';
 
 interface Props {
   onComplete?: (data: {

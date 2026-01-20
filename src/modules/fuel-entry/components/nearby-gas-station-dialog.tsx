@@ -188,9 +188,7 @@ export function NearbyGasStationDialog({
           )}
         </div>
         <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
-          </DialogClose>
+          <DialogClose render={<Button variant="outline">Cancel</Button>} />
           <Button
             type="button"
             disabled={!selectedStationValue}

@@ -127,7 +127,7 @@ function RouteComponent() {
                   />
                 </div>
               </div>
-              <div className="hidden md:flex space-x-2 shrink-0">
+              <div className="hidden md:flex gap-x-2 shrink-0">
                 <ManageVehicleMenu />
                 <VehicleActionsMenu />
               </div>
@@ -174,12 +174,14 @@ function VehicleActionsMenu() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="shrink-0">
-          <Plus className="size-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start">
+      <DropdownMenuTrigger
+        render={
+          <Button variant="outline" className="shrink-0">
+            <Plus className="size-4" />
+          </Button>
+        }
+      ></DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-40">
         <DropdownMenuItem onClick={() => setFuelEntryDialogOpen(true)}>
           <Fuel className="size-4" />
           Add Fuel Entry

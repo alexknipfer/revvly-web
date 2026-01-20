@@ -1,18 +1,17 @@
+import { useTheme } from 'next-themes';
 import { Laptop, MoonStar, Sun } from 'lucide-react';
 
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { useTheme } from 'next-themes';
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
 
   return (
     <ToggleGroup
-      type="single"
       variant="outline"
       size="xs"
-      value={theme}
-      onValueChange={(value) => {
+      value={[theme]}
+      onValueChange={([value]) => {
         setTheme(value);
       }}
     >

@@ -6,7 +6,14 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useConvexMutation } from '@convex-dev/react-query';
 import { useServerFn } from '@tanstack/react-start';
 
-import { Combobox } from '@/components/ui/combobox';
+import {
+  Combobox,
+  ComboboxEmpty,
+  ComboboxContent,
+  ComboboxInput,
+  ComboboxList,
+  ComboboxItem,
+} from '@/components/ui/combobox';
 import { getSupportedVehicleYears } from '@/lib/utils';
 import { DrawerDialog } from '@/components/ui/dialog-drawer';
 import { Button } from '@/components/ui/button';
@@ -144,12 +151,19 @@ export function AddVehicleDialog({
                     ))}
                   </NativeSelect>
                 ) : (
-                  <Combobox
-                    label="Select Year"
-                    items={yearItems}
-                    value={field.state.value}
-                    onChange={field.handleChange}
-                  />
+                  <Combobox items={yearItems}>
+                    <ComboboxInput placeholder="Select Year" />
+                    <ComboboxContent>
+                      <ComboboxEmpty>No items found.</ComboboxEmpty>
+                      <ComboboxList>
+                        {(year) => (
+                          <ComboboxItem key={year} value={year}>
+                            {year}
+                          </ComboboxItem>
+                        )}
+                      </ComboboxList>
+                    </ComboboxContent>
+                  </Combobox>
                 )}
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
               </Field>
@@ -195,13 +209,19 @@ export function AddVehicleDialog({
                     ))}
                   </NativeSelect>
                 ) : (
-                  <Combobox
-                    label="Select Make"
-                    items={makeItems}
-                    value={field.state.value}
-                    onChange={field.handleChange}
-                    disabled={isDisabled}
-                  />
+                  <Combobox items={makeItems}>
+                    <ComboboxInput placeholder="Select Make" />
+                    <ComboboxContent>
+                      <ComboboxEmpty>No items found.</ComboboxEmpty>
+                      <ComboboxList>
+                        {(make) => (
+                          <ComboboxItem key={make} value={make}>
+                            {make}
+                          </ComboboxItem>
+                        )}
+                      </ComboboxList>
+                    </ComboboxContent>
+                  </Combobox>
                 )}
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
               </Field>
@@ -241,13 +261,19 @@ export function AddVehicleDialog({
                     ))}
                   </NativeSelect>
                 ) : (
-                  <Combobox
-                    label="Select Model"
-                    items={modelItems}
-                    value={field.state.value}
-                    onChange={field.handleChange}
-                    disabled={isDisabled}
-                  />
+                  <Combobox items={modelItems}>
+                    <ComboboxInput placeholder="Select Model" />
+                    <ComboboxContent>
+                      <ComboboxEmpty>No items found.</ComboboxEmpty>
+                      <ComboboxList>
+                        {(model) => (
+                          <ComboboxItem key={model} value={model}>
+                            {model}
+                          </ComboboxItem>
+                        )}
+                      </ComboboxList>
+                    </ComboboxContent>
+                  </Combobox>
                 )}
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
               </Field>
