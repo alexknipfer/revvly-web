@@ -1,6 +1,6 @@
 import { convexQuery } from '@convex-dev/react-query';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { z } from 'zod';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -42,7 +42,7 @@ const searchSchema = z.object({
     .catch('overview'),
 });
 
-export const Route = createFileRoute('/_auth/vehicles/$vehicleId')({
+export const Route = createFileRoute('/_auth/vehicles/$vehicleId/')({
   component: RouteComponent,
   pendingComponent: LoadingComponent,
   validateSearch: searchSchema,
@@ -169,6 +169,7 @@ function RouteComponent() {
 }
 
 function VehicleActionsMenu() {
+  const { vehicleId } = Route.useParams();
   const [fuelEntryDialogOpen, setFuelEntryDialogOpen] = useState(false);
   const [serviceDialogOpen, setServiceDialogOpen] = useState(false);
 
@@ -180,16 +181,28 @@ function VehicleActionsMenu() {
             <Plus className="size-4" />
           </Button>
         }
-      ></DropdownMenuTrigger>
+      />
       <DropdownMenuContent align="start" className="w-40">
-        <DropdownMenuItem onClick={() => setFuelEntryDialogOpen(true)}>
-          <Fuel className="size-4" />
-          Add Fuel Entry
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setServiceDialogOpen(true)}>
-          <Wrench className="size-4" />
-          Add Service
-        </DropdownMenuItem>
+        <DropdownMenuItem
+          render={
+            <Link
+              to="/vehicles/$vehicleId/fuelentry/new"
+              params={{ vehicleId }}
+              className="text-sm flex items-center gap-2"
+            >
+              <Fuel className="size-4" />
+              Add Fuel Entry
+            </Link>
+          }
+        />
+        {/* <DropdownMenuItem
+          render={() => (
+            <Link to={`/vehicles/${vehicleId}/service/new`}>
+              <Wrench className="size-4" />
+              Add Service
+            </Link>
+          )}
+        /> */}
       </DropdownMenuContent>
       <AddFuelEntryDialog
         open={fuelEntryDialogOpen}

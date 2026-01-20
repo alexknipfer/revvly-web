@@ -85,7 +85,7 @@ export function AddFuelEntryForm({ onSuccess }: Props) {
         e.preventDefault();
         form.handleSubmit();
       }}
-      className="grid grid-cols-2 gap-4 overflow-y-auto"
+      className="grid grid-cols-2 gap-4"
     >
       <form.AppForm>
         <div className="col-span-2 flex items-center justify-center py-2 border-b border-border">

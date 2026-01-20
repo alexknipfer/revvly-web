@@ -10,7 +10,6 @@ import { useAppForm } from '@/hooks/use-form';
 import { FuelEntryFieldGroup } from '@/modules/fuel-entry/components/fuel-entry-field-group';
 import { fuelLevelSchema, fuelTypeSchema } from '@/types/fuel-entry';
 import { api } from 'convex/_generated/api';
-import { Id } from 'convex/_generated/dataModel';
 
 const formSchema = z.object({
   fuelEntryFields: z.object({
@@ -29,19 +28,16 @@ const formSchema = z.object({
 });
 
 interface Props {
-  fuelEntryId: Id<'fuel_entries'>;
   onSuccess?: () => void;
   fetchFuelEntryEnabled?: boolean;
 }
 
-const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
+const routeApi = getRouteApi(
+  '/_auth/vehicles/$vehicleId/fuelentry/$fuelEntryId/edit',
+);
 
-export function EditFuelEntryForm({
-  fuelEntryId,
-  fetchFuelEntryEnabled,
-  onSuccess,
-}: Props) {
-  const { vehicleId } = routeApi.useParams();
+export function EditFuelEntryForm({ fetchFuelEntryEnabled, onSuccess }: Props) {
+  const { vehicleId, fuelEntryId } = routeApi.useParams();
   const {
     data: fuelEntry,
     error,

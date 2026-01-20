@@ -39,7 +39,7 @@ export const nearbyGasStationsQueryOptions = ({
   });
 
 interface FuelEntryByIdArgs {
-  id: Id<'fuel_entries'>;
+  id: string;
   enabled?: boolean;
 }
 
