@@ -7,6 +7,7 @@ import { DateField } from '@/components/forms/date-field';
 import { TextField } from '@/components/forms/text-field';
 import { TextareaField } from '@/components/forms/textarea-field';
 import { NumberField } from '@/components/forms/number-field';
+import { NativeSelectField } from '@/components/forms/native-select-field';
 
 // Export form contexts for use in custom components
 export const { fieldContext, formContext, useFieldContext, useFormContext } =
@@ -24,6 +25,7 @@ export const { useAppForm, withForm, withFieldGroup } = createFormHook({
     ComboboxField,
     TextareaField,
     MultiselectField,
+    NativeSelectField,
   },
   formComponents: {},
 });

@@ -191,12 +191,12 @@ export const FuelEntryFieldGroup = withFieldGroup({
         </group.AppField>
         <group.AppField name="type">
           {(field) => (
-            <field.ComboboxField label="Fuel Type *" items={fuelTypes} />
+            <field.NativeSelectField label="Fuel Type *" items={fuelTypes} />
           )}
         </group.AppField>
         <group.AppField name="level">
           {(field) => (
-            <field.ComboboxField label="Fill Level *" items={fuelLevels} />
+            <field.NativeSelectField label="Fill Level *" items={fuelLevels} />
           )}
         </group.AppField>
         <group.AppField name="location">

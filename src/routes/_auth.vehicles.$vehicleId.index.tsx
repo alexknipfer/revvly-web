@@ -28,10 +28,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { AddFuelEntryDialog } from '@/modules/fuel-entry/components/add-fuel-entry-dialog';
 import { AddServiceDialog } from '@/modules/service/components/add-service-dialog';
 import { Button } from '@/components/ui/button';
-
 import { api } from 'convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
 
@@ -204,14 +202,6 @@ function VehicleActionsMenu() {
           )}
         /> */}
       </DropdownMenuContent>
-      <AddFuelEntryDialog
-        open={fuelEntryDialogOpen}
-        onOpenChange={setFuelEntryDialogOpen}
-        onFuelEntryCreated={() => {
-          setFuelEntryDialogOpen(false);
-          toast.success('Fuel entry added successfully');
-        }}
-      />
       <AddServiceDialog
         open={serviceDialogOpen}
         onOpenChange={setServiceDialogOpen}
