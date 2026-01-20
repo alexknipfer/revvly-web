@@ -1,12 +1,12 @@
 import { createFormHookContexts, createFormHook } from '@tanstack/react-form';
-import {
-  DateField,
-  NumberField,
-  TextField,
-  CheckboxField,
-  ComboboxField,
-  TextareaField,
-} from '../components/forms';
+
+import { MultiselectField } from '@/components/forms/multi-select-field';
+import { CheckboxField } from '@/components/forms/checkbox-field';
+import { ComboboxField } from '@/components/forms/combobox-field';
+import { DateField } from '@/components/forms/date-field';
+import { TextField } from '@/components/forms/text-field';
+import { TextareaField } from '@/components/forms/textarea-field';
+import { NumberField } from '@/components/forms/number-field';
 
 // Export form contexts for use in custom components
 export const { fieldContext, formContext, useFieldContext, useFormContext } =
@@ -23,6 +23,7 @@ export const { useAppForm, withForm, withFieldGroup } = createFormHook({
     CheckboxField,
     ComboboxField,
     TextareaField,
+    MultiselectField,
   },
   formComponents: {},
 });
