@@ -14,10 +14,10 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Item,
+  ItemActions,
   ItemContent,
   ItemDescription,
   ItemTitle,
@@ -31,6 +31,11 @@ import { AddServiceDialog } from './add-service-dialog';
 import { EditServiceForm } from './forms/edit-service-form';
 
 const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
+
+const formatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+});
 
 export function ServiceTimeline() {
   return (
@@ -99,20 +104,10 @@ function ServiceTimelineItem({ service }: { service: Doc<'services'> }) {
     <>
       <Item className="p-0">
         <ItemContent>
-          <div className="flex items-center gap-2">
-            <ItemTitle>{formattedDate}</ItemTitle>
-            <Badge variant="outline" className="text-xs">
-              {service.type}
-            </Badge>
-          </div>
-          <ItemDescription>
-            <span className="mr-2.5">${service.cost.toFixed(2)}</span>
-            {service.location && (
-              <span className="text-muted-foreground">{service.location}</span>
-            )}
-          </ItemDescription>
+          <ItemTitle>{formattedDate}</ItemTitle>
+          <ItemDescription>{service.types.join(', ')}</ItemDescription>
         </ItemContent>
-        <ItemContent className="flex-none">
+        <ItemActions>
           <Button
             variant="ghost"
             size="icon"
@@ -120,7 +115,13 @@ function ServiceTimelineItem({ service }: { service: Doc<'services'> }) {
           >
             <Pencil className="size-4" />
           </Button>
-        </ItemContent>
+
+          <div className="px-1.5 bg-secondary rounded-sm text-center py-1">
+            <p className="font-semibold text-sm">
+              {formatter.format(service.cost)}
+            </p>
+          </div>
+        </ItemActions>
       </Item>
       <DrawerDialog
         title="Edit Service"
