@@ -1,30 +1,14 @@
 import { withFieldGroup } from '@/hooks/use-form';
 import { serviceTypeSchema } from '@/types/service';
 
-type ServiceEntryFields = {
-  date: Date;
-  odometer: number;
-  cost: string;
-  type: Array<string>;
-  location: string;
-  notes: string;
-};
-
-const defaultValues: ServiceEntryFields = {
-  date: new Date(),
-  odometer: 0,
-  cost: '',
-  type: [],
-  location: '',
-  notes: '',
-};
+import { serviceFormDefaultValues } from '../schemas/service-form';
 
 const serviceTypes = serviceTypeSchema.options.sort((a, b) =>
   a.localeCompare(b),
 );
 
 export const ServiceFieldGroup = withFieldGroup({
-  defaultValues,
+  defaultValues: serviceFormDefaultValues,
   render: function Render({ group }) {
     return (
       <>
@@ -39,7 +23,7 @@ export const ServiceFieldGroup = withFieldGroup({
         <group.AppField name="cost">
           {(field) => <field.TextField label="Cost *" type="number" />}
         </group.AppField>
-        <group.AppField name="type">
+        <group.AppField name="types">
           {(field) => (
             <field.MultiselectField
               label="Service Type *"

@@ -7,19 +7,15 @@ import { useAppForm } from '@/hooks/use-form';
 import { api } from 'convex/_generated/api';
 import { Button } from '@/components/ui/button';
 import { Id } from 'convex/_generated/dataModel';
-import { serviceTypeSchema } from '@/types/service';
 
 import { ServiceFieldGroup } from '../service-field-group';
+import {
+  serviceFormDefaultValues,
+  serviceFormSchema,
+} from '../../schemas/service-form';
 
 const formSchema = z.object({
-  serviceFields: z.object({
-    date: z.date(),
-    odometer: z.number().min(1, { message: 'Odometer is required' }),
-    cost: z.string().min(1, { message: 'Cost is required' }),
-    type: z.array(serviceTypeSchema),
-    location: z.string(),
-    notes: z.string(),
-  }),
+  serviceFields: serviceFormSchema,
 });
 
 const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
@@ -28,21 +24,12 @@ interface Props {
   onSuccess?: () => void;
 }
 
-const defaultValues: z.infer<typeof formSchema> = {
-  serviceFields: {
-    date: new Date(),
-    odometer: 0,
-    cost: '',
-    type: [],
-    location: '',
-    notes: '',
-  },
-};
-
 export function AddServiceForm({ onSuccess }: Props) {
   const { vehicleId } = routeApi.useParams();
   const form = useAppForm({
-    defaultValues,
+    defaultValues: {
+      serviceFields: serviceFormDefaultValues,
+    },
     validators: {
       onSubmit: formSchema,
     },
@@ -58,16 +45,15 @@ export function AddServiceForm({ onSuccess }: Props) {
   });
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    console.log(data);
-    // createServiceMutation.mutate({
-    //   date: data.serviceFields.date.toISOString(),
-    //   odometer: data.serviceFields.odometer,
-    //   cost: parseFloat(data.serviceFields.cost),
-    //   type: data.serviceFields.type,
-    //   location: data.serviceFields.location || undefined,
-    //   notes: data.serviceFields.notes || undefined,
-    //   vehicleId: vehicleId as Id<'vehicles'>,
-    // });
+    createServiceMutation.mutate({
+      date: data.serviceFields.date.toISOString(),
+      odometer: data.serviceFields.odometer,
+      cost: parseFloat(data.serviceFields.cost),
+      types: data.serviceFields.types,
+      location: data.serviceFields.location || undefined,
+      notes: data.serviceFields.notes || undefined,
+      vehicleId: vehicleId as Id<'vehicles'>,
+    });
   };
 
   return (
