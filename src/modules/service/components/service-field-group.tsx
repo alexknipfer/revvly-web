@@ -1,7 +1,7 @@
 import { withFieldGroup } from '@/hooks/use-form';
-import { serviceTypeSchema } from '@/types/service';
+import { serviceTypeSchema } from '@/modules/service/schemas/service-type';
 
-import { serviceFormDefaultValues } from '../schemas/service-form';
+import { serviceFormDefaultValues } from '../schemas/form';
 
 const serviceTypes = serviceTypeSchema.options.sort((a, b) =>
   a.localeCompare(b),

@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/hooks/use-form';
 import { ServiceFieldGroup } from '@/modules/service/components/service-field-group';
 import { api } from 'convex/_generated/api';
-import { serviceFormSchema } from '@/modules/service/schemas/service-form';
+import { serviceFormSchema } from '@/modules/service/schemas/form';
 import { defaultTo } from '@/lib/utils';
 
 const formSchema = z.object({ serviceFields: serviceFormSchema });

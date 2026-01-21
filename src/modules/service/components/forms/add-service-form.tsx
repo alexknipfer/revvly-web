@@ -12,7 +12,7 @@ import { ServiceFieldGroup } from '../service-field-group';
 import {
   serviceFormDefaultValues,
   serviceFormSchema,
-} from '../../schemas/service-form';
+} from '../../schemas/form';
 
 const formSchema = z.object({
   serviceFields: serviceFormSchema,
