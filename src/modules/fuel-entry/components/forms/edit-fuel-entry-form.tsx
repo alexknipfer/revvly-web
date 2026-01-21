@@ -7,24 +7,13 @@ import { fuelEntryByIdQueryOptions } from '@/api/query-options';
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/hooks/use-form';
 import { FuelEntryFieldGroup } from '@/modules/fuel-entry/components/fuel-entry-field-group';
-import { fuelLevelSchema, fuelTypeSchema } from '@/types/fuel-entry';
 import { api } from 'convex/_generated/api';
 import { defaultTo } from '@/lib/utils';
 
+import { fuelEntryFormSchema } from '../../schemas/form';
+
 const formSchema = z.object({
-  fuelEntryFields: z.object({
-    date: z.date(),
-    odometer: z.number().min(1, { message: 'Odometer is required' }),
-    costPerGallon: z
-      .string()
-      .min(1, { message: 'Cost per gallon is required' }),
-    totalGallons: z.string().min(1, { message: 'Total gallons is required' }),
-    missedFuelup: z.boolean(),
-    type: fuelTypeSchema,
-    level: fuelLevelSchema,
-    location: z.string(),
-    notes: z.string(),
-  }),
+  fuelEntryFields: fuelEntryFormSchema,
 });
 
 interface Props {
