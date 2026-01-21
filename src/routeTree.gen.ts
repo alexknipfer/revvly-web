@@ -73,7 +73,7 @@ const AuthVehiclesVehicleIdFuelentryFuelEntryIdEditRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/vehicles/$vehicleId': typeof AuthVehiclesVehicleIdRouteRouteWithChildren
-  '/vehicles': typeof AuthVehiclesIndexRoute
+  '/vehicles/': typeof AuthVehiclesIndexRoute
   '/vehicles/$vehicleId/': typeof AuthVehiclesVehicleIdIndexRoute
   '/vehicles/$vehicleId/fuelentry/new': typeof AuthVehiclesVehicleIdFuelentryNewRoute
   '/vehicles/$vehicleId/services/new': typeof AuthVehiclesVehicleIdServicesNewRoute
@@ -106,7 +106,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/vehicles/$vehicleId'
-    | '/vehicles'
+    | '/vehicles/'
     | '/vehicles/$vehicleId/'
     | '/vehicles/$vehicleId/fuelentry/new'
     | '/vehicles/$vehicleId/services/new'
@@ -144,7 +144,7 @@ declare module '@tanstack/react-router' {
     '/_auth': {
       id: '/_auth'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -158,7 +158,7 @@ declare module '@tanstack/react-router' {
     '/_auth/vehicles/': {
       id: '/_auth/vehicles/'
       path: '/vehicles'
-      fullPath: '/vehicles'
+      fullPath: '/vehicles/'
       preLoaderRoute: typeof AuthVehiclesIndexRouteImport
       parentRoute: typeof AuthRoute
     }
