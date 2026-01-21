@@ -53,25 +53,17 @@ export const fuelEntriesOptions = (vehicleId: string) =>
   );
 
 interface ServiceByIdArgs {
-  id: Id<'services'>;
-  enabled?: boolean;
+  id: string;
+  vehicleId: string;
 }
 
-export const serviceByIdQueryOptions = ({
-  id,
-  enabled = true,
-}: ServiceByIdArgs) =>
-  queryOptions({
-    ...convexQuery(
-      api.services.getById,
-      enabled
-        ? {
-            id: id as Id<'services'>,
-          }
-        : 'skip',
-    ),
-    enabled,
-  });
+export const serviceByIdQueryOptions = ({ id, vehicleId }: ServiceByIdArgs) =>
+  queryOptions(
+    convexQuery(api.services.getById, {
+      id: id as Id<'services'>,
+      vehicleId: vehicleId as Id<'vehicles'>,
+    }),
+  );
 
 export const servicesOptions = (vehicleId: string) =>
   queryOptions(
