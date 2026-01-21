@@ -10,7 +10,7 @@ const serviceFields = z.object({
   odometer: z.number(),
   cost: z.number(),
   location: z.string().optional(),
-  type: z.string().min(1),
+  types: z.array(z.string().min(1)),
   notes: z.string().optional(),
   vehicleId: zid('vehicles'),
 });
