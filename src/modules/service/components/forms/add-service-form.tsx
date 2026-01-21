@@ -7,19 +7,15 @@ import { useAppForm } from '@/hooks/use-form';
 import { api } from 'convex/_generated/api';
 import { Button } from '@/components/ui/button';
 import { Id } from 'convex/_generated/dataModel';
-import { serviceTypeSchema } from '@/types/service';
 
 import { ServiceFieldGroup } from '../service-field-group';
+import {
+  serviceFormDefaultValues,
+  serviceFormSchema,
+} from '../../schemas/form';
 
 const formSchema = z.object({
-  serviceFields: z.object({
-    date: z.date(),
-    odometer: z.number().min(1, { message: 'Odometer is required' }),
-    cost: z.string().min(1, { message: 'Cost is required' }),
-    type: serviceTypeSchema,
-    location: z.string(),
-    notes: z.string(),
-  }),
+  serviceFields: serviceFormSchema,
 });
 
 const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
@@ -32,14 +28,7 @@ export function AddServiceForm({ onSuccess }: Props) {
   const { vehicleId } = routeApi.useParams();
   const form = useAppForm({
     defaultValues: {
-      serviceFields: {
-        date: new Date(),
-        odometer: 0,
-        cost: '',
-        type: '' as z.infer<typeof serviceTypeSchema>,
-        location: '',
-        notes: '',
-      },
+      serviceFields: serviceFormDefaultValues,
     },
     validators: {
       onSubmit: formSchema,
@@ -60,7 +49,7 @@ export function AddServiceForm({ onSuccess }: Props) {
       date: data.serviceFields.date.toISOString(),
       odometer: data.serviceFields.odometer,
       cost: parseFloat(data.serviceFields.cost),
-      type: data.serviceFields.type,
+      types: data.serviceFields.types,
       location: data.serviceFields.location || undefined,
       notes: data.serviceFields.notes || undefined,
       vehicleId: vehicleId as Id<'vehicles'>,
@@ -78,8 +67,15 @@ export function AddServiceForm({ onSuccess }: Props) {
       <form.AppForm>
         <ServiceFieldGroup form={form} fields="serviceFields" />
         <Button
+          variant="secondary"
+          onClick={() => window.history.back()}
+          className="col-span-1"
+        >
+          Cancel
+        </Button>
+        <Button
           type="submit"
-          className="col-span-2"
+          className="col-span-1"
           disabled={createServiceMutation.isPending}
         >
           {createServiceMutation.isPending ? 'Adding...' : 'Add Service'}

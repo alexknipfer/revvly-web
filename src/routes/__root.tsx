@@ -17,7 +17,6 @@ import appCss from '@/styles/app.css?url';
 import { ConvexReactClient } from 'convex/react';
 import { ConvexQueryClient } from '@convex-dev/react-query';
 import { ConvexProviderWithClerk } from 'convex/react-clerk';
-// import { ThemeProvider } from '@/components/theme-provider';
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
@@ -31,7 +30,7 @@ export const Route = createRootRouteWithContext<{
       },
       {
         name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
+        content: 'width=device-width, initial-scale=1, maximum-scale=1',
       },
       {
         name: 'theme-color',

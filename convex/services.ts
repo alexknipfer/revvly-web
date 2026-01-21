@@ -10,7 +10,7 @@ const serviceFields = z.object({
   odometer: z.number(),
   cost: z.number(),
   location: z.string().optional(),
-  type: z.string().min(1),
+  types: z.array(z.string().min(1)),
   notes: z.string().optional(),
   vehicleId: zid('vehicles'),
 });
@@ -63,9 +63,12 @@ export const update = zMutation({
 export const getById = zQuery({
   args: {
     id: zid('services'),
+    vehicleId: zid('vehicles'),
   },
-  handler: async (ctx, { id }) => {
+  handler: async (ctx, { id, vehicleId }) => {
     const identity = await requireAuth(ctx);
+    await verifyVerhicleOwnership({ ctx, vehicleId, identity });
+
     const service = await ctx.db.get(id);
 
     if (!service) {
@@ -74,6 +77,12 @@ export const getById = zQuery({
 
     if (service.userId !== identity.subject) {
       throw new ConvexError({ message: 'Unauthorized' });
+    }
+
+    if (service.vehicleId !== vehicleId) {
+      throw new ConvexError({
+        message: 'Service does not belong to this vehicle',
+      });
     }
 
     return service;

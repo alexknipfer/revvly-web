@@ -38,26 +38,12 @@ export const nearbyGasStationsQueryOptions = ({
     enabled,
   });
 
-interface FuelEntryByIdArgs {
-  id: Id<'fuel_entries'>;
-  enabled?: boolean;
-}
-
-export const fuelEntryByIdQueryOptions = ({
-  id,
-  enabled = true,
-}: FuelEntryByIdArgs) =>
-  queryOptions({
-    ...convexQuery(
-      api.fuelEntries.getById,
-      enabled
-        ? {
-            id: id as Id<'fuel_entries'>,
-          }
-        : 'skip',
-    ),
-    enabled,
-  });
+export const fuelEntryByIdQueryOptions = (id: string) =>
+  queryOptions(
+    convexQuery(api.fuelEntries.getById, {
+      id: id as Id<'fuel_entries'>,
+    }),
+  );
 
 export const fuelEntriesOptions = (vehicleId: string) =>
   queryOptions(
@@ -67,25 +53,17 @@ export const fuelEntriesOptions = (vehicleId: string) =>
   );
 
 interface ServiceByIdArgs {
-  id: Id<'services'>;
-  enabled?: boolean;
+  id: string;
+  vehicleId: string;
 }
 
-export const serviceByIdQueryOptions = ({
-  id,
-  enabled = true,
-}: ServiceByIdArgs) =>
-  queryOptions({
-    ...convexQuery(
-      api.services.getById,
-      enabled
-        ? {
-            id: id as Id<'services'>,
-          }
-        : 'skip',
-    ),
-    enabled,
-  });
+export const serviceByIdQueryOptions = ({ id, vehicleId }: ServiceByIdArgs) =>
+  queryOptions(
+    convexQuery(api.services.getById, {
+      id: id as Id<'services'>,
+      vehicleId: vehicleId as Id<'vehicles'>,
+    }),
+  );
 
 export const servicesOptions = (vehicleId: string) =>
   queryOptions(

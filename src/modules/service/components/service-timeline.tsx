@@ -1,8 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { Suspense, useMemo, useState } from 'react';
-import { Wrench, Pencil } from 'lucide-react';
-import { toast } from 'sonner';
-import { getRouteApi } from '@tanstack/react-router';
+import { Suspense, useMemo } from 'react';
+import { Wrench, Pencil, Plus } from 'lucide-react';
+import { getRouteApi, Link } from '@tanstack/react-router';
 
 import { Timeline } from '@/components/timeline';
 import {
@@ -14,23 +13,24 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Item,
+  ItemActions,
   ItemContent,
   ItemDescription,
   ItemTitle,
 } from '@/components/ui/item';
 import { servicesOptions } from '@/api/query-options';
-import { DrawerDialog } from '@/components/ui/dialog-drawer';
 
 import { Doc } from 'convex/_generated/dataModel';
 
-import { AddServiceDialog } from './add-service-dialog';
-import { EditServiceForm } from './forms/edit-service-form';
-
 const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
+
+const formatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+});
 
 export function ServiceTimeline() {
   return (
@@ -42,7 +42,6 @@ export function ServiceTimeline() {
 
 function ServiceTimelineContent() {
   const { vehicleId } = routeApi.useParams();
-  const [serviceDialogOpen, setServiceDialogOpen] = useState(false);
 
   const { data: services } = useSuspenseQuery(servicesOptions(vehicleId));
 
@@ -67,14 +66,16 @@ function ServiceTimelineContent() {
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Button onClick={() => setServiceDialogOpen(true)}>
-            Add Service
-          </Button>
-          <AddServiceDialog
-            open={serviceDialogOpen}
-            onOpenChange={setServiceDialogOpen}
-            onServiceCreated={() =>
-              toast.success('Service record added successfully')
+          <Button
+            nativeButton={false}
+            render={
+              <Link
+                to="/vehicles/$vehicleId/services/new"
+                params={{ vehicleId }}
+              >
+                <Plus className="size-4" />
+                Add Service
+              </Link>
             }
           />
         </EmptyContent>
@@ -86,7 +87,7 @@ function ServiceTimelineContent() {
 }
 
 function ServiceTimelineItem({ service }: { service: Doc<'services'> }) {
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const { vehicleId } = routeApi.useParams();
 
   const date = new Date(service.date);
   const formattedDate = date.toLocaleDateString('en-US', {
@@ -96,49 +97,32 @@ function ServiceTimelineItem({ service }: { service: Doc<'services'> }) {
   });
 
   return (
-    <>
-      <Item className="p-0">
-        <ItemContent>
-          <div className="flex items-center gap-2">
-            <ItemTitle>{formattedDate}</ItemTitle>
-            <Badge variant="outline" className="text-xs">
-              {service.type}
-            </Badge>
-          </div>
-          <ItemDescription>
-            <span className="mr-2.5">${service.cost.toFixed(2)}</span>
-            {service.location && (
-              <span className="text-muted-foreground">{service.location}</span>
-            )}
-          </ItemDescription>
-        </ItemContent>
-        <ItemContent className="flex-none">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setEditDialogOpen(true)}
-          >
-            <Pencil className="size-4" />
-          </Button>
-        </ItemContent>
-      </Item>
-      <DrawerDialog
-        title="Edit Service"
-        description="Update your service record details"
-        open={editDialogOpen}
-        onOpenChange={setEditDialogOpen}
-        hideHeaderOnMobile
-      >
-        <EditServiceForm
-          serviceId={service._id}
-          onSuccess={() => {
-            toast.success('Service record updated successfully');
-            setEditDialogOpen(false);
-          }}
-          fetchServiceEnabled={editDialogOpen}
+    <Item className="p-0">
+      <ItemContent>
+        <ItemTitle>{formattedDate}</ItemTitle>
+        <ItemDescription>{service.types.join(', ')}</ItemDescription>
+      </ItemContent>
+      <ItemActions>
+        <Button
+          variant="ghost"
+          size="icon"
+          nativeButton={false}
+          render={
+            <Link
+              to="/vehicles/$vehicleId/services/$serviceId/edit"
+              params={{ vehicleId, serviceId: service._id }}
+            >
+              <Pencil className="size-4" />
+            </Link>
+          }
         />
-      </DrawerDialog>
-    </>
+        <div className="px-1.5 bg-secondary rounded-sm text-center py-1">
+          <p className="font-semibold text-sm">
+            {formatter.format(service.cost)}
+          </p>
+        </div>
+      </ItemActions>
+    </Item>
   );
 }
 

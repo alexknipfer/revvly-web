@@ -1,70 +1,47 @@
 import z from 'zod';
 import { useConvexMutation } from '@convex-dev/react-query';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { Loader } from 'lucide-react';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { getRouteApi } from '@tanstack/react-router';
 
 import { fuelEntryByIdQueryOptions } from '@/api/query-options';
 import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/hooks/use-form';
 import { FuelEntryFieldGroup } from '@/modules/fuel-entry/components/fuel-entry-field-group';
-import { fuelLevelSchema, fuelTypeSchema } from '@/types/fuel-entry';
 import { api } from 'convex/_generated/api';
-import { Id } from 'convex/_generated/dataModel';
+import { defaultTo } from '@/lib/utils';
+
+import { fuelEntryFormSchema } from '../../schemas/form';
 
 const formSchema = z.object({
-  fuelEntryFields: z.object({
-    date: z.date(),
-    odometer: z.number().min(1, { message: 'Odometer is required' }),
-    costPerGallon: z
-      .string()
-      .min(1, { message: 'Cost per gallon is required' }),
-    totalGallons: z.string().min(1, { message: 'Total gallons is required' }),
-    missedFuelup: z.boolean(),
-    type: fuelTypeSchema,
-    level: fuelLevelSchema,
-    location: z.string(),
-    notes: z.string(),
-  }),
+  fuelEntryFields: fuelEntryFormSchema,
 });
 
 interface Props {
-  fuelEntryId: Id<'fuel_entries'>;
   onSuccess?: () => void;
-  fetchFuelEntryEnabled?: boolean;
 }
 
-const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
+const routeApi = getRouteApi(
+  '/_auth/vehicles/$vehicleId/fuelentry/$fuelEntryId/edit',
+);
 
-export function EditFuelEntryForm({
-  fuelEntryId,
-  fetchFuelEntryEnabled,
-  onSuccess,
-}: Props) {
-  const { vehicleId } = routeApi.useParams();
-  const {
-    data: fuelEntry,
-    error,
-    isPending,
-  } = useQuery(
-    fuelEntryByIdQueryOptions({
-      id: fuelEntryId,
-      enabled: fetchFuelEntryEnabled,
-    }),
+export function EditFuelEntryForm({ onSuccess }: Props) {
+  const { vehicleId, fuelEntryId } = routeApi.useParams();
+  const { data: fuelEntry } = useSuspenseQuery(
+    fuelEntryByIdQueryOptions(fuelEntryId),
   );
 
   const form = useAppForm({
     defaultValues: {
       fuelEntryFields: {
-        date: new Date(fuelEntry?.date ?? ''),
-        odometer: fuelEntry?.odometer ?? 0,
-        costPerGallon: fuelEntry?.costPerGallon.toString() ?? '',
-        totalGallons: fuelEntry?.totalGallons.toString() ?? '',
-        missedFuelup: fuelEntry?.missedFuelup ?? false,
-        type: fuelEntry?.type as 'regular' | 'premium' | 'diesel' | 'e85',
-        level: fuelEntry?.level as 'full' | 'partial',
-        location: fuelEntry?.location ?? '',
-        notes: fuelEntry?.notes ?? '',
+        date: new Date(fuelEntry.date),
+        odometer: fuelEntry.odometer,
+        costPerGallon: fuelEntry.costPerGallon.toString(),
+        totalGallons: fuelEntry.totalGallons.toString(),
+        missedFuelup: fuelEntry.missedFuelup,
+        type: fuelEntry.type as 'regular' | 'premium' | 'diesel' | 'e85',
+        level: fuelEntry.level as 'full' | 'partial',
+        location: defaultTo(fuelEntry.location, ''),
+        notes: defaultTo(fuelEntry.notes, ''),
       },
     },
     validators: {
@@ -96,18 +73,6 @@ export function EditFuelEntryForm({
     });
   };
 
-  if (isPending) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Loader className="size-4 animate-spin" />
-      </div>
-    );
-  }
-
-  if (error) {
-    throw new Error('Failed to fetch fuel entry');
-  }
-
   return (
     <form
       onSubmit={(e) => {
@@ -118,12 +83,19 @@ export function EditFuelEntryForm({
     >
       <form.AppForm>
         <FuelEntryFieldGroup form={form} fields="fuelEntryFields" />
+        <Button
+          variant="secondary"
+          onClick={() => window.history.back()}
+          className="col-span-1"
+        >
+          Cancel
+        </Button>
         <form.Subscribe
           selector={(state) => state.isDirty}
           children={(isDirty) => (
             <Button
               type="submit"
-              className="col-span-2"
+              className="col-span-1"
               disabled={updateFuelEntryMutation.isPending || !isDirty}
             >
               {updateFuelEntryMutation.isPending

@@ -1,9 +1,9 @@
 import z from 'zod';
 import { useConvexMutation } from '@convex-dev/react-query';
 import { useMutation } from '@tanstack/react-query';
+import { getRouteApi } from '@tanstack/react-router';
 
 import { useAppForm } from '@/hooks/use-form';
-import { fuelLevelSchema, fuelTypeSchema } from '@/types/fuel-entry';
 import { api } from 'convex/_generated/api';
 import { defaultTo } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -11,22 +11,13 @@ import { Id } from 'convex/_generated/dataModel';
 
 import { FuelEntryFieldGroup } from '../fuel-entry-field-group';
 import { UploadReceiptDialog } from '../upload-receipt-dialog';
-import { getRouteApi } from '@tanstack/react-router';
+import {
+  fuelEntryFormDefaultValues,
+  fuelEntryFormSchema,
+} from '../../schemas/form';
 
 const formSchema = z.object({
-  fuelEntryFields: z.object({
-    date: z.date(),
-    odometer: z.number().min(1, { message: 'Odometer is required' }),
-    costPerGallon: z
-      .string()
-      .min(1, { message: 'Cost per gallon is required' }),
-    totalGallons: z.string().min(1, { message: 'Total gallons is required' }),
-    missedFuelup: z.boolean(),
-    type: fuelTypeSchema,
-    level: fuelLevelSchema,
-    location: z.string(),
-    notes: z.string(),
-  }),
+  fuelEntryFields: fuelEntryFormSchema,
 });
 
 const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
@@ -39,17 +30,7 @@ export function AddFuelEntryForm({ onSuccess }: Props) {
   const { vehicleId } = routeApi.useParams();
   const form = useAppForm({
     defaultValues: {
-      fuelEntryFields: {
-        date: new Date(),
-        odometer: 0,
-        costPerGallon: '',
-        totalGallons: '',
-        location: '',
-        notes: '',
-        type: 'regular' as 'regular' | 'premium' | 'diesel' | 'e85',
-        level: 'full' as 'full' | 'partial',
-        missedFuelup: false,
-      },
+      fuelEntryFields: fuelEntryFormDefaultValues,
     },
     validators: {
       onSubmit: formSchema,
@@ -85,7 +66,7 @@ export function AddFuelEntryForm({ onSuccess }: Props) {
         e.preventDefault();
         form.handleSubmit();
       }}
-      className="grid grid-cols-2 gap-4 overflow-y-auto"
+      className="grid grid-cols-2 gap-4"
     >
       <form.AppForm>
         <div className="col-span-2 flex items-center justify-center py-2 border-b border-border">
@@ -115,8 +96,15 @@ export function AddFuelEntryForm({ onSuccess }: Props) {
         </div>
         <FuelEntryFieldGroup form={form} fields="fuelEntryFields" />
         <Button
+          variant="secondary"
+          onClick={() => window.history.back()}
+          className="col-span-1"
+        >
+          Cancel
+        </Button>
+        <Button
           type="submit"
-          className="col-span-2"
+          className="col-span-1"
           disabled={createFuelEntryMutation.isPending}
         >
           {createFuelEntryMutation.isPending ? 'Adding...' : 'Add Fuel Entry'}

@@ -5,7 +5,7 @@ export const serviceFields = v.object({
   odometer: v.number(),
   cost: v.number(),
   location: v.optional(v.string()),
-  type: v.string(),
+  types: v.array(v.string()),
   notes: v.optional(v.string()),
   vehicleId: v.id('vehicles'),
   userId: v.string(),

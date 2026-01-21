@@ -1,8 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { Suspense, useMemo, useState } from 'react';
-import { Fuel, Pencil } from 'lucide-react';
-import { toast } from 'sonner';
-import { getRouteApi } from '@tanstack/react-router';
+import { Suspense, useMemo } from 'react';
+import { Fuel, Pencil, Plus } from 'lucide-react';
+import { getRouteApi, Link } from '@tanstack/react-router';
 
 import { Timeline } from '@/components/timeline';
 import {
@@ -13,7 +12,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty';
-
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,12 +21,7 @@ import {
   ItemTitle,
 } from '@/components/ui/item';
 import { fuelEntriesOptions } from '@/api/query-options';
-import { DrawerDialog } from '@/components/ui/dialog-drawer';
-
 import { Doc } from 'convex/_generated/dataModel';
-
-import { AddFuelEntryDialog } from './add-fuel-entry-dialog';
-import { EditFuelEntryForm } from './forms/edit-fuel-entry-form';
 
 const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
 
@@ -42,8 +35,6 @@ export function FuelEntryTimeline() {
 
 function FuelEntryTimelineContent() {
   const { vehicleId } = routeApi.useParams();
-  const [fuelEntryDialogOpen, setFuelEntryDialogOpen] = useState(false);
-
   const { data: fuelEntries } = useSuspenseQuery(fuelEntriesOptions(vehicleId));
 
   const timelineItems = useMemo(() => {
@@ -67,14 +58,16 @@ function FuelEntryTimelineContent() {
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Button onClick={() => setFuelEntryDialogOpen(true)}>
-            Add Fuel Entry
-          </Button>
-          <AddFuelEntryDialog
-            open={fuelEntryDialogOpen}
-            onOpenChange={setFuelEntryDialogOpen}
-            onFuelEntryCreated={() =>
-              toast.success('Fuel entry added successfully')
+          <Button
+            nativeButton={false}
+            render={
+              <Link
+                to="/vehicles/$vehicleId/fuelentry/new"
+                params={{ vehicleId }}
+              >
+                <Plus className="size-4" />
+                Add Fuel Entry
+              </Link>
             }
           />
         </EmptyContent>
@@ -86,8 +79,7 @@ function FuelEntryTimelineContent() {
 }
 
 function FuelEntryTimelineItem({ entry }: { entry: Doc<'fuel_entries'> }) {
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-
+  const { vehicleId } = routeApi.useParams();
   const date = new Date(entry.date);
   const formattedDate = date.toLocaleDateString('en-US', {
     month: 'short',
@@ -96,58 +88,45 @@ function FuelEntryTimelineItem({ entry }: { entry: Doc<'fuel_entries'> }) {
   });
 
   return (
-    <>
-      <Item className="p-0">
-        <ItemContent>
-          <div className="flex items-center gap-2">
-            <ItemTitle>{formattedDate}</ItemTitle>
-            {entry.missedFuelup && (
-              <Badge variant="outline" className="text-xs">
-                Missed Fuel Up
-              </Badge>
-            )}
-          </div>
-          <ItemDescription>
-            <span className="mr-2.5">{entry.totalGallons.toFixed(2)} gal</span>
-            <span>${entry.totalCost.toFixed(2)}</span>
-          </ItemDescription>
-        </ItemContent>
-        <ItemContent className="flex-none">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setEditDialogOpen(true)}
-          >
-            <Pencil className="size-4" />
-          </Button>
-        </ItemContent>
-
-        <ItemContent className="flex-none">
-          <div className="px-1.5 bg-secondary rounded-sm text-center py-1">
-            <p className="font-semibold text-sm">
-              {entry.mpg ? entry.mpg.toFixed(1) : '--'}
-            </p>
-            <p className="text-xs text-muted-foreground">MPG</p>
-          </div>
-        </ItemContent>
-      </Item>
-      <DrawerDialog
-        title="Edit Fuel Entry"
-        description="Update your fuel fill-up details"
-        open={editDialogOpen}
-        onOpenChange={setEditDialogOpen}
-        hideHeaderOnMobile
-      >
-        <EditFuelEntryForm
-          fuelEntryId={entry._id}
-          onSuccess={() => {
-            toast.success('Fuel entry updated successfully');
-            setEditDialogOpen(false);
-          }}
-          fetchFuelEntryEnabled={editDialogOpen}
+    <Item className="p-0">
+      <ItemContent>
+        <div className="flex items-center gap-2">
+          <ItemTitle>{formattedDate}</ItemTitle>
+          {entry.missedFuelup && (
+            <Badge variant="outline" className="text-xs">
+              Missed Fuel Up
+            </Badge>
+          )}
+        </div>
+        <ItemDescription>
+          <span className="mr-2.5">{entry.totalGallons.toFixed(2)} gal</span>
+          <span>${entry.totalCost.toFixed(2)}</span>
+        </ItemDescription>
+      </ItemContent>
+      <ItemContent className="flex-none">
+        <Button
+          variant="ghost"
+          size="icon"
+          nativeButton={false}
+          render={
+            <Link
+              to={`/vehicles/$vehicleId/fuelentry/$fuelEntryId/edit`}
+              params={{ vehicleId, fuelEntryId: entry._id }}
+            >
+              <Pencil className="size-4" />
+            </Link>
+          }
         />
-      </DrawerDialog>
-    </>
+      </ItemContent>
+      <ItemContent className="flex-none">
+        <div className="px-1.5 bg-secondary rounded-sm text-center py-1">
+          <p className="font-semibold text-sm">
+            {entry.mpg ? entry.mpg.toFixed(1) : '--'}
+          </p>
+          <p className="text-xs text-muted-foreground">MPG</p>
+        </div>
+      </ItemContent>
+    </Item>
   );
 }
 

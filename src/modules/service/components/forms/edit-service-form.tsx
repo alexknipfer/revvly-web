@@ -1,7 +1,6 @@
 import z from 'zod';
 import { useConvexMutation } from '@convex-dev/react-query';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { Loader } from 'lucide-react';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { getRouteApi } from '@tanstack/react-router';
 
 import { serviceByIdQueryOptions } from '@/api/query-options';
@@ -9,53 +8,37 @@ import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/hooks/use-form';
 import { ServiceFieldGroup } from '@/modules/service/components/service-field-group';
 import { api } from 'convex/_generated/api';
-import { Id } from 'convex/_generated/dataModel';
+import { serviceFormSchema } from '@/modules/service/schemas/form';
+import { defaultTo } from '@/lib/utils';
 
-const formSchema = z.object({
-  serviceFields: z.object({
-    date: z.date(),
-    odometer: z.number().min(1, { message: 'Odometer is required' }),
-    cost: z.string().min(1, { message: 'Cost is required' }),
-    type: z.string().min(1, { message: 'Service type is required' }),
-    location: z.string(),
-    notes: z.string(),
-  }),
-});
+const formSchema = z.object({ serviceFields: serviceFormSchema });
 
 interface Props {
-  serviceId: Id<'services'>;
   onSuccess?: () => void;
-  fetchServiceEnabled?: boolean;
 }
 
-const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
+const routeApi = getRouteApi(
+  '/_auth/vehicles/$vehicleId/services/$serviceId/edit',
+);
 
-export function EditServiceForm({
-  serviceId,
-  fetchServiceEnabled,
-  onSuccess,
-}: Props) {
-  const { vehicleId } = routeApi.useParams();
-  const {
-    data: service,
-    error,
-    isPending,
-  } = useQuery(
+export function EditServiceForm({ onSuccess }: Props) {
+  const { vehicleId, serviceId } = routeApi.useParams();
+  const { data: service } = useSuspenseQuery(
     serviceByIdQueryOptions({
       id: serviceId,
-      enabled: fetchServiceEnabled,
+      vehicleId,
     }),
   );
 
   const form = useAppForm({
     defaultValues: {
       serviceFields: {
-        date: new Date(service?.date ?? ''),
-        odometer: service?.odometer ?? 0,
-        cost: service?.cost.toString() ?? '',
-        type: service?.type ?? '',
-        location: service?.location ?? '',
-        notes: service?.notes ?? '',
+        date: new Date(service.date),
+        odometer: service.odometer,
+        cost: service.cost.toString(),
+        types: service.types,
+        location: defaultTo(service.location, ''),
+        notes: defaultTo(service.notes, ''),
       },
     },
     validators: {
@@ -76,25 +59,13 @@ export function EditServiceForm({
       id: serviceId,
       odometer: data.serviceFields.odometer,
       cost: parseFloat(data.serviceFields.cost),
-      type: data.serviceFields.type,
+      types: data.serviceFields.types,
       location: data.serviceFields.location || undefined,
       notes: data.serviceFields.notes || undefined,
       date: data.serviceFields.date.toISOString(),
       vehicleId,
     });
   };
-
-  if (isPending) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Loader className="size-4 animate-spin" />
-      </div>
-    );
-  }
-
-  if (error) {
-    throw new Error('Failed to fetch service');
-  }
 
   return (
     <form
@@ -106,12 +77,19 @@ export function EditServiceForm({
     >
       <form.AppForm>
         <ServiceFieldGroup form={form} fields="serviceFields" />
+        <Button
+          variant="secondary"
+          onClick={() => window.history.back()}
+          className="col-span-1"
+        >
+          Cancel
+        </Button>
         <form.Subscribe
           selector={(state) => state.isDirty}
           children={(isDirty) => (
             <Button
               type="submit"
-              className="col-span-2"
+              className="col-span-1"
               disabled={updateServiceMutation.isPending || !isDirty}
             >
               {updateServiceMutation.isPending
