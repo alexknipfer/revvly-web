@@ -70,10 +70,8 @@ export const Route = createFileRoute('/_auth')({
       token,
     };
   },
-  loader: async ({ context }) => {
-    await context.queryClient.prefetchQuery(
-      convexQuery(api.vehicles.getAll, {}),
-    );
+  loader: ({ context }) => {
+    context.queryClient.prefetchQuery(convexQuery(api.vehicles.getAll, {}));
   },
 });
 
