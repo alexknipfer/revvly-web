@@ -125,7 +125,7 @@ function RouteComponent() {
                       params={{ vehicleId: vehicle._id }}
                       className="flex items-center gap-3 cursor-pointer w-full"
                     >
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-mute">
+                      <div className="flex size-9 items-center justify-center rounded-full bg-mute">
                         {vehicle.imageUrl ? (
                           <img
                             src={vehicle.imageUrl}
@@ -135,15 +135,17 @@ function RouteComponent() {
                             className="object-cover rounded-full w-full h-full"
                           />
                         ) : (
-                          <Car className="h-4 w-4 text-muted-foreground" />
+                          <div className="flex size-9 items-center justify-center rounded-full bg-mute">
+                            <Car className="size-4 text-muted-foreground" />
+                          </div>
                         )}
                       </div>
                       <div className="flex flex-1 flex-col">
-                        <span className="text-sm text-popover-foreground">
-                          {vehicle.name}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-xs text-popover-foreground">
                           {vehicle.model}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          {vehicle.name}
                         </span>
                       </div>
                       {location.pathname === `/vehicles/${vehicle._id}` && (
@@ -162,7 +164,7 @@ function RouteComponent() {
                 <CirclePlus />
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <div className="px-2 py-1.5 flex items-center justify-between">
+              <div className="px-1.5 py-1 flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Theme</span>
                 <ThemeToggle />
               </div>
