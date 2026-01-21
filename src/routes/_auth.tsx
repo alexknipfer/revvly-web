@@ -110,11 +110,7 @@ function RouteComponent() {
                 </Button>
               }
               className="justify-self-end"
-            >
-              <Button variant="ghost" size="icon">
-                <EllipsisVertical />
-              </Button>
-            </DropdownMenuTrigger>
+            />
             <DropdownMenuContent align="end" className="w-64">
               <p className="p-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">
                 Your Vehicles
@@ -122,6 +118,7 @@ function RouteComponent() {
               {vehicles.map((vehicle) => (
                 <DropdownMenuItem
                   key={vehicle._id}
+                  nativeButton={false}
                   render={
                     <Link
                       to={`/vehicles/$vehicleId`}
@@ -171,6 +168,7 @@ function RouteComponent() {
               </div>
               <DropdownMenuSeparator />
               <DropdownMenuItem
+                nativeButton
                 render={<SignOutButton />}
                 className="w-full text-muted-foreground"
               />
