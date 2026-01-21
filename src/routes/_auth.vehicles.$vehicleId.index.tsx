@@ -2,8 +2,6 @@ import { convexQuery } from '@convex-dev/react-query';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { z } from 'zod';
-import { useState } from 'react';
-import { toast } from 'sonner';
 import { Fuel, Plus, Wrench } from 'lucide-react';
 
 import { ManageVehicleMenu } from '@/modules/vehicle/components/manage-vehicle-menu';
@@ -28,7 +26,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { AddServiceDialog } from '@/modules/service/components/add-service-dialog';
 import { Button } from '@/components/ui/button';
 import { api } from 'convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
@@ -168,8 +165,6 @@ function RouteComponent() {
 
 function VehicleActionsMenu() {
   const { vehicleId } = Route.useParams();
-  const [fuelEntryDialogOpen, setFuelEntryDialogOpen] = useState(false);
-  const [serviceDialogOpen, setServiceDialogOpen] = useState(false);
 
   return (
     <DropdownMenu>
@@ -193,23 +188,19 @@ function VehicleActionsMenu() {
             </Link>
           }
         />
-        {/* <DropdownMenuItem
-          render={() => (
-            <Link to={`/vehicles/${vehicleId}/service/new`}>
+        <DropdownMenuItem
+          render={
+            <Link
+              to="/vehicles/$vehicleId/services/new"
+              params={{ vehicleId }}
+              className="text-sm flex items-center gap-2"
+            >
               <Wrench className="size-4" />
               Add Service
             </Link>
-          )}
-        /> */}
+          }
+        />
       </DropdownMenuContent>
-      <AddServiceDialog
-        open={serviceDialogOpen}
-        onOpenChange={setServiceDialogOpen}
-        onServiceCreated={() => {
-          setServiceDialogOpen(false);
-          toast.success('Service entry added successfully');
-        }}
-      />
     </DropdownMenu>
   );
 }

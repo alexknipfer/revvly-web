@@ -94,12 +94,19 @@ export function EditFuelEntryForm({ onSuccess }: Props) {
     >
       <form.AppForm>
         <FuelEntryFieldGroup form={form} fields="fuelEntryFields" />
+        <Button
+          variant="secondary"
+          onClick={() => window.history.back()}
+          className="col-span-1"
+        >
+          Cancel
+        </Button>
         <form.Subscribe
           selector={(state) => state.isDirty}
           children={(isDirty) => (
             <Button
               type="submit"
-              className="col-span-2"
+              className="col-span-1"
               disabled={updateFuelEntryMutation.isPending || !isDirty}
             >
               {updateFuelEntryMutation.isPending

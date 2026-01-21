@@ -115,8 +115,15 @@ export function AddFuelEntryForm({ onSuccess }: Props) {
         </div>
         <FuelEntryFieldGroup form={form} fields="fuelEntryFields" />
         <Button
+          variant="secondary"
+          onClick={() => window.history.back()}
+          className="col-span-1"
+        >
+          Cancel
+        </Button>
+        <Button
           type="submit"
-          className="col-span-2"
+          className="col-span-1"
           disabled={createFuelEntryMutation.isPending}
         >
           {createFuelEntryMutation.isPending ? 'Adding...' : 'Add Fuel Entry'}

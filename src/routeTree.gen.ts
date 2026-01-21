@@ -14,7 +14,9 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthVehiclesIndexRouteImport } from './routes/_auth.vehicles.index'
 import { Route as AuthVehiclesVehicleIdRouteRouteImport } from './routes/_auth.vehicles.$vehicleId.route'
 import { Route as AuthVehiclesVehicleIdIndexRouteImport } from './routes/_auth.vehicles.$vehicleId.index'
+import { Route as AuthVehiclesVehicleIdServicesNewRouteImport } from './routes/_auth.vehicles.$vehicleId.services.new'
 import { Route as AuthVehiclesVehicleIdFuelentryNewRouteImport } from './routes/_auth.vehicles.$vehicleId.fuelentry.new'
+import { Route as AuthVehiclesVehicleIdServicesServiceIdEditRouteImport } from './routes/_auth.vehicles.$vehicleId.services.$serviceId.edit'
 import { Route as AuthVehiclesVehicleIdFuelentryFuelEntryIdEditRouteImport } from './routes/_auth.vehicles.$vehicleId.fuelentry.$fuelEntryId.edit'
 
 const AuthRoute = AuthRouteImport.update({
@@ -43,10 +45,22 @@ const AuthVehiclesVehicleIdIndexRoute =
     path: '/',
     getParentRoute: () => AuthVehiclesVehicleIdRouteRoute,
   } as any)
+const AuthVehiclesVehicleIdServicesNewRoute =
+  AuthVehiclesVehicleIdServicesNewRouteImport.update({
+    id: '/services/new',
+    path: '/services/new',
+    getParentRoute: () => AuthVehiclesVehicleIdRouteRoute,
+  } as any)
 const AuthVehiclesVehicleIdFuelentryNewRoute =
   AuthVehiclesVehicleIdFuelentryNewRouteImport.update({
     id: '/fuelentry/new',
     path: '/fuelentry/new',
+    getParentRoute: () => AuthVehiclesVehicleIdRouteRoute,
+  } as any)
+const AuthVehiclesVehicleIdServicesServiceIdEditRoute =
+  AuthVehiclesVehicleIdServicesServiceIdEditRouteImport.update({
+    id: '/services/$serviceId/edit',
+    path: '/services/$serviceId/edit',
     getParentRoute: () => AuthVehiclesVehicleIdRouteRoute,
   } as any)
 const AuthVehiclesVehicleIdFuelentryFuelEntryIdEditRoute =
@@ -62,14 +76,18 @@ export interface FileRoutesByFullPath {
   '/vehicles': typeof AuthVehiclesIndexRoute
   '/vehicles/$vehicleId/': typeof AuthVehiclesVehicleIdIndexRoute
   '/vehicles/$vehicleId/fuelentry/new': typeof AuthVehiclesVehicleIdFuelentryNewRoute
+  '/vehicles/$vehicleId/services/new': typeof AuthVehiclesVehicleIdServicesNewRoute
   '/vehicles/$vehicleId/fuelentry/$fuelEntryId/edit': typeof AuthVehiclesVehicleIdFuelentryFuelEntryIdEditRoute
+  '/vehicles/$vehicleId/services/$serviceId/edit': typeof AuthVehiclesVehicleIdServicesServiceIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/vehicles': typeof AuthVehiclesIndexRoute
   '/vehicles/$vehicleId': typeof AuthVehiclesVehicleIdIndexRoute
   '/vehicles/$vehicleId/fuelentry/new': typeof AuthVehiclesVehicleIdFuelentryNewRoute
+  '/vehicles/$vehicleId/services/new': typeof AuthVehiclesVehicleIdServicesNewRoute
   '/vehicles/$vehicleId/fuelentry/$fuelEntryId/edit': typeof AuthVehiclesVehicleIdFuelentryFuelEntryIdEditRoute
+  '/vehicles/$vehicleId/services/$serviceId/edit': typeof AuthVehiclesVehicleIdServicesServiceIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -79,7 +97,9 @@ export interface FileRoutesById {
   '/_auth/vehicles/': typeof AuthVehiclesIndexRoute
   '/_auth/vehicles/$vehicleId/': typeof AuthVehiclesVehicleIdIndexRoute
   '/_auth/vehicles/$vehicleId/fuelentry/new': typeof AuthVehiclesVehicleIdFuelentryNewRoute
+  '/_auth/vehicles/$vehicleId/services/new': typeof AuthVehiclesVehicleIdServicesNewRoute
   '/_auth/vehicles/$vehicleId/fuelentry/$fuelEntryId/edit': typeof AuthVehiclesVehicleIdFuelentryFuelEntryIdEditRoute
+  '/_auth/vehicles/$vehicleId/services/$serviceId/edit': typeof AuthVehiclesVehicleIdServicesServiceIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -89,14 +109,18 @@ export interface FileRouteTypes {
     | '/vehicles'
     | '/vehicles/$vehicleId/'
     | '/vehicles/$vehicleId/fuelentry/new'
+    | '/vehicles/$vehicleId/services/new'
     | '/vehicles/$vehicleId/fuelentry/$fuelEntryId/edit'
+    | '/vehicles/$vehicleId/services/$serviceId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/vehicles'
     | '/vehicles/$vehicleId'
     | '/vehicles/$vehicleId/fuelentry/new'
+    | '/vehicles/$vehicleId/services/new'
     | '/vehicles/$vehicleId/fuelentry/$fuelEntryId/edit'
+    | '/vehicles/$vehicleId/services/$serviceId/edit'
   id:
     | '__root__'
     | '/'
@@ -105,7 +129,9 @@ export interface FileRouteTypes {
     | '/_auth/vehicles/'
     | '/_auth/vehicles/$vehicleId/'
     | '/_auth/vehicles/$vehicleId/fuelentry/new'
+    | '/_auth/vehicles/$vehicleId/services/new'
     | '/_auth/vehicles/$vehicleId/fuelentry/$fuelEntryId/edit'
+    | '/_auth/vehicles/$vehicleId/services/$serviceId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -150,11 +176,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthVehiclesVehicleIdIndexRouteImport
       parentRoute: typeof AuthVehiclesVehicleIdRouteRoute
     }
+    '/_auth/vehicles/$vehicleId/services/new': {
+      id: '/_auth/vehicles/$vehicleId/services/new'
+      path: '/services/new'
+      fullPath: '/vehicles/$vehicleId/services/new'
+      preLoaderRoute: typeof AuthVehiclesVehicleIdServicesNewRouteImport
+      parentRoute: typeof AuthVehiclesVehicleIdRouteRoute
+    }
     '/_auth/vehicles/$vehicleId/fuelentry/new': {
       id: '/_auth/vehicles/$vehicleId/fuelentry/new'
       path: '/fuelentry/new'
       fullPath: '/vehicles/$vehicleId/fuelentry/new'
       preLoaderRoute: typeof AuthVehiclesVehicleIdFuelentryNewRouteImport
+      parentRoute: typeof AuthVehiclesVehicleIdRouteRoute
+    }
+    '/_auth/vehicles/$vehicleId/services/$serviceId/edit': {
+      id: '/_auth/vehicles/$vehicleId/services/$serviceId/edit'
+      path: '/services/$serviceId/edit'
+      fullPath: '/vehicles/$vehicleId/services/$serviceId/edit'
+      preLoaderRoute: typeof AuthVehiclesVehicleIdServicesServiceIdEditRouteImport
       parentRoute: typeof AuthVehiclesVehicleIdRouteRoute
     }
     '/_auth/vehicles/$vehicleId/fuelentry/$fuelEntryId/edit': {
@@ -170,7 +210,9 @@ declare module '@tanstack/react-router' {
 interface AuthVehiclesVehicleIdRouteRouteChildren {
   AuthVehiclesVehicleIdIndexRoute: typeof AuthVehiclesVehicleIdIndexRoute
   AuthVehiclesVehicleIdFuelentryNewRoute: typeof AuthVehiclesVehicleIdFuelentryNewRoute
+  AuthVehiclesVehicleIdServicesNewRoute: typeof AuthVehiclesVehicleIdServicesNewRoute
   AuthVehiclesVehicleIdFuelentryFuelEntryIdEditRoute: typeof AuthVehiclesVehicleIdFuelentryFuelEntryIdEditRoute
+  AuthVehiclesVehicleIdServicesServiceIdEditRoute: typeof AuthVehiclesVehicleIdServicesServiceIdEditRoute
 }
 
 const AuthVehiclesVehicleIdRouteRouteChildren: AuthVehiclesVehicleIdRouteRouteChildren =
@@ -178,8 +220,12 @@ const AuthVehiclesVehicleIdRouteRouteChildren: AuthVehiclesVehicleIdRouteRouteCh
     AuthVehiclesVehicleIdIndexRoute: AuthVehiclesVehicleIdIndexRoute,
     AuthVehiclesVehicleIdFuelentryNewRoute:
       AuthVehiclesVehicleIdFuelentryNewRoute,
+    AuthVehiclesVehicleIdServicesNewRoute:
+      AuthVehiclesVehicleIdServicesNewRoute,
     AuthVehiclesVehicleIdFuelentryFuelEntryIdEditRoute:
       AuthVehiclesVehicleIdFuelentryFuelEntryIdEditRoute,
+    AuthVehiclesVehicleIdServicesServiceIdEditRoute:
+      AuthVehiclesVehicleIdServicesServiceIdEditRoute,
   }
 
 const AuthVehiclesVehicleIdRouteRouteWithChildren =

@@ -67,8 +67,15 @@ export function AddServiceForm({ onSuccess }: Props) {
       <form.AppForm>
         <ServiceFieldGroup form={form} fields="serviceFields" />
         <Button
+          variant="secondary"
+          onClick={() => window.history.back()}
+          className="col-span-1"
+        >
+          Cancel
+        </Button>
+        <Button
           type="submit"
-          className="col-span-2"
+          className="col-span-1"
           disabled={createServiceMutation.isPending}
         >
           {createServiceMutation.isPending ? 'Adding...' : 'Add Service'}
