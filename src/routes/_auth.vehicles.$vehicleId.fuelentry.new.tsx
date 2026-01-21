@@ -15,7 +15,7 @@ function RouteComponent() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4 text-primary text-center md:text-left">
+      <h1 className="text-2xl font-bold mb-4 text-primary text-center md:text-left sr-only sm:not-sr-only">
         New Fuel Entry
       </h1>
       <AddFuelEntryForm
