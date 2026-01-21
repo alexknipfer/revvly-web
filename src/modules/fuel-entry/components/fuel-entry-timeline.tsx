@@ -44,7 +44,7 @@ function FuelEntryTimelineContent() {
     }));
   }, [fuelEntries]);
 
-  if (fuelEntries.length > 0) {
+  if (fuelEntries.length === 0) {
     return (
       <Empty>
         <EmptyHeader>
@@ -118,7 +118,6 @@ function FuelEntryTimelineItem({ entry }: { entry: Doc<'fuel_entries'> }) {
           }
         />
       </ItemContent>
-
       <ItemContent className="flex-none">
         <div className="px-1.5 bg-secondary rounded-sm text-center py-1">
           <p className="font-semibold text-sm">
