@@ -2,10 +2,12 @@ import { zid } from 'convex-helpers/server/zod4';
 import z from 'zod';
 
 export type FuelType = z.infer<typeof fuelTypeSchema>;
-export const fuelTypeSchema = z.enum(['regular', 'premium', 'diesel', 'e85']);
+export const fuelTypeSchema = z
+  .enum(['regular', 'premium', 'diesel', 'e85'])
+  .catch('regular');
 
 export type FuelLevel = z.infer<typeof fuelLevelSchema>;
-export const fuelLevelSchema = z.enum(['full', 'partial']);
+export const fuelLevelSchema = z.enum(['full', 'partial']).catch('full');
 
 export const fuellyFuelEntryImportSchema = z.object({
   date: z.string(),

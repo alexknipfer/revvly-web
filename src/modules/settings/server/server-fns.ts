@@ -10,7 +10,12 @@ import { appendSentryUser } from '@/middleware/append-sentry-user';
 
 import type { FuellyCsvPreview, VehicleMapping, ImportSummary } from '../types';
 import type { Id } from 'convex/_generated/dataModel';
-import { FuellyFuelEntryImport, FuellyServiceImport } from '@/types/fuel-entry';
+import {
+  FuellyFuelEntryImport,
+  FuellyServiceImport,
+  fuelLevelSchema,
+  fuelTypeSchema,
+} from '@/types/fuel-entry';
 import { MAX_SERVER_FUNC_ATTACHMENT_SIZE } from '@/lib/constants';
 
 const requiredHeaders = [
@@ -130,18 +135,6 @@ function parseDateTime(dateStr: string, timeStr: string): string {
   } catch {
     return new Date().toISOString();
   }
-}
-
-function mapFuelType(octane: string): 'regular' | 'premium' | 'diesel' | 'e85' {
-  const lower = octane.toLowerCase();
-  if (lower.includes('premium')) return 'premium';
-  if (lower.includes('diesel')) return 'diesel';
-  if (lower.includes('e85')) return 'e85';
-  return 'regular';
-}
-
-function mapFuelLevel(filledUp: string): 'full' | 'partial' {
-  return filledUp.toLowerCase() === 'full' ? 'full' : 'partial';
 }
 
 export const parseFuellyCsvPreviewServerFn = createServerFn({
@@ -428,8 +421,8 @@ export const importFuellyDataServerFn = createServerFn({
               mpgStr && parseNumber(mpgStr) > 0
                 ? parseNumber(mpgStr)
                 : undefined,
-            type: mapFuelType(octane),
-            level: mapFuelLevel(filledUp),
+            type: fuelTypeSchema.parse(octane.toLowerCase()),
+            level: fuelLevelSchema.parse(filledUp.toLowerCase()),
             location: location || undefined,
             notes: notes || undefined,
             vehicleId: vehicleId as Id<'vehicles'>,
