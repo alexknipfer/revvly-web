@@ -17,6 +17,7 @@ export const ServiceFieldGroup = withFieldGroup({
             <field.FormDateTimePicker
               label="Date & Time *"
               showLabels={false}
+              className="col-span-2"
             />
           )}
         </group.AppField>

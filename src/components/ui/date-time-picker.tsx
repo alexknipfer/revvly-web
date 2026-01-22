@@ -145,7 +145,7 @@ interface DateFieldProps {
 
 function FormDateTimePicker({
   label,
-  className = 'col-span-2',
+  className,
   showLabels = false,
   defaultValue,
 }: DateFieldProps) {
