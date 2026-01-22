@@ -6,9 +6,12 @@ import {
   redirect,
   useLocation,
 } from '@tanstack/react-router';
+import * as Sentry from '@sentry/tanstackstart-react';
 import { convexQuery } from '@convex-dev/react-query';
-import { Car, Check, EllipsisVertical, Plus } from 'lucide-react';
-import { useState } from 'react';
+import { Car, Check, CirclePlus, EllipsisVertical } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { auth } from '@clerk/tanstack-react-start/server';
+import { createServerFn } from '@tanstack/react-start';
 import { useSuspenseQuery } from '@tanstack/react-query';
 
 import { Toaster } from '@/components/ui/sonner';
@@ -21,9 +24,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { AddVehicleDialog } from '@/modules/add-vehicle/ui/components/add-vehicle-dialog';
-import { auth } from '@clerk/tanstack-react-start/server';
-import { createServerFn } from '@tanstack/react-start';
+import { AddVehicleDialog } from '@/modules/add-vehicle/components/add-vehicle-dialog';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 const fetchClerkAuth = createServerFn({ method: 'GET' }).handler(async () => {
   const authResponse = await auth();
@@ -46,7 +48,11 @@ export const Route = createFileRoute('/_auth')({
   }),
   component: RouteComponent,
   beforeLoad: async ({ context }) => {
-    const auth = await fetchClerkAuth();
+    // Cache to prevent slow client side navigations. See: https://github.com/TanStack/router/issues/3997
+    const auth = await context.queryClient.ensureQueryData({
+      queryKey: ['auth'],
+      queryFn: fetchClerkAuth,
+    });
     const { userId, token } = auth;
 
     if (token && context.convexQueryClient.serverHttpClient?.setAuth) {
@@ -64,14 +70,13 @@ export const Route = createFileRoute('/_auth')({
       token,
     };
   },
-  loader: async ({ context }) => {
-    await context.queryClient.prefetchQuery(
-      convexQuery(api.vehicles.getAll, {}),
-    );
+  loader: ({ context }) => {
+    context.queryClient.prefetchQuery(convexQuery(api.vehicles.getAll, {}));
   },
 });
 
 function RouteComponent() {
+  const { userId } = Route.useRouteContext();
   const { data: vehicles } = useSuspenseQuery(
     convexQuery(api.vehicles.getAll, {}),
   );
@@ -79,9 +84,15 @@ function RouteComponent() {
   const [addVehicleOpen, setAddVehicleOpen] = useState(false);
   const location = useLocation();
 
+  useEffect(() => {
+    Sentry.setUser({
+      id: userId,
+    });
+  }, [userId]);
+
   return (
-    <div className="bg-slate-900 min-h-svh text-foreground">
-      <nav className="text-foreground border-b border-b-accent w-full sticky top-0 z-10 bg-slate-900">
+    <div className="bg-background min-h-svh text-foreground">
+      <nav className="text-foreground border-b border-b-accent w-full sticky top-0 z-10 bg-background">
         <div className="max-w-7xl mx-auto w-full grid grid-cols-3 sm:grid-cols-2 items-center pl-2.5 pr-2.5 ">
           <Link
             to="/vehicles"
@@ -90,63 +101,77 @@ function RouteComponent() {
             <span className="font-bold tracking-widest uppercase">Revvly</span>
           </Link>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild className="justify-self-end">
-              <Button variant="ghost" size="icon">
-                <EllipsisVertical />
-              </Button>
-            </DropdownMenuTrigger>
+            <DropdownMenuTrigger
+              render={
+                <Button variant="ghost" size="icon">
+                  <EllipsisVertical />
+                </Button>
+              }
+              className="justify-self-end"
+            />
             <DropdownMenuContent align="end" className="w-64">
               <p className="p-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">
                 Your Vehicles
               </p>
               {vehicles.map((vehicle) => (
-                <DropdownMenuItem key={vehicle._id}>
-                  <Link
-                    to={`/vehicles/$vehicleId`}
-                    params={{ vehicleId: vehicle._id }}
-                    className="flex items-center gap-3 cursor-pointer w-full"
-                  >
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted">
-                      {vehicle.imageUrl ? (
-                        <img
-                          src={vehicle.imageUrl}
-                          alt={vehicle.name}
-                          width={36}
-                          height={36}
-                          className="object-cover rounded-full w-full h-full"
-                        />
-                      ) : (
-                        <Car className="h-4 w-4 text-muted-foreground" />
+                <DropdownMenuItem
+                  key={vehicle._id}
+                  nativeButton={false}
+                  render={
+                    <Link
+                      to={`/vehicles/$vehicleId`}
+                      params={{ vehicleId: vehicle._id }}
+                      className="flex items-center gap-3 cursor-pointer w-full"
+                    >
+                      <div className="flex size-9 items-center justify-center rounded-full bg-mute">
+                        {vehicle.imageUrl ? (
+                          <img
+                            src={vehicle.imageUrl}
+                            alt={vehicle.name}
+                            width={36}
+                            height={36}
+                            className="object-cover rounded-full w-full h-full"
+                          />
+                        ) : (
+                          <div className="flex size-9 items-center justify-center rounded-full bg-mute">
+                            <Car className="size-4 text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-1 flex-col">
+                        <span className="text-xs text-popover-foreground">
+                          {vehicle.model}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          {vehicle.name}
+                        </span>
+                      </div>
+                      {location.pathname === `/vehicles/${vehicle._id}` && (
+                        <Check className="h-4 w-4 text-primary" />
                       )}
-                    </div>
-                    <div className="flex flex-1 flex-col">
-                      <span className="text-sm font-medium text-popover-foreground">
-                        {vehicle.name}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {vehicle.model}
-                      </span>
-                    </div>
-                    {location.pathname === `/vehicles/${vehicle._id}` && (
-                      <Check className="h-4 w-4 text-primary" />
-                    )}
-                  </Link>
-                </DropdownMenuItem>
+                    </Link>
+                  }
+                />
               ))}
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                className="flex items-center gap-3 px-3 py-2.5 cursor-pointer text-popover-foreground font-medium"
+                className="flex items-center justify-between gap-3 text-sm cursor-pointer text-muted-foreground"
                 onClick={() => setAddVehicleOpen(true)}
               >
-                <div className="flex size-5 items-center justify-center rounded-full bg-primary">
-                  <Plus className="size-4 text-primary-foreground" />
-                </div>
                 <span>Add Vehicle</span>
+                <CirclePlus />
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild className="w-full">
-                <SignOutButton />
-              </DropdownMenuItem>
+              <div className="px-1.5 py-1 flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Theme</span>
+                <ThemeToggle />
+              </div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                nativeButton
+                render={<SignOutButton />}
+                className="w-full text-muted-foreground"
+              />
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

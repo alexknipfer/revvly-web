@@ -11,6 +11,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { ClerkProvider, useAuth } from '@clerk/tanstack-react-start';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
+import { ThemeProvider } from 'next-themes';
 
 import appCss from '@/styles/app.css?url';
 import { ConvexReactClient } from 'convex/react';
@@ -29,7 +30,7 @@ export const Route = createRootRouteWithContext<{
       },
       {
         name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
+        content: 'width=device-width, initial-scale=1, maximum-scale=1',
       },
       {
         name: 'theme-color',
@@ -65,12 +66,14 @@ function RootComponent() {
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html>
+    <html suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
-      <body className="bg-slate-900 dark">
-        {children}
+      <body className="bg-background">
+        <ThemeProvider defaultTheme="system" storageKey="revvly.theme">
+          {children}
+        </ThemeProvider>
         <TanStackRouterDevtools position="bottom-right" />
         <ReactQueryDevtools buttonPosition="bottom-left" />
         <Scripts />

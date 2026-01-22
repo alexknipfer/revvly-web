@@ -1,7 +1,9 @@
 import * as React from 'react';
 import { ChevronDownIcon } from 'lucide-react';
 
-import { cn } from '@/modules/core/lib/utils';
+import { cn } from '@/lib/utils';
+import { useFieldContext } from '@/hooks/use-form';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 
 function NativeSelect({
   className,
@@ -50,4 +52,39 @@ function NativeSelectOptGroup({
   );
 }
 
-export { NativeSelect, NativeSelectOptGroup, NativeSelectOption };
+interface FormNativeSelectProps {
+  items: Array<{ value: string; label: string }>;
+  label?: string;
+  className?: string;
+}
+
+function FormNativeSelect({ label, className, items }: FormNativeSelectProps) {
+  const field = useFieldContext<string>();
+  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+
+  return (
+    <Field data-invalid={isInvalid} className={className}>
+      {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
+      <NativeSelect
+        name={field.name}
+        value={field.state.value}
+        onChange={(e) => field.handleChange(e.target.value)}
+        aria-invalid={isInvalid}
+      >
+        {items.map((item) => (
+          <NativeSelectOption key={item.value} value={item.value}>
+            {item.label}
+          </NativeSelectOption>
+        ))}
+      </NativeSelect>
+      {isInvalid && <FieldError errors={field.state.meta.errors} />}
+    </Field>
+  );
+}
+
+export {
+  NativeSelect,
+  NativeSelectOptGroup,
+  NativeSelectOption,
+  FormNativeSelect,
+};

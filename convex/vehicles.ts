@@ -1,7 +1,11 @@
-import { ConvexError, v } from 'convex/values';
-import { mutation, query, QueryCtx } from './_generated/server';
+import { z } from 'zod';
+import { ConvexError } from 'convex/values';
+import { zid } from 'convex-helpers/server/zod4';
+
+import { QueryCtx } from './_generated/server';
 import { requireAuth, verifyVerhicleOwnership } from './utils/auth';
 import { Id } from './_generated/dataModel';
+import { zMutation, zQuery } from './utils/zod';
 
 async function calculateVehicleTotals(
   ctx: QueryCtx,
@@ -55,13 +59,13 @@ async function calculateVehicleTotals(
   };
 }
 
-export const create = mutation({
+export const create = zMutation({
   args: {
-    name: v.optional(v.string()),
-    make: v.string(),
-    model: v.string(),
-    year: v.string(),
-    plate: v.string(),
+    name: z.string().optional(),
+    make: z.string(),
+    model: z.string(),
+    year: z.string(),
+    plate: z.string(),
   },
   handler: async (ctx, { name, make, model, year, plate }) => {
     const identity = await requireAuth(ctx);
@@ -79,7 +83,7 @@ export const create = mutation({
   },
 });
 
-export const getAll = query({
+export const getAll = zQuery({
   handler: async (ctx) => {
     const identity = await requireAuth(ctx);
 
@@ -101,7 +105,7 @@ export const getAll = query({
   },
 });
 
-export const getFirst = query({
+export const getFirst = zQuery({
   handler: async (ctx) => {
     const identity = await requireAuth(ctx);
 
@@ -114,9 +118,9 @@ export const getFirst = query({
   },
 });
 
-export const getById = query({
+export const getById = zQuery({
   args: {
-    id: v.id('vehicles'),
+    id: zid('vehicles'),
   },
   handler: async (ctx, { id }) => {
     const identity = await requireAuth(ctx);
@@ -151,13 +155,13 @@ export const getById = query({
   },
 });
 
-export const update = mutation({
+export const update = zMutation({
   args: {
-    id: v.id('vehicles'),
-    update: v.object({
-      name: v.optional(v.string()),
-      plate: v.optional(v.string()),
-      imageStorageId: v.optional(v.id('_storage')),
+    id: zid('vehicles'),
+    update: z.object({
+      name: z.string().optional(),
+      plate: z.string().optional(),
+      imageStorageId: zid('_storage').optional(),
     }),
   },
   handler: async (ctx, { id, update }) => {
@@ -170,9 +174,9 @@ export const update = mutation({
   },
 });
 
-export const deleteById = mutation({
+export const deleteById = zMutation({
   args: {
-    id: v.id('vehicles'),
+    id: zid('vehicles'),
   },
   handler: async (ctx, { id }) => {
     const identity = await requireAuth(ctx);

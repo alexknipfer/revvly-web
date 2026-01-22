@@ -1,6 +1,8 @@
 import * as React from 'react';
 
-import { cn } from '@/modules/core/lib/utils';
+import { cn } from '@/lib/utils';
+import { useFieldContext } from '@/hooks/use-form';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 
 function Textarea({ className, ...props }: React.ComponentProps<'textarea'>) {
   return (
@@ -15,4 +17,39 @@ function Textarea({ className, ...props }: React.ComponentProps<'textarea'>) {
   );
 }
 
-export { Textarea };
+interface FormTextareaProps {
+  label?: string;
+  className?: string;
+  placeholder?: string;
+  rows?: number;
+  disabled?: boolean;
+}
+
+function FormTextarea({
+  label,
+  className,
+  placeholder,
+  rows,
+  disabled,
+}: FormTextareaProps) {
+  const field = useFieldContext<string>();
+  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+
+  return (
+    <Field data-invalid={isInvalid} className={className}>
+      {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
+      <Textarea
+        name={field.name}
+        value={field.state.value}
+        onChange={(e) => field.handleChange(e.target.value)}
+        placeholder={placeholder}
+        rows={rows}
+        disabled={disabled}
+        aria-invalid={isInvalid}
+      />
+      {isInvalid && <FieldError errors={field.state.meta.errors} />}
+    </Field>
+  );
+}
+
+export { Textarea, FormTextarea };

@@ -1,25 +1,19 @@
-import { vpicApiClient } from '@/modules/core/lib/apis';
-import { tryCatch } from '@/modules/core/lib/utils';
-import { createServerFn } from '@tanstack/react-start';
-import {
-  VehicleMakesResponse,
-  VehicleModelsResponse,
-} from '@/modules/core/types/vpic';
 import z from 'zod';
+import { createServerFn } from '@tanstack/react-start';
+
+import { getVehicleMakes, getVehicleModelsForMake } from '@/api/vpic';
+import { tryCatch } from '@/lib/utils';
+import { captureException } from '@/lib/logger';
 
 export const getVehicleMakesServerFn = createServerFn().handler(async () => {
-  const [error, response] = await tryCatch(
-    vpicApiClient
-      .get<VehicleMakesResponse>('vehicles/GetMakesForVehicleType/car')
-      .json(),
-  );
+  const [error, makes] = await tryCatch(getVehicleMakes());
 
   if (error) {
-    console.error('Failed to get vehicle makes', error);
+    captureException(error);
     throw new Error('Failed to get vehicle makes');
   }
 
-  return response.Results.map(({ MakeId, MakeName }) => ({
+  return makes.Results.map(({ MakeId, MakeName }) => ({
     id: MakeId.toString(),
     name: titleCaseMake(MakeName),
   })).sort((a, b) => a.name.localeCompare(b.name));
@@ -33,22 +27,18 @@ const GetVehicleModelsForMakeSchema = z.object({
 export const getVehicleModelsForMakeServerFn = createServerFn()
   .inputValidator(GetVehicleModelsForMakeSchema)
   .handler(async ({ data }) => {
-    const [error, response] = await tryCatch(
-      vpicApiClient
-        .get<VehicleModelsResponse>(
-          `vehicles/GetModelsForMakeYear/make/${data.make}/modelyear/${data.year}`,
-        )
-        .json(),
+    const [error, models] = await tryCatch(
+      getVehicleModelsForMake({ make: data.make, year: data.year }),
     );
 
     if (error) {
-      console.error('Failed to get vehicle models', error);
+      captureException(error);
       throw new Error('Failed to get vehicle models');
     }
 
     return Array.from(
       new Map(
-        response.Results.map((model) => [
+        models.Results.map((model) => [
           model.Model_Name,
           {
             id: model.Model_ID.toString(),

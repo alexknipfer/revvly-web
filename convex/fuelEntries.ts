@@ -1,27 +1,27 @@
-import { v } from 'convex/values';
+import { ConvexError } from 'convex/values';
+import { z } from 'zod';
+import { zid } from 'convex-helpers/server/zod4';
 
-import { mutation, query } from './_generated/server';
+import { fuelTypeSchema, fuelLevelSchema } from '../src/types/fuel-entry';
+
 import { requireAuth, verifyVerhicleOwnership } from './utils/auth';
-import dayjs from 'dayjs';
+import { zMutation, zQuery } from './utils/zod';
 
-export const create = mutation({
-  args: {
-    date: v.string(),
-    odometer: v.number(),
-    costPerGallon: v.number(),
-    totalGallons: v.number(),
-    type: v.union(
-      v.literal('regular'),
-      v.literal('premium'),
-      v.literal('diesel'),
-      v.literal('e85'),
-    ),
-    level: v.union(v.literal('full'), v.literal('partial')),
-    location: v.optional(v.string()),
-    notes: v.optional(v.string()),
-    vehicleId: v.id('vehicles'),
-    missedFuelup: v.boolean(),
-  },
+const fuelEntryFields = z.object({
+  date: z.iso.datetime(),
+  odometer: z.number(),
+  costPerGallon: z.number(),
+  totalGallons: z.number(),
+  type: fuelTypeSchema,
+  level: fuelLevelSchema,
+  location: z.string().optional(),
+  notes: z.string().optional(),
+  vehicleId: zid('vehicles'),
+  missedFuelup: z.boolean(),
+});
+
+export const create = zMutation({
+  args: fuelEntryFields,
   handler: async (
     ctx,
     {
@@ -43,19 +43,25 @@ export const create = mutation({
     let mpg: number | undefined = undefined;
     let totalMiles = 0;
 
-    if (!missedFuelup) {
-      const latestFuelEntry = await ctx.db
-        .query('fuel_entries')
-        .withIndex('by_userid_vehicleid', (q) =>
-          q.eq('userId', identity.subject).eq('vehicleId', vehicleId),
-        )
-        .order('desc')
-        .first();
+    const latestFuelEntry = await ctx.db
+      .query('fuel_entries')
+      .withIndex('by_userid_vehicleid', (q) =>
+        q.eq('userId', identity.subject).eq('vehicleId', vehicleId),
+      )
+      .filter((q) => q.lt(q.field('date'), date))
+      .order('desc')
+      .first();
 
-      if (latestFuelEntry) {
-        mpg = (odometer - latestFuelEntry.odometer) / totalGallons;
-        totalMiles = odometer - latestFuelEntry.odometer;
-      }
+    if (latestFuelEntry && odometer <= latestFuelEntry.odometer) {
+      throw new ConvexError({
+        message:
+          'Your current odometer value is less than your previous fuel entry',
+      });
+    }
+
+    if (latestFuelEntry && !missedFuelup) {
+      mpg = (odometer - latestFuelEntry.odometer) / totalGallons;
+      totalMiles = odometer - latestFuelEntry.odometer;
     }
 
     const totalCost = costPerGallon * totalGallons;
@@ -79,27 +85,159 @@ export const create = mutation({
   },
 });
 
-export const getAll = query({
+export const getById = zQuery({
   args: {
-    vehicleId: v.id('vehicles'),
-    startDate: v.optional(v.string()),
+    id: zid('fuel_entries'),
   },
+  handler: async (ctx, { id }) => {
+    const identity = await requireAuth(ctx);
+    const entry = await ctx.db.get('fuel_entries', id);
+
+    if (!entry) {
+      throw new ConvexError({ message: 'Fuel entry not found' });
+    }
+
+    if (entry.userId !== identity.subject) {
+      throw new ConvexError({ message: 'Unauthorized' });
+    }
+
+    return entry;
+  },
+});
+
+const updateFuelEntryFields = fuelEntryFields.extend({
+  id: zid('fuel_entries'),
+});
+
+export const update = zMutation({
+  args: updateFuelEntryFields,
   handler: async (
     ctx,
-    { vehicleId, startDate = dayjs().subtract(1, 'year').toISOString() },
+    {
+      id,
+      date,
+      odometer,
+      costPerGallon,
+      totalGallons,
+      type,
+      level,
+      location,
+      notes,
+      missedFuelup,
+    },
   ) => {
+    const identity = await requireAuth(ctx);
+
+    const currentEntry = await ctx.db.get(id);
+
+    if (!currentEntry) {
+      throw new ConvexError({ message: 'Fuel entry not found' });
+    }
+
+    if (currentEntry.userId !== identity.subject) {
+      throw new ConvexError({ message: 'Unauthorized' });
+    }
+
+    await verifyVerhicleOwnership({
+      ctx,
+      vehicleId: currentEntry.vehicleId,
+      identity,
+    });
+
+    const totalCost = costPerGallon * totalGallons;
+
+    const previousEntry = await ctx.db
+      .query('fuel_entries')
+      .withIndex('by_userid_vehicleid', (q) =>
+        q
+          .eq('userId', identity.subject)
+          .eq('vehicleId', currentEntry.vehicleId),
+      )
+      .filter((q) =>
+        q.and(q.lt(q.field('date'), date), q.neq(q.field('_id'), id)),
+      )
+      .order('desc')
+      .first();
+
+    if (previousEntry && odometer <= previousEntry.odometer) {
+      throw new ConvexError({
+        message:
+          'Your current odometer value is less than your previous fuel entry',
+      });
+    }
+
+    let mpg: number | undefined = undefined;
+    let totalMiles = 0;
+
+    if (!missedFuelup && previousEntry) {
+      mpg = (odometer - previousEntry.odometer) / totalGallons;
+      totalMiles = odometer - previousEntry.odometer;
+    }
+
+    await ctx.db.patch(id, {
+      odometer,
+      costPerGallon,
+      totalGallons,
+      totalCost,
+      totalMiles,
+      mpg,
+      type,
+      level,
+      location,
+      notes,
+      missedFuelup,
+    });
+
+    // Find next fuel entry (after this one) and recalculate its MPG
+    const nextEntry = await ctx.db
+      .query('fuel_entries')
+      .withIndex('by_userid_vehicleid', (q) =>
+        q
+          .eq('userId', identity.subject)
+          .eq('vehicleId', currentEntry.vehicleId),
+      )
+      .filter((q) =>
+        q.and(
+          q.gt(q.field('date'), currentEntry.date),
+          q.neq(q.field('_id'), id),
+        ),
+      )
+      .order('asc')
+      .first();
+
+    if (nextEntry && !nextEntry.missedFuelup) {
+      const nextMpg = (nextEntry.odometer - odometer) / nextEntry.totalGallons;
+      const nextTotalMiles = nextEntry.odometer - odometer;
+
+      await ctx.db.patch(nextEntry._id, {
+        mpg: nextMpg,
+        totalMiles: nextTotalMiles,
+      });
+    }
+
+    return id;
+  },
+});
+
+export const getAll = zQuery({
+  args: {
+    vehicleId: zid('vehicles'),
+    startDate: z.iso.datetime().optional(),
+  },
+  handler: async (ctx, { vehicleId, startDate }) => {
     const identity = await requireAuth(ctx);
     await verifyVerhicleOwnership({ ctx, vehicleId, identity });
 
-    const results = await ctx.db
+    const query = ctx.db
       .query('fuel_entries')
       .withIndex('by_userid_vehicleid', (q) =>
         q.eq('userId', identity.subject).eq('vehicleId', vehicleId),
-      )
-      .filter((q) => q.gte(q.field('date'), startDate))
-      .order('desc')
-      .collect();
+      );
 
-    return results;
+    if (startDate) {
+      query.filter((q) => q.gte(q.field('date'), startDate));
+    }
+
+    return query.order('desc').collect();
   },
 });

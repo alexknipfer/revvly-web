@@ -1,0 +1,19 @@
+---
+description: Guidelines on tech stack used
+alwaysApply: true
+---
+
+## Tanstack Start (React)
+
+- Avoid large jsx blocks for react components and create smaller components
+- Avoid `useEffect` unless needed
+
+## Tailwind
+
+- Always use v4
+
+## Shadcn
+
+- Shadcn components can be found in `/src/components/ui`. You can use the shadcn mcp to find an install new components
+
+## Convex

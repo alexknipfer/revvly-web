@@ -1,30 +1,11 @@
-import { defineSchema, defineTable } from 'convex/server';
-import { v } from 'convex/values';
+import { defineSchema } from 'convex/server';
+
+import { fuelEntriesTable } from './fuelEntries/schema';
+import { servicesTable } from './services/schema';
+import { vehiclesTable } from './vehicles/schema';
 
 export default defineSchema({
-  vehicles: defineTable({
-    name: v.optional(v.string()),
-    make: v.string(),
-    model: v.string(),
-    year: v.string(),
-    plate: v.string(),
-    imageStorageId: v.optional(v.id('_storage')),
-    userId: v.string(),
-  }).index('by_userid', ['userId']),
-  fuel_entries: defineTable({
-    date: v.string(),
-    odometer: v.number(),
-    costPerGallon: v.number(),
-    totalGallons: v.number(),
-    totalCost: v.number(),
-    totalMiles: v.number(),
-    mpg: v.optional(v.number()),
-    type: v.string(),
-    level: v.union(v.literal('full'), v.literal('partial')),
-    location: v.optional(v.string()),
-    notes: v.optional(v.string()),
-    vehicleId: v.id('vehicles'),
-    userId: v.string(),
-    missedFuelup: v.boolean(),
-  }).index('by_userid_vehicleid', ['userId', 'vehicleId']),
+  vehicles: vehiclesTable,
+  fuel_entries: fuelEntriesTable,
+  services: servicesTable,
 });
