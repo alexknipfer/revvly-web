@@ -1,0 +1,1 @@
+export const MAX_SERVER_FUNC_ATTACHMENT_SIZE = 4 * 1024 * 1024; // 4MB
