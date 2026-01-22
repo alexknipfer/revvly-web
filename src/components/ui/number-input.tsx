@@ -13,7 +13,7 @@ interface NumberFieldProps {
   parseValue?: (value: string) => number;
 }
 
-export function NumberField({
+export function FormNumberInput({
   label,
   className,
   step = '1',

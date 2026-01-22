@@ -1,7 +1,11 @@
 import { Checkbox as CheckboxPrimitive } from '@base-ui/react/checkbox';
 import { CheckIcon } from 'lucide-react';
+import { ReactNode } from 'react';
 
 import { cn } from '@/lib/utils';
+
+import { useFieldContext } from '../../hooks/use-form';
+import { Field, FieldContent, FieldDescription, FieldLabel } from './field';
 
 function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) {
   return (
@@ -23,4 +27,41 @@ function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) {
   );
 }
 
-export { Checkbox };
+interface CheckboxFieldProps {
+  label?: string;
+  description?: ReactNode;
+  className?: string;
+  orientation?: 'vertical' | 'horizontal' | 'responsive';
+}
+
+function FormCheckbox({
+  label,
+  description,
+  className,
+  orientation = 'horizontal',
+}: CheckboxFieldProps) {
+  const field = useFieldContext<boolean>();
+
+  return (
+    <Field className={className} orientation={orientation}>
+      <Checkbox
+        id={field.name}
+        name={field.name}
+        checked={field.state.value}
+        onCheckedChange={(checked) => {
+          if (typeof checked === 'boolean') {
+            field.handleChange(checked);
+          }
+        }}
+      />
+      {(label || description) && (
+        <FieldContent>
+          {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
+          {description && <FieldDescription>{description}</FieldDescription>}
+        </FieldContent>
+      )}
+    </Field>
+  );
+}
+
+export { Checkbox, FormCheckbox };

@@ -140,12 +140,15 @@ export const FuelEntryFieldGroup = withFieldGroup({
       <>
         <group.AppField name="date">
           {(field) => (
-            <field.DateField label="Date & Time *" showLabels={false} />
+            <field.FormDateTimePicker
+              label="Date & Time *"
+              showLabels={false}
+            />
           )}
         </group.AppField>
         <group.AppField name="odometer">
           {(field) => (
-            <field.NumberField
+            <field.FormNumberInput
               label="Odometer *"
               step="0.001"
               labelSuffix={
@@ -160,11 +163,11 @@ export const FuelEntryFieldGroup = withFieldGroup({
         </group.AppField>
         <group.AppField name="costPerGallon">
           {(field) => (
-            <field.TextField label="Cost per Gallon *" type="number" />
+            <field.FormInput label="Cost per Gallon *" type="number" />
           )}
         </group.AppField>
         <group.AppField name="totalGallons">
-          {(field) => <field.TextField label="Total Gallons *" type="number" />}
+          {(field) => <field.FormInput label="Total Gallons *" type="number" />}
         </group.AppField>
         <Field>
           <label htmlFor="totalCost" className="text-sm font-medium">
@@ -182,7 +185,7 @@ export const FuelEntryFieldGroup = withFieldGroup({
         </Field>
         <group.AppField name="missedFuelup">
           {(field) => (
-            <field.CheckboxField
+            <field.FormCheckbox
               label="Missed Fuel Up"
               description="This will not calculate the MPG for this fuel entry."
               className="col-span-2"
@@ -191,12 +194,12 @@ export const FuelEntryFieldGroup = withFieldGroup({
         </group.AppField>
         <group.AppField name="type">
           {(field) => (
-            <field.NativeSelectField label="Fuel Type *" items={fuelTypes} />
+            <field.FormNativeSelect label="Fuel Type *" items={fuelTypes} />
           )}
         </group.AppField>
         <group.AppField name="level">
           {(field) => (
-            <field.NativeSelectField label="Fill Level *" items={fuelLevels} />
+            <field.FormNativeSelect label="Fill Level *" items={fuelLevels} />
           )}
         </group.AppField>
         <group.AppField name="location">
@@ -204,7 +207,7 @@ export const FuelEntryFieldGroup = withFieldGroup({
         </group.AppField>
         <group.AppField name="notes">
           {(field) => (
-            <field.TextareaField label="Notes" className="col-span-2" />
+            <field.FormTextarea label="Notes" className="col-span-2" />
           )}
         </group.AppField>
       </>

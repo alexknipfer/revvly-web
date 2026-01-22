@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ChevronDownIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -9,7 +10,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { useState } from 'react';
+import { useFieldContext } from '@/hooks/use-form';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 
 interface DateTimePickerProps {
   value?: Date;
@@ -21,7 +23,7 @@ interface DateTimePickerProps {
   className?: string;
 }
 
-export function DateTimePicker({
+function DateTimePicker({
   value,
   onChange,
   defaultValue,
@@ -133,3 +135,37 @@ export function DateTimePicker({
     </div>
   );
 }
+
+interface DateFieldProps {
+  label?: string;
+  className?: string;
+  showLabels?: boolean;
+  defaultValue?: Date;
+}
+
+function FormDateTimePicker({
+  label,
+  className = 'col-span-2',
+  showLabels = false,
+  defaultValue,
+}: DateFieldProps) {
+  const field = useFieldContext<Date>();
+  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+
+  return (
+    <Field data-invalid={isInvalid} className={className}>
+      {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
+      <DateTimePicker
+        value={field.state.value}
+        onChange={(date) => field.handleChange(date)}
+        defaultValue={defaultValue || new Date()}
+        id={field.name}
+        aria-invalid={isInvalid}
+        showLabels={showLabels}
+      />
+      {isInvalid && <FieldError errors={field.state.meta.errors} />}
+    </Field>
+  );
+}
+
+export { DateTimePicker, FormDateTimePicker };

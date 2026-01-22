@@ -12,6 +12,8 @@ import {
   ComboboxValue,
   useComboboxAnchor,
 } from '@/components/ui/combobox';
+import { useFieldContext } from '@/hooks/use-form';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 
 interface Props {
   name: string;
@@ -21,13 +23,7 @@ interface Props {
   onChange: (value: Array<string>) => void;
 }
 
-export function Multiselect({
-  name,
-  items,
-  value,
-  placeholder,
-  onChange,
-}: Props) {
+function Multiselect({ name, items, value, placeholder, onChange }: Props) {
   const anchor = useComboboxAnchor();
 
   return (
@@ -63,3 +59,36 @@ export function Multiselect({
     </Combobox>
   );
 }
+
+interface FormMultiselectProps {
+  className?: string;
+  label?: string;
+  items: Array<string>;
+  placeholder?: string;
+}
+
+function FormMultiselect({
+  className,
+  label,
+  items,
+  placeholder,
+}: FormMultiselectProps) {
+  const field = useFieldContext<Array<string>>();
+  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+
+  return (
+    <Field data-invalid={isInvalid} className={className}>
+      {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
+      <Multiselect
+        placeholder={placeholder}
+        name={field.name}
+        items={items}
+        value={field.state.value}
+        onChange={(value) => field.handleChange(value)}
+      />
+      {isInvalid && <FieldError errors={field.state.meta.errors} />}
+    </Field>
+  );
+}
+
+export { Multiselect, FormMultiselect };

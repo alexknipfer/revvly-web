@@ -14,18 +14,21 @@ export const ServiceFieldGroup = withFieldGroup({
       <>
         <group.AppField name="date">
           {(field) => (
-            <field.DateField label="Date & Time *" showLabels={false} />
+            <field.FormDateTimePicker
+              label="Date & Time *"
+              showLabels={false}
+            />
           )}
         </group.AppField>
         <group.AppField name="odometer">
-          {(field) => <field.NumberField label="Odometer *" step="0.001" />}
+          {(field) => <field.FormNumberInput label="Odometer *" step="0.001" />}
         </group.AppField>
         <group.AppField name="cost">
-          {(field) => <field.TextField label="Cost *" type="number" />}
+          {(field) => <field.FormInput label="Cost *" type="number" />}
         </group.AppField>
         <group.AppField name="types">
           {(field) => (
-            <field.MultiselectField
+            <field.FormMultiselect
               label="Service Type *"
               items={serviceTypes}
               className="col-span-2"
@@ -34,7 +37,7 @@ export const ServiceFieldGroup = withFieldGroup({
         </group.AppField>
         <group.AppField name="location">
           {(field) => (
-            <field.TextField
+            <field.FormInput
               label="Location (Optional)"
               className="col-span-2"
             />
@@ -42,7 +45,7 @@ export const ServiceFieldGroup = withFieldGroup({
         </group.AppField>
         <group.AppField name="notes">
           {(field) => (
-            <field.TextareaField label="Notes" className="col-span-2" />
+            <field.FormTextarea label="Notes" className="col-span-2" />
           )}
         </group.AppField>
       </>
