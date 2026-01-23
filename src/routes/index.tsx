@@ -195,7 +195,7 @@ function Home() {
       </div>
 
       {/* Header Navigation */}
-      <header className="sticky top-0 z-40 px-6 py-3">
+      <header className="sticky top-0 z-40 px-6 pt-9 pb-3">
         <div className="mx-auto max-w-7xl">
           <nav className="flex items-center justify-between border border-border bg-background/80 backdrop-blur-md px-6 py-3">
             <div className="flex items-center space-x-3 group">
