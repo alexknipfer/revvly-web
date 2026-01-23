@@ -133,7 +133,7 @@ function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white relative font-mono">
+    <div className="min-h-screen bg-background text-foreground relative font-mono">
       {/* Grid background pattern */}
       {/* <div className="fixed inset-0 opacity-[0.03] animate-grid-pulse pointer-events-none -z-10">
         <div
@@ -149,7 +149,7 @@ function Home() {
       </div> */}
 
       {/* Enhanced Scrolling Banner - Two rows */}
-      <div className="sticky top-0 z-50 bg-black/95 backdrop-blur-md border-b border-white/10">
+      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-white/10">
         {/* Top row - scrolls left */}
         <div className="flex items-center h-8 overflow-hidden border-b border-white/5">
           <div className="flex items-center gap-6 animate-scroll whitespace-nowrap">
@@ -199,7 +199,7 @@ function Home() {
       {/* Header Navigation */}
       <header className="sticky top-16 z-40 px-6 py-3">
         <div className="mx-auto max-w-7xl">
-          <nav className="flex items-center justify-between border border-white/10 bg-black/80 backdrop-blur-md px-6 py-3">
+          <nav className="flex items-center justify-between border border-white/10 bg-background/80 backdrop-blur-md px-6 py-3">
             <div className="flex items-center space-x-3 group">
               <div className="relative">
                 <Fuel className="h-5 w-5 text-indigo-400 transition-transform duration-300 group-hover:rotate-12" />
@@ -233,12 +233,8 @@ function Home() {
               </a>
             </div>
             <SignInButton forceRedirectUrl="/vehicles">
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-none border-indigo-400/50 bg-indigo-400/10 hover:bg-indigo-400/20 hover:border-indigo-400 text-white uppercase tracking-wider text-xs px-4 py-2"
-              >
-                SIGN_IN
+              <Button variant="default" size="sm">
+                Log In
                 <ArrowRight className="ml-2 h-3 w-3" />
               </Button>
             </SignInButton>
@@ -250,7 +246,7 @@ function Home() {
       <section className="relative pt-12 pb-16 px-6">
         <div className="relative mx-auto max-w-7xl">
           {/* Terminal-style border with animated glow */}
-          <div className="border border-white/20 p-8 md:p-10 bg-black/30 backdrop-blur-sm relative overflow-hidden">
+          <div className="border border-white/20 p-8 md:p-10 bg-card/50 backdrop-blur-sm relative overflow-hidden">
             {/* Animated border glow */}
             <div className="absolute inset-0 opacity-50">
               <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-indigo-400 to-transparent animate-pulse" />
@@ -325,15 +321,11 @@ function Home() {
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-3 justify-center mb-10">
                 <SignInButton forceRedirectUrl="/vehicles">
-                  <Button
-                    size="lg"
-                    className="rounded-none border-2 border-indigo-400 bg-indigo-400/10 hover:bg-indigo-400/20 text-white uppercase tracking-wider px-8 py-5 text-xs font-mono group relative overflow-hidden"
-                  >
-                    <span className="relative z-10 flex items-center">
-                      START_TRACKING
+                  <Button size="lg" className="group">
+                    <span className="flex items-center">
+                      Start Tracking
                       <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                     </span>
-                    <div className="absolute inset-0 bg-linear-to-r from-indigo-400/0 via-indigo-400/10 to-indigo-400/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                   </Button>
                 </SignInButton>
               </div>
@@ -395,7 +387,7 @@ function Home() {
               return (
                 <Card
                   key={idx}
-                  className={`group border rounded-none bg-black/50 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 ${colorClasses[feature.color as keyof typeof colorClasses]}`}
+                  className={`group border rounded-none bg-card/70 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 ${colorClasses[feature.color as keyof typeof colorClasses]}`}
                 >
                   <CardHeader className="p-5 relative">
                     {/* Background number */}
@@ -452,7 +444,7 @@ function Home() {
               return (
                 <Card
                   key={idx}
-                  className={`text-center border rounded-none bg-black/50 backdrop-blur-sm hover:-translate-y-1 transition-all duration-300 ${colorClasses[stat.color as keyof typeof colorClasses]}`}
+                  className={`text-center border rounded-none bg-card/70 backdrop-blur-sm hover:-translate-y-1 transition-all duration-300 ${colorClasses[stat.color as keyof typeof colorClasses]}`}
                 >
                   <CardContent className="pt-6 pb-6">
                     <div className="text-4xl md:text-5xl font-bold mb-2 uppercase tracking-tight font-mono">
@@ -472,7 +464,7 @@ function Home() {
       {/* CTA Section */}
       <section className="py-16 px-6 relative">
         <div className="relative mx-auto max-w-4xl">
-          <div className="border border-white/20 p-8 md:p-10 bg-black/30 backdrop-blur-sm text-center relative overflow-hidden">
+          <div className="border border-white/20 p-8 md:p-10 bg-card/50 backdrop-blur-sm text-center relative overflow-hidden">
             {/* Corner accents */}
             <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-indigo-400/50" />
             <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-violet-400/50" />
@@ -493,10 +485,7 @@ function Home() {
               fuel economy.
             </p>
             <SignInButton forceRedirectUrl="/vehicles">
-              <Button
-                size="lg"
-                className="rounded-none border-2 border-indigo-400 bg-indigo-400/10 hover:bg-indigo-400/20 text-white uppercase tracking-wider px-8 py-5 text-xs font-mono group"
-              >
+              <Button size="lg" className="group">
                 START_NOW
                 <Sparkles className="ml-2 h-3.5 w-3.5 group-hover:rotate-180 transition-transform duration-500" />
               </Button>
@@ -506,7 +495,7 @@ function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 py-8 px-6 relative bg-black/50 backdrop-blur-sm">
+      <footer className="border-t border-white/10 py-8 px-6 relative bg-card/50 backdrop-blur-sm">
         <div className="relative mx-auto max-w-7xl">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center space-x-3">
