@@ -30,110 +30,110 @@ export const Route = createFileRoute('/')({
   component: Home,
 });
 
+const scrollTextTop = [
+  { text: 'FUEL_TRACKING', highlight: true },
+  { text: '•', highlight: false },
+  { text: 'MPG_ANALYTICS', highlight: false },
+  { text: '•', highlight: false },
+  { text: 'EXPENSE_MONITORING', highlight: true },
+  { text: '•', highlight: false },
+  { text: 'REAL_TIME_SYNC', highlight: false },
+  { text: '•', highlight: false },
+  { text: 'SMART_INSIGHTS', highlight: true },
+  { text: '•', highlight: false },
+  { text: 'SERVICE_REMINDERS', highlight: false },
+  { text: '•', highlight: false },
+  { text: 'MULTI_VEHICLE', highlight: true },
+  { text: '•', highlight: false },
+  { text: 'COST_PER_MILE', highlight: false },
+  { text: '•', highlight: false },
+];
+
+const scrollTextBottom = [
+  { text: 'BUILD_2025.01', highlight: true },
+  { text: '///', highlight: false },
+  { text: 'UPTIME_99.9%', highlight: false },
+  { text: '///', highlight: false },
+  { text: 'API_READY', highlight: true },
+  { text: '///', highlight: false },
+  { text: 'ENCRYPTED', highlight: false },
+  { text: '///', highlight: false },
+  { text: 'CLOUD_SYNC', highlight: true },
+  { text: '///', highlight: false },
+  { text: 'ZERO_CONFIG', highlight: false },
+  { text: '///', highlight: false },
+  { text: 'INSTANT_DEPLOY', highlight: true },
+  { text: '///', highlight: false },
+];
+
+const features = [
+  {
+    icon: Fuel,
+    title: 'FUEL_LOGGING',
+    description:
+      'Log every fill-up with precision. Track gallons, cost, odometer, and location.',
+    color: 'indigo',
+    number: '01',
+  },
+  {
+    icon: BarChart3,
+    title: 'EFFICIENCY_ANALYTICS',
+    description:
+      'Monitor MPG trends and identify patterns to optimize your driving habits.',
+    color: 'violet',
+    number: '02',
+  },
+  {
+    icon: DollarSign,
+    title: 'EXPENSE_TRACKING',
+    description:
+      'Track total fuel costs, average price per gallon, and spending patterns.',
+    color: 'blue',
+    number: '03',
+  },
+  {
+    icon: Calendar,
+    title: 'SERVICE_SCHEDULING',
+    description:
+      'Log maintenance records and get reminders for upcoming service intervals.',
+    color: 'indigo',
+    number: '04',
+  },
+  {
+    icon: TrendingUp,
+    title: 'SMART_INSIGHTS',
+    description:
+      'Get intelligent recommendations to improve fuel efficiency and reduce costs.',
+    color: 'violet',
+    number: '05',
+  },
+  {
+    icon: Gauge,
+    title: 'REAL_TIME_DASHBOARD',
+    description:
+      'View all your vehicle metrics at a glance with an intuitive dashboard.',
+    color: 'blue',
+    number: '06',
+  },
+];
+
+const stats = [
+  { label: 'TOTAL_MILES', value: 'Miles', color: 'indigo' },
+  { label: 'GALLONS_USED', value: 'Gallons', color: 'violet' },
+  { label: 'AVG_MPG', value: 'MPG', color: 'blue' },
+  { label: 'TOTAL_COST', value: 'Costs', color: 'indigo' },
+];
+
+const techBadges = [
+  { icon: Zap, label: 'FAST' },
+  { icon: Shield, label: 'SECURE' },
+  { icon: Cloud, label: 'SYNCED' },
+  { icon: Terminal, label: 'POWERFUL' },
+];
+
 function Home() {
-  const scrollTextTop = [
-    { text: 'FUEL_TRACKING', highlight: true },
-    { text: '•', highlight: false },
-    { text: 'MPG_ANALYTICS', highlight: false },
-    { text: '•', highlight: false },
-    { text: 'EXPENSE_MONITORING', highlight: true },
-    { text: '•', highlight: false },
-    { text: 'REAL_TIME_SYNC', highlight: false },
-    { text: '•', highlight: false },
-    { text: 'SMART_INSIGHTS', highlight: true },
-    { text: '•', highlight: false },
-    { text: 'SERVICE_REMINDERS', highlight: false },
-    { text: '•', highlight: false },
-    { text: 'MULTI_VEHICLE', highlight: true },
-    { text: '•', highlight: false },
-    { text: 'COST_PER_MILE', highlight: false },
-    { text: '•', highlight: false },
-  ];
-
-  const scrollTextBottom = [
-    { text: 'BUILD_2025.01', highlight: true },
-    { text: '///', highlight: false },
-    { text: 'UPTIME_99.9%', highlight: false },
-    { text: '///', highlight: false },
-    { text: 'API_READY', highlight: true },
-    { text: '///', highlight: false },
-    { text: 'ENCRYPTED', highlight: false },
-    { text: '///', highlight: false },
-    { text: 'CLOUD_SYNC', highlight: true },
-    { text: '///', highlight: false },
-    { text: 'ZERO_CONFIG', highlight: false },
-    { text: '///', highlight: false },
-    { text: 'INSTANT_DEPLOY', highlight: true },
-    { text: '///', highlight: false },
-  ];
-
-  const features = [
-    {
-      icon: Fuel,
-      title: 'FUEL_LOGGING',
-      description:
-        'Log every fill-up with precision. Track gallons, cost, odometer, and location.',
-      color: 'indigo',
-      number: '01',
-    },
-    {
-      icon: BarChart3,
-      title: 'EFFICIENCY_ANALYTICS',
-      description:
-        'Monitor MPG trends and identify patterns to optimize your driving habits.',
-      color: 'violet',
-      number: '02',
-    },
-    {
-      icon: DollarSign,
-      title: 'EXPENSE_TRACKING',
-      description:
-        'Track total fuel costs, average price per gallon, and spending patterns.',
-      color: 'blue',
-      number: '03',
-    },
-    {
-      icon: Calendar,
-      title: 'SERVICE_SCHEDULING',
-      description:
-        'Log maintenance records and get reminders for upcoming service intervals.',
-      color: 'indigo',
-      number: '04',
-    },
-    {
-      icon: TrendingUp,
-      title: 'SMART_INSIGHTS',
-      description:
-        'Get intelligent recommendations to improve fuel efficiency and reduce costs.',
-      color: 'violet',
-      number: '05',
-    },
-    {
-      icon: Gauge,
-      title: 'REAL_TIME_DASHBOARD',
-      description:
-        'View all your vehicle metrics at a glance with an intuitive dashboard.',
-      color: 'blue',
-      number: '06',
-    },
-  ];
-
-  const stats = [
-    { label: 'TOTAL_MILES', value: 'Miles', color: 'indigo' },
-    { label: 'GALLONS_USED', value: 'Gallons', color: 'violet' },
-    { label: 'AVG_MPG', value: 'MPG', color: 'blue' },
-    { label: 'TOTAL_COST', value: 'Costs', color: 'indigo' },
-  ];
-
-  const techBadges = [
-    { icon: Zap, label: 'FAST' },
-    { icon: Shield, label: 'SECURE' },
-    { icon: Cloud, label: 'SYNCED' },
-    { icon: Terminal, label: 'POWERFUL' },
-  ];
-
   return (
-    <div className="min-h-screen bg-background text-foreground relative font-mono">
+    <div className="min-h-screen relative font-mono">
       {/* Grid background pattern */}
       {/* <div className="fixed inset-0 opacity-[0.03] animate-grid-pulse pointer-events-none -z-10">
         <div
@@ -149,8 +149,7 @@ function Home() {
       </div> */}
 
       {/* Enhanced Scrolling Banner - Two rows */}
-      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
-        {/* Top row - scrolls left */}
+      <div className="bg-background/95 backdrop-blur-md border-b border-border">
         <div className="flex items-center h-8 overflow-hidden border-b border-border/50">
           <div className="flex items-center gap-6 animate-scroll whitespace-nowrap">
             {[...scrollTextTop, ...scrollTextTop, ...scrollTextTop].map(
@@ -171,7 +170,6 @@ function Home() {
             )}
           </div>
         </div>
-        {/* Bottom row - scrolls right */}
         <div className="flex items-center h-8 overflow-hidden">
           <div className="flex items-center gap-6 animate-scroll-reverse whitespace-nowrap">
             {[
@@ -197,7 +195,7 @@ function Home() {
       </div>
 
       {/* Header Navigation */}
-      <header className="sticky top-16 z-40 px-6 py-3">
+      <header className="sticky top-0 z-40 px-6 py-3">
         <div className="mx-auto max-w-7xl">
           <nav className="flex items-center justify-between border border-border bg-background/80 backdrop-blur-md px-6 py-3">
             <div className="flex items-center space-x-3 group">
@@ -495,7 +493,7 @@ function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border py-8 px-6 relative bg-card/50 backdrop-blur-sm">
+      {/* <footer className="border-t border-border py-8 px-6 relative bg-card/50 backdrop-blur-sm">
         <div className="relative mx-auto max-w-7xl">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center space-x-3">
@@ -509,7 +507,7 @@ function Home() {
             </div>
           </div>
         </div>
-      </footer>
+      </footer> */}
     </div>
   );
 }
