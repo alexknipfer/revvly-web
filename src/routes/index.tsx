@@ -133,9 +133,9 @@ function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-x-hidden font-mono">
+    <div className="min-h-screen bg-black text-white relative font-mono">
       {/* Grid background pattern */}
-      <div className="fixed inset-0 opacity-[0.03] animate-grid-pulse pointer-events-none -z-10">
+      {/* <div className="fixed inset-0 opacity-[0.03] animate-grid-pulse pointer-events-none -z-10">
         <div
           className="absolute inset-0"
           style={{
@@ -146,17 +146,7 @@ function Home() {
             backgroundSize: '50px 50px',
           }}
         />
-      </div>
-
-      {/* Animated gradient orbs */}
-      <div className="fixed top-0 left-1/4 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl -z-10 animate-pulse-slow" />
-      <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-violet-500/5 rounded-full blur-3xl -z-10 animate-pulse-slow delay-1000" />
-      <div className="fixed top-1/2 right-0 w-80 h-80 bg-blue-500/5 rounded-full blur-3xl -z-10 animate-pulse-slow delay-2000" />
-
-      {/* Scanline effect */}
-      <div className="fixed inset-0 pointer-events-none -z-10 opacity-[0.02]">
-        <div className="h-full w-full bg-linear-to-b from-transparent via-white to-transparent animate-scanline" />
-      </div>
+      </div> */}
 
       {/* Enhanced Scrolling Banner - Two rows */}
       <div className="sticky top-0 z-50 bg-black/95 backdrop-blur-md border-b border-white/10">
