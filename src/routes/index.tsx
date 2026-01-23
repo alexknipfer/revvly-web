@@ -346,13 +346,6 @@ function Home() {
                     <div className="absolute inset-0 bg-linear-to-r from-indigo-400/0 via-indigo-400/10 to-indigo-400/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                   </Button>
                 </SignInButton>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="rounded-none border-2 border-white/20 bg-transparent hover:bg-white/5 hover:border-white/40 text-white uppercase tracking-wider px-8 py-5 text-xs font-mono"
-                >
-                  VIEW_DOCUMENTATION
-                </Button>
               </div>
 
               {/* Stats row */}
