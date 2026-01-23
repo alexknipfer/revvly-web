@@ -112,7 +112,7 @@ function RouteComponent() {
               className="justify-self-end"
             />
             <DropdownMenuContent align="end" className="w-64">
-              <p className="p-2 text-[10px] text-muted-foreground tracking-wider">
+              <p className="p-2 text-xs text-muted-foreground tracking-wider">
                 Your Vehicles
               </p>
               {vehicles.map((vehicle) => (
@@ -161,7 +161,7 @@ function RouteComponent() {
                 onClick={() => setAddVehicleOpen(true)}
               >
                 <span>Add Vehicle</span>
-                <CirclePlus className="size-4" />
+                <CirclePlus />
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <div className="px-1.5 py-1 h-10 flex items-center justify-between">
