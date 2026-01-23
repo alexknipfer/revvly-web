@@ -98,7 +98,9 @@ function RouteComponent() {
             to="/vehicles"
             className="col-start-2 sm:col-start-1 text-center sm:text-left"
           >
-            <span className="font-bold tracking-widest uppercase">Revvly</span>
+            <span className="font-semibold tracking-widest uppercase">
+              Revvly
+            </span>
           </Link>
           <DropdownMenu>
             <DropdownMenuTrigger
@@ -109,10 +111,7 @@ function RouteComponent() {
               }
               className="justify-self-end"
             />
-            <DropdownMenuContent
-              align="end"
-              className="w-64 rounded-none border border-border bg-popover/95 backdrop-blur-xl"
-            >
+            <DropdownMenuContent align="end" className="w-64">
               <p className="p-2 text-[10px] text-muted-foreground tracking-wider">
                 Your Vehicles
               </p>
@@ -158,14 +157,14 @@ function RouteComponent() {
               ))}
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                className="flex items-center justify-between gap-3 text-xs tracking-wider cursor-pointer text-muted-foreground hover:text-foreground hover:bg-accent"
+                className="flex items-center justify-between gap-3 text-xs cursor-pointer text-muted-foreground"
                 onClick={() => setAddVehicleOpen(true)}
               >
                 <span>Add Vehicle</span>
-                <CirclePlus className="h-3.5 w-3.5" />
+                <CirclePlus className="size-4" />
               </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-white/10" />
-              <div className="px-1.5 py-1 flex items-center justify-between">
+              <DropdownMenuSeparator />
+              <div className="px-1.5 py-1 h-10 flex items-center justify-between">
                 <span className="text-xs tracking-wider text-muted-foreground">
                   Theme
                 </span>
@@ -186,7 +185,7 @@ function RouteComponent() {
           onVehicleCreated={() => setAddVehicleOpen(false)}
         />
       </nav>
-      <main className="px-2.5 py-4 max-w-7xl mx-auto relative">
+      <main className="px-2.5 py-4 max-w-7xl mx-auto">
         <Toaster />
         <Outlet />
       </main>
