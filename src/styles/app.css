@@ -248,8 +248,21 @@
     }
   }
 
+  @keyframes scroll-reverse {
+    0% {
+      transform: translateX(-50%);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+
   .animate-scroll {
-    animation: scroll 30s linear infinite;
+    animation: scroll 40s linear infinite;
+  }
+
+  .animate-scroll-reverse {
+    animation: scroll-reverse 45s linear infinite;
   }
 
   .animate-blink {
