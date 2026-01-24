@@ -112,9 +112,11 @@ function RouteComponent() {
               className="justify-self-end"
             />
             <DropdownMenuContent align="end" className="w-64">
-              <p className="p-2 text-xs text-muted-foreground tracking-wider">
-                Your Vehicles
-              </p>
+              {vehicles.length > 0 && (
+                <p className="p-2 text-xs text-muted-foreground tracking-wider">
+                  Your Vehicles
+                </p>
+              )}
               {vehicles.map((vehicle) => (
                 <DropdownMenuItem
                   key={vehicle._id}
