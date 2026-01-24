@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/popover';
 import { useFieldContext } from '@/hooks/use-form';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { cn } from '@/lib/utils';
 
 interface DateTimePickerProps {
   value?: Date;
@@ -75,8 +76,8 @@ function DateTimePicker({
   };
 
   return (
-    <div className={`flex gap-4 ${className || ''}`}>
-      <div className={`flex flex-col ${showLabels ? 'gap-3' : ''} flex-1`}>
+    <div className={cn('flex gap-4', className)}>
+      <div className={cn('flex flex-col gap-3 flex-1', showLabels && 'gap-3')}>
         {showLabels && (
           <Label htmlFor={`${id || 'date'}-picker`} className="px-1">
             Date

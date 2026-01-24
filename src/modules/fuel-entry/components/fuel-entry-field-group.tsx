@@ -3,7 +3,7 @@ import { useStore } from '@tanstack/react-form';
 import { Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Field } from '@/components/ui/field';
+import { Field, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { useGeoLocation } from '@/hooks/use-geo-location';
 import { fuelTypeSchema, fuelLevelSchema } from '@/types/fuel-entry';
@@ -171,9 +171,7 @@ export const FuelEntryFieldGroup = withFieldGroup({
           {(field) => <field.FormInput label="Total Gallons *" type="number" />}
         </group.AppField>
         <Field>
-          <label htmlFor="totalCost" className="text-sm font-medium">
-            Total Cost
-          </label>
+          <FieldLabel htmlFor="totalCost">Total Cost</FieldLabel>
           <Input
             name="totalCost"
             type="number"

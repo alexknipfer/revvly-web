@@ -92,13 +92,15 @@ function RouteComponent() {
 
   return (
     <div className="bg-background min-h-svh text-foreground">
-      <nav className="text-foreground border-b border-b-accent w-full sticky top-0 z-10 bg-background">
-        <div className="max-w-7xl mx-auto w-full grid grid-cols-3 sm:grid-cols-2 items-center pl-2.5 pr-2.5 ">
+      <nav className="text-foreground border-b border-border/50 w-full sticky top-0 z-10 bg-background">
+        <div className="max-w-7xl mx-auto w-full grid grid-cols-3 sm:grid-cols-2 items-center pl-2.5 pr-2.5">
           <Link
             to="/vehicles"
             className="col-start-2 sm:col-start-1 text-center sm:text-left"
           >
-            <span className="font-bold tracking-widest uppercase">Revvly</span>
+            <span className="font-semibold tracking-widest uppercase">
+              Revvly
+            </span>
           </Link>
           <DropdownMenu>
             <DropdownMenuTrigger
@@ -110,9 +112,11 @@ function RouteComponent() {
               className="justify-self-end"
             />
             <DropdownMenuContent align="end" className="w-64">
-              <p className="p-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                Your Vehicles
-              </p>
+              {vehicles.length > 0 && (
+                <p className="p-2 text-xs text-muted-foreground tracking-wider">
+                  Your Vehicles
+                </p>
+              )}
               {vehicles.map((vehicle) => (
                 <DropdownMenuItem
                   key={vehicle._id}
@@ -155,15 +159,17 @@ function RouteComponent() {
               ))}
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                className="flex items-center justify-between gap-3 text-sm cursor-pointer text-muted-foreground"
+                className="flex items-center justify-between gap-3 text-xs cursor-pointer text-muted-foreground"
                 onClick={() => setAddVehicleOpen(true)}
               >
                 <span>Add Vehicle</span>
                 <CirclePlus />
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <div className="px-1.5 py-1 flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Theme</span>
+              <div className="px-1.5 py-1 h-10 flex items-center justify-between">
+                <span className="text-xs tracking-wider text-muted-foreground">
+                  Theme
+                </span>
                 <ThemeToggle />
               </div>
               <DropdownMenuSeparator />
