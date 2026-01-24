@@ -124,9 +124,17 @@ export function AddVehicleDialog({
           >
             {(field) => {
               return isMobile ? (
-                <field.FormNativeSelect label="Year *" items={yearItems} />
+                <field.FormNativeSelect
+                  label="Year *"
+                  emptyOptionLabel="Select a year"
+                  items={yearItems}
+                />
               ) : (
-                <field.FormCombobox label="Year *" items={yearItems} />
+                <field.FormCombobox
+                  label="Year *"
+                  placeholder="Select a year"
+                  items={yearItems}
+                />
               );
             }}
           </form.AppField>
@@ -143,12 +151,14 @@ export function AddVehicleDialog({
               return isMobile ? (
                 <field.FormNativeSelect
                   label="Make *"
+                  emptyOptionLabel="Select a make"
                   disabled={selectedYear === ''}
                   items={makeItems}
                 />
               ) : (
                 <field.FormCombobox
                   label="Make *"
+                  placeholder="Select a make"
                   items={makeItems}
                   disabled={selectedYear === ''}
                 />
@@ -160,12 +170,14 @@ export function AddVehicleDialog({
               return isMobile ? (
                 <field.FormNativeSelect
                   label="Model *"
+                  emptyOptionLabel="Select a model"
                   disabled={selectedMake === ''}
                   items={modelItems}
                 />
               ) : (
                 <field.FormCombobox
                   label="Model *"
+                  placeholder="Select a model"
                   disabled={selectedMake === ''}
                   items={modelItems}
                 />
