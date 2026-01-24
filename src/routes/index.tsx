@@ -237,7 +237,7 @@ function Home() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative pt-12 pb-16 px-6">
+      <section className="relative pt-10 pb-16 px-6">
         <div className="relative mx-auto max-w-7xl">
           {/* Terminal-style border with animated glow */}
           <div className="border border-border p-8 md:p-10 bg-card/50 backdrop-blur-sm relative overflow-hidden">
@@ -351,7 +351,7 @@ function Home() {
       </section>
 
       {/* Features Grid */}
-      <section id="features" className="py-16 px-6 relative">
+      <section id="features" className="py-10 px-6 relative">
         <div className="relative mx-auto max-w-7xl">
           {/* Section header */}
           <div className="flex items-center gap-4 mb-10">
@@ -409,7 +409,7 @@ function Home() {
       </section>
 
       {/* Stats Section */}
-      <section id="stats" className="py-16 px-6 relative">
+      <section id="stats" className="py-10 px-6 relative">
         <div className="relative mx-auto max-w-7xl">
           {/* Section header */}
           <div className="flex items-center gap-4 mb-10">
@@ -456,7 +456,7 @@ function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 px-6 relative">
+      <section className="py-10 px-6 relative">
         <div className="relative mx-auto max-w-4xl">
           <div className="border border-border p-8 md:p-10 bg-card/50 backdrop-blur-sm text-center relative overflow-hidden">
             {/* Corner accents */}
@@ -489,7 +489,7 @@ function Home() {
       </section>
 
       {/* Footer */}
-      {/* <footer className="border-t border-border py-8 px-6 relative bg-card/50 backdrop-blur-sm">
+      <footer className="border-t border-border py-8 px-6 relative bg-card/50 backdrop-blur-sm">
         <div className="relative mx-auto max-w-7xl">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center space-x-3">
@@ -503,7 +503,7 @@ function Home() {
             </div>
           </div>
         </div>
-      </footer> */}
+      </footer>
     </div>
   );
 }
