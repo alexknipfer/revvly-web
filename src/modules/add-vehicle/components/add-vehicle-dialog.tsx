@@ -1,34 +1,21 @@
 import { z } from 'zod';
 import { api } from 'convex/_generated/api';
-import { useForm, useStore } from '@tanstack/react-form';
+import { useStore } from '@tanstack/react-form';
 import { useNavigate } from '@tanstack/react-router';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useConvexMutation } from '@convex-dev/react-query';
 import { useServerFn } from '@tanstack/react-start';
 
-import {
-  Combobox,
-  ComboboxEmpty,
-  ComboboxContent,
-  ComboboxInput,
-  ComboboxList,
-  ComboboxItem,
-} from '@/components/ui/combobox';
 import { getSupportedVehicleYears } from '@/lib/utils';
 import { DrawerDialog } from '@/components/ui/dialog-drawer';
 import { Button } from '@/components/ui/button';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
-import {
-  NativeSelect,
-  NativeSelectOption,
-} from '@/components/ui/native-select';
 import { useMediaQuery } from '@/hooks/use-media-query';
 
 import {
   getVehicleMakesServerFn,
   getVehicleModelsForMakeServerFn,
 } from '../server/server-fns';
+import { useAppForm } from '@/hooks/use-form';
 
 const formSchema = z.object({
   year: z.string().min(1),
@@ -51,7 +38,7 @@ export function AddVehicleDialog({
 }: Props) {
   const navigate = useNavigate();
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: {
       year: '',
       make: '',
@@ -97,6 +84,18 @@ export function AddVehicleDialog({
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     createUserVehicleMutation.mutate(data);
   };
+  const yearItems = getSupportedVehicleYears().map((year) => ({
+    value: year,
+    label: year,
+  }));
+  const makeItems = vehicleMakes.map((make) => ({
+    value: make.name,
+    label: make.name,
+  }));
+  const modelItems = vehicleModels.map((model) => ({
+    value: model.name,
+    label: model.name,
+  }));
 
   return (
     <DrawerDialog
@@ -112,217 +111,77 @@ export function AddVehicleDialog({
         }}
         className="space-y-5"
       >
-        <form.Field
-          name="year"
-          listeners={{
-            onChangeDebounceMs: 500,
-            onChange: () => {
-              form.setFieldValue('make', '');
-              form.setFieldValue('model', '');
-            },
-          }}
-          children={(field) => {
-            const isInvalid =
-              field.state.meta.isTouched && !field.state.meta.isValid;
-            const yearItems = getSupportedVehicleYears().map((year) => ({
-              value: year,
-              label: year,
-            }));
-
-            return (
-              <Field data-invalid={isInvalid}>
-                <FieldLabel htmlFor={field.name}>Year *</FieldLabel>
-                {isMobile ? (
-                  <NativeSelect
-                    name={field.name}
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    disabled={false}
-                    aria-invalid={isInvalid}
-                    className="w-full"
-                  >
-                    <NativeSelectOption value="">
-                      Select Year
-                    </NativeSelectOption>
-                    {yearItems.map((item) => (
-                      <NativeSelectOption key={item.value} value={item.value}>
-                        {item.label}
-                      </NativeSelectOption>
-                    ))}
-                  </NativeSelect>
-                ) : (
-                  <Combobox items={yearItems}>
-                    <ComboboxInput placeholder="Select Year" />
-                    <ComboboxContent>
-                      <ComboboxEmpty>No items found.</ComboboxEmpty>
-                      <ComboboxList>
-                        {(year) => (
-                          <ComboboxItem key={year} value={year}>
-                            {year}
-                          </ComboboxItem>
-                        )}
-                      </ComboboxList>
-                    </ComboboxContent>
-                  </Combobox>
-                )}
-                {isInvalid && <FieldError errors={field.state.meta.errors} />}
-              </Field>
-            );
-          }}
-        />
-        <form.Field
-          name="make"
-          listeners={{
-            onChangeDebounceMs: 500,
-            onChange: () => {
-              form.setFieldValue('model', '');
-            },
-          }}
-          children={(field) => {
-            const isInvalid =
-              field.state.meta.isTouched && !field.state.meta.isValid;
-            const makeItems = vehicleMakes.map((make) => ({
-              value: make.name,
-              label: make.name,
-            }));
-            const isDisabled = selectedYear === '';
-
-            return (
-              <Field data-invalid={isInvalid}>
-                <FieldLabel htmlFor={field.name}>Make *</FieldLabel>
-                {isMobile ? (
-                  <NativeSelect
-                    name={field.name}
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    disabled={isDisabled}
-                    aria-invalid={isInvalid}
-                    className="w-full"
-                  >
-                    <NativeSelectOption value="">
-                      Select Make
-                    </NativeSelectOption>
-                    {makeItems.map((item) => (
-                      <NativeSelectOption key={item.value} value={item.value}>
-                        {item.label}
-                      </NativeSelectOption>
-                    ))}
-                  </NativeSelect>
-                ) : (
-                  <Combobox items={makeItems}>
-                    <ComboboxInput placeholder="Select Make" />
-                    <ComboboxContent>
-                      <ComboboxEmpty>No items found.</ComboboxEmpty>
-                      <ComboboxList>
-                        {(make) => (
-                          <ComboboxItem key={make} value={make}>
-                            {make}
-                          </ComboboxItem>
-                        )}
-                      </ComboboxList>
-                    </ComboboxContent>
-                  </Combobox>
-                )}
-                {isInvalid && <FieldError errors={field.state.meta.errors} />}
-              </Field>
-            );
-          }}
-        />
-        <form.Field
-          name="model"
-          children={(field) => {
-            const isInvalid =
-              field.state.meta.isTouched && !field.state.meta.isValid;
-            const modelItems = vehicleModels.map(({ name }) => ({
-              value: name,
-              label: name,
-            }));
-            const isDisabled = selectedMake === '';
-
-            return (
-              <Field data-invalid={isInvalid}>
-                <FieldLabel htmlFor={field.name}>Model *</FieldLabel>
-                {isMobile ? (
-                  <NativeSelect
-                    name={field.name}
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    disabled={isDisabled}
-                    aria-invalid={isInvalid}
-                    className="w-full"
-                  >
-                    <NativeSelectOption value="">
-                      Select Model
-                    </NativeSelectOption>
-                    {modelItems.map((item) => (
-                      <NativeSelectOption key={item.value} value={item.value}>
-                        {item.label}
-                      </NativeSelectOption>
-                    ))}
-                  </NativeSelect>
-                ) : (
-                  <Combobox items={modelItems}>
-                    <ComboboxInput placeholder="Select Model" />
-                    <ComboboxContent>
-                      <ComboboxEmpty>No items found.</ComboboxEmpty>
-                      <ComboboxList>
-                        {(model) => (
-                          <ComboboxItem key={model} value={model}>
-                            {model}
-                          </ComboboxItem>
-                        )}
-                      </ComboboxList>
-                    </ComboboxContent>
-                  </Combobox>
-                )}
-                {isInvalid && <FieldError errors={field.state.meta.errors} />}
-              </Field>
-            );
-          }}
-        />
-        <form.Field
-          name="name"
-          children={(field) => {
-            const isInvalid =
-              field.state.meta.isTouched && !field.state.meta.isValid;
-
-            return (
-              <Field data-invalid={isInvalid}>
-                <FieldLabel htmlFor={field.name}>Name (Optional)</FieldLabel>
-                <Input
-                  name={field.name}
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  aria-invalid={isInvalid}
+        <form.AppForm>
+          <form.AppField
+            name="year"
+            listeners={{
+              onChangeDebounceMs: 500,
+              onChange: () => {
+                form.setFieldValue('make', '');
+                form.setFieldValue('model', '');
+              },
+            }}
+          >
+            {(field) => {
+              return isMobile ? (
+                <field.FormNativeSelect label="Year *" items={yearItems} />
+              ) : (
+                <field.FormCombobox label="Year *" items={yearItems} />
+              );
+            }}
+          </form.AppField>
+          <form.AppField
+            name="make"
+            listeners={{
+              onChangeDebounceMs: 500,
+              onChange: () => {
+                form.setFieldValue('model', '');
+              },
+            }}
+          >
+            {(field) => {
+              return isMobile ? (
+                <field.FormNativeSelect
+                  label="Make *"
+                  disabled={selectedYear === ''}
+                  items={makeItems}
                 />
-                {isInvalid && <FieldError errors={field.state.meta.errors} />}
-              </Field>
-            );
-          }}
-        />
-        <form.Field
-          name="plate"
-          children={(field) => {
-            const isInvalid =
-              field.state.meta.isTouched && !field.state.meta.isValid;
-
-            return (
-              <Field data-invalid={isInvalid}>
-                <FieldLabel htmlFor={field.name}>Plate *</FieldLabel>
-                <Input
-                  name={field.name}
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  aria-invalid={isInvalid}
+              ) : (
+                <field.FormCombobox
+                  label="Make *"
+                  items={makeItems}
+                  disabled={selectedYear === ''}
                 />
-                {isInvalid && <FieldError errors={field.state.meta.errors} />}
-              </Field>
-            );
-          }}
-        />
-        <Button type="submit" className="w-full">
-          Add Vehicle
-        </Button>
+              );
+            }}
+          </form.AppField>
+          <form.AppField name="model">
+            {(field) => {
+              return isMobile ? (
+                <field.FormNativeSelect
+                  label="Model *"
+                  disabled={selectedMake === ''}
+                  items={modelItems}
+                />
+              ) : (
+                <field.FormCombobox
+                  label="Model *"
+                  disabled={selectedMake === ''}
+                  items={modelItems}
+                />
+              );
+            }}
+          </form.AppField>
+          <form.AppField name="name">
+            {(field) => <field.FormInput label="Name (Optional)" />}
+          </form.AppField>
+          <form.AppField name="plate">
+            {(field) => <field.FormInput label="Plate *" />}
+          </form.AppField>
+          <Button type="submit" className="w-full">
+            Add Vehicle
+          </Button>
+        </form.AppForm>
       </form>
     </DrawerDialog>
   );

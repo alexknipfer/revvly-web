@@ -57,6 +57,7 @@ export function AddFuelEntryForm({ onSuccess }: Props) {
       location: data.fuelEntryFields.location || undefined,
       vehicleId: vehicleId as Id<'vehicles'>,
       missedFuelup: data.fuelEntryFields.missedFuelup,
+      notes: data.fuelEntryFields.notes,
     });
   };
 
