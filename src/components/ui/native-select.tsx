@@ -57,6 +57,7 @@ interface FormNativeSelectProps {
   label?: string;
   className?: string;
   disabled?: boolean;
+  emptyOptionLabel?: string;
 }
 
 function FormNativeSelect({
@@ -64,6 +65,7 @@ function FormNativeSelect({
   className,
   items,
   disabled,
+  emptyOptionLabel = 'Select an option',
 }: FormNativeSelectProps) {
   const field = useFieldContext<string>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
@@ -78,6 +80,9 @@ function FormNativeSelect({
         aria-invalid={isInvalid}
         disabled={disabled}
       >
+        {!!emptyOptionLabel && (
+          <NativeSelectOption value="">{emptyOptionLabel}</NativeSelectOption>
+        )}
         {items.map((item) => (
           <NativeSelectOption key={item.value} value={item.value}>
             {item.label}
