@@ -195,14 +195,10 @@ function Home() {
       </div>
 
       {/* Header Navigation */}
-      <header className="sticky top-0 z-40 px-6 pt-9 pb-3">
+      <header className="sticky top-0 z-40 px-6 pt-6 md:pt-9 pb-3">
         <div className="mx-auto max-w-7xl">
           <nav className="flex items-center justify-between border border-border bg-background/80 backdrop-blur-md px-6 py-3">
             <div className="flex items-center space-x-3 group">
-              <div className="relative">
-                <Fuel className="h-5 w-5 text-indigo-600 dark:text-indigo-400 transition-transform duration-300 group-hover:rotate-12" />
-                <div className="absolute inset-0 bg-indigo-400/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
               <span className="text-lg font-bold tracking-widest uppercase text-foreground">
                 REVVLY
               </span>
