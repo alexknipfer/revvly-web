@@ -260,12 +260,12 @@ function Home() {
               <div className="flex items-center justify-center gap-3 mb-6 flex-wrap">
                 <div className="inline-flex items-center gap-2 px-3 py-1 border border-indigo-400/30 bg-indigo-400/10 dark:bg-indigo-400/10">
                   <div className="w-1.5 h-1.5 bg-indigo-600 dark:bg-indigo-400 rounded-full animate-pulse" />
-                  <span className="text-[10px] uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground dark:text-indigo-400">
                     ONLINE
                   </span>
                 </div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 border border-violet-400/30 bg-violet-400/10 dark:bg-violet-400/10">
-                  <span className="text-[10px] uppercase tracking-wider text-violet-600 dark:text-violet-400">
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground dark:text-violet-400">
                     1,247 ACTIVE_USERS
                   </span>
                 </div>
