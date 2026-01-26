@@ -34,7 +34,7 @@ export const Route = createRootRouteWithContext<{
       },
       {
         name: 'theme-color',
-        content: '#020618',
+        content: '#090d16',
       },
       {
         title: 'Revvly',

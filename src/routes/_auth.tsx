@@ -42,7 +42,7 @@ export const Route = createFileRoute('/_auth')({
     meta: [
       {
         name: 'theme-color',
-        content: '#0f172a',
+        content: '#090d16',
       },
     ],
   }),
