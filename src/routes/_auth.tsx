@@ -90,7 +90,7 @@ function RouteComponent() {
 
   return (
     <div className="bg-background min-h-svh text-foreground">
-      <nav className="text-foreground border-b border-border/50 w-full sticky top-0 z-10 bg-background">
+      <nav className="text-foreground border-b border-border/50 w-full sticky top-0 z-10 bg-background py-0.5">
         <div className="max-w-7xl mx-auto w-full grid grid-cols-3 sm:grid-cols-2 items-center pl-2.5 pr-2.5">
           <Link
             to="/vehicles"
