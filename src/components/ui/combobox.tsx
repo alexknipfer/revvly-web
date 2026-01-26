@@ -226,7 +226,7 @@ function ComboboxChips({
     <ComboboxPrimitive.Chips
       data-slot="combobox-chips"
       className={cn(
-        'dark:bg-input/30 border-input focus-within:border-ring focus-within:ring-ring/50 has-aria-invalid:ring-destructive/20 dark:has-aria-invalid:ring-destructive/40 has-aria-invalid:border-destructive dark:has-aria-invalid:border-destructive/50 flex min-h-8 flex-wrap items-center gap-1 rounded-lg border bg-transparent bg-clip-padding px-2.5 py-1 text-sm transition-colors focus-within:ring-[3px] has-aria-invalid:ring-[3px] has-data-[slot=combobox-chip]:px-1',
+        'dark:bg-input/30 border-input focus-within:border-ring focus-within:ring-ring/50 has-aria-invalid:ring-destructive/20 dark:has-aria-invalid:ring-destructive/40 has-aria-invalid:border-destructive dark:has-aria-invalid:border-destructive/50 flex min-h-8 flex-wrap items-center gap-1 border bg-transparent bg-clip-padding px-2.5 py-1 text-sm transition-colors hover:border-ring/70 focus-within:ring-[3px] has-aria-invalid:ring-[3px] has-data-[slot=combobox-chip]:px-1',
         className,
       )}
       {...props}
@@ -289,32 +289,55 @@ interface ComboboxFieldItem {
   label: string;
 }
 
-interface ComboboxFieldProps<T extends string = string> {
+interface FormComboboxProps {
   label?: string;
   className?: string;
   items: ComboboxFieldItem[];
   placeholder?: string;
-  onChange?: (value: T) => T;
+  disabled?: boolean;
 }
 
-function FormCombobox<T extends string = string>({
+function FormCombobox({
   label,
   className,
   items,
   placeholder,
-  onChange,
-}: ComboboxFieldProps<T>) {
-  const field = useFieldContext<T>();
+  disabled,
+}: FormComboboxProps) {
+  const field = useFieldContext<string>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+
+  const selectedItem = React.useMemo(() => {
+    if (!field.state.value) return null;
+    return items.find((item) => item.value === field.state.value) || null;
+  }, [field.state.value, items]);
+
+  const itemToStringValue = React.useCallback(
+    (item: ComboboxFieldItem | null) => {
+      return item ? item.value : '';
+    },
+    [],
+  );
+
+  const itemToStringLabel = React.useCallback(
+    (item: ComboboxFieldItem | null) => {
+      return item ? item.label : '';
+    },
+    [],
+  );
 
   return (
     <Field data-invalid={isInvalid} className={className}>
       {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
       <Combobox
+        name={field.name}
+        disabled={disabled}
         items={items}
+        value={selectedItem}
+        itemToStringValue={itemToStringValue}
+        itemToStringLabel={itemToStringLabel}
         onValueChange={(value) => {
-          const newValue = onChange ? onChange(value as T) : (value as T);
-          field.handleChange(newValue);
+          field.handleChange(itemToStringValue(value));
         }}
       >
         <ComboboxInput
@@ -323,11 +346,13 @@ function FormCombobox<T extends string = string>({
         <ComboboxContent>
           <ComboboxEmpty>No items found.</ComboboxEmpty>
           <ComboboxList>
-            {(item) => (
-              <ComboboxItem key={item} value={item}>
-                {item}
-              </ComboboxItem>
-            )}
+            {(item) => {
+              return (
+                <ComboboxItem key={item.value} value={item}>
+                  {item.label}
+                </ComboboxItem>
+              );
+            }}
           </ComboboxList>
         </ComboboxContent>
       </Combobox>
