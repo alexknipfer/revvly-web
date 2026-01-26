@@ -1,4 +1,4 @@
-import { SignOutButton } from '@clerk/tanstack-react-start';
+import { SignOutButton, useUser } from '@clerk/tanstack-react-start';
 import {
   createFileRoute,
   Link,
@@ -7,7 +7,7 @@ import {
   useLocation,
 } from '@tanstack/react-router';
 import * as Sentry from '@sentry/tanstackstart-react';
-import { Car, Check, CirclePlus, EllipsisVertical } from 'lucide-react';
+import { Car, Check, CirclePlus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { auth } from '@clerk/tanstack-react-start/server';
 import { createServerFn } from '@tanstack/react-start';
@@ -25,13 +25,14 @@ import {
 import { AddVehicleDialog } from '@/modules/add-vehicle/components/add-vehicle-dialog';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { getAllVehiclesQueryOptions } from '@/api/query-options';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const fetchClerkAuth = createServerFn({ method: 'GET' }).handler(async () => {
-  const authResponse = await auth();
-  const token = await authResponse.getToken({ template: 'convex' });
+  const { userId, getToken } = await auth();
+  const token = await getToken({ template: 'convex' });
 
   return {
-    userId: authResponse.userId,
+    userId,
     token,
   };
 });
@@ -48,11 +49,10 @@ export const Route = createFileRoute('/_auth')({
   component: RouteComponent,
   beforeLoad: async ({ context }) => {
     // Cache to prevent slow client side navigations. See: https://github.com/TanStack/router/issues/3997
-    const auth = await context.queryClient.ensureQueryData({
+    const { userId, token } = await context.queryClient.ensureQueryData({
       queryKey: ['auth'],
       queryFn: fetchClerkAuth,
     });
-    const { userId, token } = auth;
 
     if (token && context.convexQueryClient.serverHttpClient?.setAuth) {
       context.convexQueryClient.serverHttpClient.setAuth(token);
@@ -77,6 +77,7 @@ export const Route = createFileRoute('/_auth')({
 function RouteComponent() {
   const { userId } = Route.useRouteContext();
   const { data: vehicles } = useSuspenseQuery(getAllVehiclesQueryOptions());
+  const { user } = useUser();
 
   const [addVehicleOpen, setAddVehicleOpen] = useState(false);
   const location = useLocation();
@@ -102,11 +103,25 @@ function RouteComponent() {
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
-                <Button variant="ghost" size="icon">
-                  <EllipsisVertical />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full justify-self-end"
+                >
+                  <Avatar size="sm">
+                    <AvatarImage
+                      src={user?.imageUrl}
+                      alt={user?.fullName ?? 'User Avatar'}
+                    />
+                    <AvatarFallback>
+                      {user
+                        ? (user.firstName?.charAt(0) ?? '') +
+                          (user.lastName?.charAt(0) ?? '')
+                        : ''}
+                    </AvatarFallback>
+                  </Avatar>
                 </Button>
               }
-              className="justify-self-end"
             />
             <DropdownMenuContent align="end" className="w-64">
               {vehicles.length > 0 && (
