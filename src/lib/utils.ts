@@ -1,6 +1,8 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
+import { Doc } from 'convex/_generated/dataModel';
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -59,4 +61,8 @@ export function hasDefined<K extends string | number | symbol>(
   ): item is T & { [P in K]: NonNullable<T[P]> } => {
     return isDefined(item[key]);
   };
+}
+
+export function getVehicleDisplayName(vehicle: Doc<'vehicles'>) {
+  return vehicle.name || `${vehicle.make} ${vehicle.model} ${vehicle.year}`;
 }

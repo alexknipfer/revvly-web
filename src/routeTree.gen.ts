@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthSettingsRouteImport } from './routes/_auth.settings'
 import { Route as AuthVehiclesIndexRouteImport } from './routes/_auth.vehicles.index'
 import { Route as AuthVehiclesVehicleIdRouteRouteImport } from './routes/_auth.vehicles.$vehicleId.route'
 import { Route as AuthVehiclesVehicleIdIndexRouteImport } from './routes/_auth.vehicles.$vehicleId.index'
@@ -27,6 +28,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthSettingsRoute = AuthSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthVehiclesIndexRoute = AuthVehiclesIndexRouteImport.update({
   id: '/vehicles/',
@@ -72,6 +78,7 @@ const AuthVehiclesVehicleIdFuelentryFuelEntryIdEditRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/settings': typeof AuthSettingsRoute
   '/vehicles/$vehicleId': typeof AuthVehiclesVehicleIdRouteRouteWithChildren
   '/vehicles/': typeof AuthVehiclesIndexRoute
   '/vehicles/$vehicleId/': typeof AuthVehiclesVehicleIdIndexRoute
@@ -82,6 +89,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/settings': typeof AuthSettingsRoute
   '/vehicles': typeof AuthVehiclesIndexRoute
   '/vehicles/$vehicleId': typeof AuthVehiclesVehicleIdIndexRoute
   '/vehicles/$vehicleId/fuelentry/new': typeof AuthVehiclesVehicleIdFuelentryNewRoute
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_auth': typeof AuthRouteWithChildren
+  '/_auth/settings': typeof AuthSettingsRoute
   '/_auth/vehicles/$vehicleId': typeof AuthVehiclesVehicleIdRouteRouteWithChildren
   '/_auth/vehicles/': typeof AuthVehiclesIndexRoute
   '/_auth/vehicles/$vehicleId/': typeof AuthVehiclesVehicleIdIndexRoute
@@ -105,6 +114,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/settings'
     | '/vehicles/$vehicleId'
     | '/vehicles/'
     | '/vehicles/$vehicleId/'
@@ -115,6 +125,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/settings'
     | '/vehicles'
     | '/vehicles/$vehicleId'
     | '/vehicles/$vehicleId/fuelentry/new'
@@ -125,6 +136,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_auth'
+    | '/_auth/settings'
     | '/_auth/vehicles/$vehicleId'
     | '/_auth/vehicles/'
     | '/_auth/vehicles/$vehicleId/'
@@ -154,6 +166,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_auth/settings': {
+      id: '/_auth/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthSettingsRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/_auth/vehicles/': {
       id: '/_auth/vehicles/'
@@ -234,11 +253,13 @@ const AuthVehiclesVehicleIdRouteRouteWithChildren =
   )
 
 interface AuthRouteChildren {
+  AuthSettingsRoute: typeof AuthSettingsRoute
   AuthVehiclesVehicleIdRouteRoute: typeof AuthVehiclesVehicleIdRouteRouteWithChildren
   AuthVehiclesIndexRoute: typeof AuthVehiclesIndexRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
+  AuthSettingsRoute: AuthSettingsRoute,
   AuthVehiclesVehicleIdRouteRoute: AuthVehiclesVehicleIdRouteRouteWithChildren,
   AuthVehiclesIndexRoute: AuthVehiclesIndexRoute,
 }

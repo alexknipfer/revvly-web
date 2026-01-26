@@ -10,6 +10,7 @@
 
 import type * as fuelEntries from "../fuelEntries.js";
 import type * as fuelEntries_validators from "../fuelEntries/validators.js";
+import type * as importFuellyData from "../importFuellyData.js";
 import type * as migrations from "../migrations.js";
 import type * as services from "../services.js";
 import type * as services_validators from "../services/validators.js";
@@ -28,6 +29,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   fuelEntries: typeof fuelEntries;
   "fuelEntries/validators": typeof fuelEntries_validators;
+  importFuellyData: typeof importFuellyData;
   migrations: typeof migrations;
   services: typeof services;
   "services/validators": typeof services_validators;

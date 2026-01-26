@@ -17,6 +17,12 @@ export const vehicleByIdQueryOptions = ({ vehicleId }: VehicleByIdArgs) =>
     }),
   );
 
+
+export const getAllVehiclesQueryOptions = () =>
+  queryOptions(
+    convexQuery(api.vehicles.getAll, {}),
+  );
+
 interface NearbyGasStationsArgs {
   lat: number;
   lng: number;
