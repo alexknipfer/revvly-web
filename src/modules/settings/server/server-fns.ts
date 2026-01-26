@@ -1,4 +1,5 @@
 import { createServerFn } from '@tanstack/react-start';
+import { z } from 'zod';
 import dayjs from 'dayjs';
 
 import { api } from 'convex/_generated/api';
@@ -15,12 +16,6 @@ import {
   fuelTypeSchema,
 } from '@/types/fuel-entry';
 import { MAX_SERVER_FUNC_ATTACHMENT_SIZE } from '@/lib/constants';
-
-import {
-  FuellyImportVehicleMapping,
-  fuellyImportVehicleMappingSchema,
-} from '../schemas/fuelly-import';
-import z from 'zod';
 
 const requiredHeaders = [
   'type',
@@ -470,6 +465,7 @@ export const importFuellyDataServerFn = createServerFn({
           });
         }
       } catch (error) {
+        captureException(error);
         errors.push(
           `Row ${i + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`,
         );
