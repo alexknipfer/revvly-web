@@ -20,6 +20,7 @@ import {
   FuellyImportVehicleMapping,
   fuellyImportVehicleMappingSchema,
 } from '../schemas/fuelly-import';
+import z from 'zod';
 
 const requiredHeaders = [
   'type',
@@ -304,17 +305,20 @@ export const importFuellyDataServerFn = createServerFn({
       throw new Error('Vehicle mappings are required');
     }
 
-    let mappings: Array<FuellyImportVehicleMapping>;
+    let mappings: Record<string, string | null>;
     try {
       const parsed = JSON.parse(mappingsStr);
-      mappings = fuellyImportVehicleMappingSchema.array().parse(parsed);
-    } catch {
+      mappings = z.record(z.string(), z.string().nullable()).parse(parsed);
+    } catch (error) {
+      captureException(error);
       throw new Error('Invalid vehicle mappings format');
     }
 
-    const validMappings = mappings.filter((m) => m.vehicleId !== null);
+    const validMappings = Object.fromEntries(
+      Object.entries(mappings).filter(([_, value]) => value !== null),
+    );
 
-    if (validMappings.length === 0) {
+    if (Object.keys(validMappings).length === 0) {
       throw new Error('At least one vehicle must be mapped');
     }
 
@@ -367,11 +371,6 @@ export const importFuellyDataServerFn = createServerFn({
       headerMap[h] = i;
     });
 
-    const vehicleMapping = new Map<string, string>();
-    mappings.forEach((m) => {
-      vehicleMapping.set(m.fuellyVehicleName, m.vehicleId!);
-    });
-
     const fuelEntries: Array<FuellyFuelEntryImport> = [];
     const services: Array<FuellyServiceImport> = [];
 
@@ -388,7 +387,7 @@ export const importFuellyDataServerFn = createServerFn({
 
       const type = getValue('type');
       const vehicleName = getValue('vehicle');
-      const vehicleId = vehicleMapping.get(vehicleName);
+      const vehicleId = mappings[vehicleName];
 
       if (!vehicleId) {
         continue;

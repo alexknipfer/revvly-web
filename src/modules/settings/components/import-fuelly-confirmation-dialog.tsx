@@ -5,14 +5,6 @@ import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { DrawerDialog } from '@/components/ui/dialog-drawer';
 import { Button } from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
-import {
-  Combobox,
-  ComboboxEmpty,
-  ComboboxContent,
-  ComboboxInput,
-  ComboboxList,
-  ComboboxItem,
-} from '@/components/ui/combobox';
 
 import {
   FuellyCsvPreviewServerFnResult,
@@ -22,7 +14,10 @@ import { getAllVehiclesQueryOptions } from '@/api/query-options';
 import { getVehicleDisplayName } from '@/lib/utils';
 
 import { ImportFuellySuccessDialog } from './import-fuelly-success-dialog';
-import { FuellyImportVehicleMapping } from '../schemas/fuelly-import';
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from '@/components/ui/native-select';
 
 interface Props {
   open: boolean;
@@ -40,19 +35,23 @@ export function ImportFuellyConfirmationDialog({
   onImportComplete,
 }: Props) {
   const { data: userVehicles } = useSuspenseQuery(getAllVehiclesQueryOptions());
+  const [mappings, setMappings] = useState<Record<string, string | null>>(
+    () => {
+      const mappings: Record<string, string | null> = {};
 
-  const [mappings, setMappings] = useState<Array<FuellyImportVehicleMapping>>(
-    () =>
-      csvPreview.vehicles.map((v) => ({
-        fuellyVehicleName: v.name,
-        vehicleId: null,
-      })),
+      for (const vehicle of csvPreview.vehicles) {
+        mappings[vehicle.name] = null;
+      }
+
+      return mappings;
+    },
   );
 
-  const vehicleItems = useMemo(
-    () => userVehicles.map(getVehicleDisplayName),
-    [userVehicles],
-  );
+  const mappedVehicleIds = useMemo(() => {
+    return new Set(
+      Object.values(mappings).filter((v): v is string => Boolean(v)),
+    );
+  }, [mappings]);
 
   const importData = useServerFn(importFuellyDataServerFn);
   const {
@@ -68,11 +67,10 @@ export function ImportFuellyConfirmationDialog({
 
   const handleMappingChange = useCallback(
     (fuellyVehicleName: string, vehicleId: string | null) => {
-      setMappings((prev) =>
-        prev.map((m) =>
-          m.fuellyVehicleName === fuellyVehicleName ? { ...m, vehicleId } : m,
-        ),
-      );
+      setMappings((prev) => ({
+        ...prev,
+        [fuellyVehicleName]: vehicleId,
+      }));
     },
     [],
   );
@@ -85,15 +83,15 @@ export function ImportFuellyConfirmationDialog({
     importMutation({ data: formData });
   };
 
-  const mappedCount = mappings.filter((m) => m.vehicleId !== null).length;
+  const mappedCount = Object.values(mappings).filter((v) => Boolean(v)).length;
   const canImport = mappedCount > 0 && !isImporting;
 
-  const totalEntriesToImport = mappings.reduce(
-    (sum, mapping) => {
+  const totalEntriesToImport = Object.entries(mappings).reduce(
+    (sum, [fuellyVehicleName, vehicleId]) => {
       const vehicle = csvPreview.vehicles.find(
-        (v) => v.name === mapping.fuellyVehicleName,
+        (v) => v.name === fuellyVehicleName,
       );
-      if (vehicle && mapping.vehicleId) {
+      if (vehicle && vehicleId) {
         return {
           fuelEntries: sum.fuelEntries + vehicle.fuelEntryCount,
           services: sum.services + vehicle.serviceCount,
@@ -146,17 +144,12 @@ export function ImportFuellyConfirmationDialog({
       <div className="space-y-6">
         <div className="space-y-4">
           {csvPreview.vehicles.map((vehicle) => {
-            const mapping = mappings.find(
-              (m) => m.fuellyVehicleName === vehicle.name,
+            const selectedVehicleId = mappings[vehicle.name] || '';
+            const selectableVehicles = userVehicles.filter(
+              (userVehicle) =>
+                userVehicle._id === selectedVehicleId ||
+                !mappedVehicleIds.has(userVehicle._id),
             );
-            const selectedVehicle = userVehicles.find(
-              (v: (typeof userVehicles)[number]) =>
-                v._id === mapping?.vehicleId,
-            );
-            const selectedValue = selectedVehicle
-              ? selectedVehicle.name ||
-                `${selectedVehicle.make} ${selectedVehicle.model} ${selectedVehicle.year}`
-              : '';
 
             return (
               <Field key={vehicle.name}>
@@ -167,35 +160,25 @@ export function ImportFuellyConfirmationDialog({
                     {vehicle.serviceCount} services)
                   </span>
                 </FieldLabel>
-                <Combobox
-                  items={vehicleItems}
-                  value={selectedValue}
-                  onValueChange={(value) => {
-                    // Prevent infinite loop by checking if value actually changed
-                    const newSelected = !value
-                      ? null
-                      : userVehicles.find(
-                          (v) => getVehicleDisplayName(v) === value,
-                        );
-                    const newVehicleId = newSelected?._id || null;
-
-                    if (mapping?.vehicleId !== newVehicleId) {
-                      handleMappingChange(vehicle.name, newVehicleId);
-                    }
+                <NativeSelect
+                  value={selectedVehicleId}
+                  onChange={(e) => {
+                    const nextValue = e.target.value;
+                    handleMappingChange(
+                      vehicle.name,
+                      nextValue === '' ? null : nextValue,
+                    );
                   }}
                 >
-                  <ComboboxInput placeholder="Select vehicle or skip" />
-                  <ComboboxContent>
-                    <ComboboxEmpty>No vehicles found</ComboboxEmpty>
-                    <ComboboxList>
-                      {(item) => (
-                        <ComboboxItem key={item} value={item}>
-                          {item}
-                        </ComboboxItem>
-                      )}
-                    </ComboboxList>
-                  </ComboboxContent>
-                </Combobox>
+                  <NativeSelectOption value="">
+                    Select vehicle or skip
+                  </NativeSelectOption>
+                  {selectableVehicles.map((vehicle) => (
+                    <NativeSelectOption key={vehicle._id} value={vehicle._id}>
+                      {getVehicleDisplayName(vehicle)}
+                    </NativeSelectOption>
+                  ))}
+                </NativeSelect>
               </Field>
             );
           })}
