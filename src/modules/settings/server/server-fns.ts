@@ -270,6 +270,10 @@ const VehicleMappingsSchema = z.array(
   }),
 );
 
+export type ImportFuellyDataServerFnResult = Awaited<
+  ReturnType<typeof importFuellyDataServerFn>
+>;
+
 export const importFuellyDataServerFn = createServerFn({
   method: 'POST',
 })
@@ -534,7 +538,7 @@ export const importFuellyDataServerFn = createServerFn({
     let fuelEntriesImported = 0;
     if (processedFuelEntries.length > 0) {
       const [importError, result] = await tryCatch(
-        convexClient.mutation(api.import.importFuelEntries, {
+        convexClient.mutation(api.importFuellyData.importFuelEntries, {
           entries: processedFuelEntries,
         }),
       );
@@ -552,7 +556,7 @@ export const importFuellyDataServerFn = createServerFn({
     let servicesImported = 0;
     if (services.length > 0) {
       const [importError, result] = await tryCatch(
-        convexClient.mutation(api.import.importServices, {
+        convexClient.mutation(api.importFuellyData.importServices, {
           services,
         }),
       );

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, X, Loader2, FileText } from 'lucide-react';
+import { Upload, X, Loader2, FileText, AlertTriangle } from 'lucide-react';
 
 import { DrawerDialog } from '@/components/ui/dialog-drawer';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,8 @@ import { useMutation } from '@tanstack/react-query';
 import type { FuellyCsvPreview } from '../types';
 import { parseFuellyCsvPreviewServerFn } from '../server/server-fns';
 import { ImportFuellyConfirmationDialog } from './import-fuelly-confirmation-dialog';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { toast } from 'sonner';
 
 interface Props {
   open: boolean;
@@ -18,11 +20,7 @@ interface Props {
   onImportComplete?: () => void;
 }
 
-export function ImportFuellyDialog({
-  open,
-  onOpenChange,
-  onImportComplete,
-}: Props) {
+export function ImportFuellyDialog({ open, onOpenChange }: Props) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -112,7 +110,7 @@ export function ImportFuellyDialog({
     handleRemoveFile();
     setShowMappingDialog(false);
     onOpenChange(false);
-    onImportComplete?.();
+    toast.success('Fuelly data imported successfully');
   };
 
   return (
@@ -127,25 +125,36 @@ export function ImportFuellyDialog({
           }
         }}
         footerContent={
-          <div className="flex gap-2 w-full">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleCancel}
-              className="flex-1"
-              disabled={isParsing}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              onClick={handleParseCsv}
-              disabled={!selectedFile || isParsing}
-              loading={isParsing}
-              className="flex-1"
-            >
-              {isParsing ? 'Parsing...' : 'Continue'}
-            </Button>
+          <div className="w-full space-y-3">
+            <Alert variant="destructive">
+              <AlertTriangle className="size-4" />
+              <AlertTitle>Warning</AlertTitle>
+              <AlertDescription>
+                Importing data will delete all existing fuel entries and
+                services for the selected vehicles and replace them with the
+                data from your CSV file. This action cannot be undone.
+              </AlertDescription>
+            </Alert>
+            <div className="flex gap-2 w-full">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCancel}
+                className="flex-1"
+                disabled={isParsing}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                onClick={handleParseCsv}
+                disabled={!selectedFile || isParsing}
+                loading={isParsing}
+                className="flex-1"
+              >
+                {isParsing ? 'Parsing...' : 'Continue'}
+              </Button>
+            </div>
           </div>
         }
       >
@@ -164,7 +173,7 @@ export function ImportFuellyDialog({
                       Click to upload or drag and drop
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      CSV file up to 10MB
+                      CSV file up to 4MB
                     </p>
                   </div>
                 </div>

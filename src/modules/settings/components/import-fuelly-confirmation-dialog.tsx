@@ -1,8 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
-import { useConvexQuery } from '@convex-dev/react-query';
 import { useServerFn } from '@tanstack/react-start';
-import { useMutation } from '@tanstack/react-query';
-import { CheckCircle2, AlertCircle } from 'lucide-react';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 
 import { DrawerDialog } from '@/components/ui/dialog-drawer';
 import { Button } from '@/components/ui/button';
@@ -15,10 +13,13 @@ import {
   ComboboxList,
   ComboboxItem,
 } from '@/components/ui/combobox';
-import { api } from 'convex/_generated/api';
 
 import type { FuellyCsvPreview, VehicleMapping } from '../types';
 import { importFuellyDataServerFn } from '../server/server-fns';
+import { getAllVehiclesQueryOptions } from '@/api/query-options';
+import { getVehicleDisplayName } from '@/lib/utils';
+
+import { ImportFuellySuccessDialog } from './import-fuelly-success-dialog';
 
 interface Props {
   open: boolean;
@@ -35,6 +36,8 @@ export function ImportFuellyConfirmationDialog({
   csvPreview,
   onImportComplete,
 }: Props) {
+  const { data: userVehicles } = useSuspenseQuery(getAllVehiclesQueryOptions());
+
   const [mappings, setMappings] = useState<VehicleMapping[]>(() =>
     csvPreview.vehicles.map((v) => ({
       fuellyVehicleName: v.name,
@@ -42,18 +45,8 @@ export function ImportFuellyConfirmationDialog({
     })),
   );
 
-  const userVehiclesData = useConvexQuery(api.vehicles.getAll, {});
-  const userVehicles = useMemo(
-    () => userVehiclesData || [],
-    [userVehiclesData],
-  );
-
   const vehicleItems = useMemo(
-    () =>
-      userVehicles.map(
-        (v: (typeof userVehicles)[number]) =>
-          v.name || `${v.make} ${v.model} ${v.year}`,
-      ),
+    () => userVehicles.map(getVehicleDisplayName),
     [userVehicles],
   );
 
@@ -65,7 +58,7 @@ export function ImportFuellyConfirmationDialog({
   } = useMutation({
     mutationFn: importData,
     onSuccess: () => {
-      // Success is handled by showing the result
+      onImportComplete?.();
     },
   });
 
@@ -109,64 +102,11 @@ export function ImportFuellyConfirmationDialog({
 
   if (importResult) {
     return (
-      <DrawerDialog
-        title="Import Complete"
-        description="Fuelly data has been imported"
+      <ImportFuellySuccessDialog
         open={open}
         onOpenChange={onOpenChange}
-        footerContent={
-          <Button
-            type="button"
-            onClick={() => {
-              onImportComplete?.();
-              onOpenChange(false);
-            }}
-            className="w-full"
-          >
-            Done
-          </Button>
-        }
-      >
-        <div className="space-y-4">
-          <div className="flex items-center gap-3 text-green-600 dark:text-green-400">
-            <CheckCircle2 className="size-5" />
-            <p className="font-medium">Import completed successfully</p>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">
-                Fuel Entries:
-              </span>
-              <span className="text-sm font-medium">
-                {importResult.fuelEntriesImported} imported
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Services:</span>
-              <span className="text-sm font-medium">
-                {importResult.servicesImported} imported
-              </span>
-            </div>
-          </div>
-
-          {importResult.errors.length > 0 && (
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
-                <AlertCircle className="size-4" />
-                <p className="text-sm font-medium">Warnings:</p>
-              </div>
-              <div className="max-h-32 overflow-y-auto space-y-1">
-                {importResult.errors.map((error, index) => (
-                  <p key={index} className="text-xs text-muted-foreground">
-                    {error}
-                  </p>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </DrawerDialog>
+        result={importResult}
+      />
     );
   }
 
@@ -231,14 +171,10 @@ export function ImportFuellyConfirmationDialog({
                     const newSelected = !value
                       ? null
                       : userVehicles.find(
-                          (v: (typeof userVehicles)[number]) =>
-                            (v.name && v.name === value) ||
-                            (!v.name &&
-                              `${v.make} ${v.model} ${v.year}` === value),
+                          (v) => getVehicleDisplayName(v) === value,
                         );
                     const newVehicleId = newSelected?._id || null;
 
-                    // Only update if the vehicle ID actually changed
                     if (mapping?.vehicleId !== newVehicleId) {
                       handleMappingChange(vehicle.name, newVehicleId);
                     }
