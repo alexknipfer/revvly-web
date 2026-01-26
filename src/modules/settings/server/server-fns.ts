@@ -1,5 +1,4 @@
 import { createServerFn } from '@tanstack/react-start';
-import z from 'zod';
 import dayjs from 'dayjs';
 
 import { api } from 'convex/_generated/api';
@@ -8,7 +7,6 @@ import { getAuthConvexClient } from '@/lib/auth';
 import { captureException } from '@/lib/logger';
 import { appendSentryUser } from '@/middleware/append-sentry-user';
 
-import type { FuellyCsvPreview, VehicleMapping, ImportSummary } from '../types';
 import type { Id } from 'convex/_generated/dataModel';
 import {
   FuellyFuelEntryImport,
@@ -17,6 +15,11 @@ import {
   fuelTypeSchema,
 } from '@/types/fuel-entry';
 import { MAX_SERVER_FUNC_ATTACHMENT_SIZE } from '@/lib/constants';
+
+import {
+  FuellyImportVehicleMapping,
+  fuellyImportVehicleMappingSchema,
+} from '../schemas/fuelly-import';
 
 const requiredHeaders = [
   'type',
@@ -137,6 +140,10 @@ function parseDateTime(dateStr: string, timeStr: string): string {
   }
 }
 
+export type FuellyCsvPreviewServerFnResult = Awaited<
+  ReturnType<typeof parseFuellyCsvPreviewServerFn>
+>;
+
 export const parseFuellyCsvPreviewServerFn = createServerFn({
   method: 'POST',
 })
@@ -248,27 +255,20 @@ export const parseFuellyCsvPreviewServerFn = createServerFn({
       }
     }
 
-    const vehicles: FuellyCsvPreview['vehicles'] = Array.from(
-      vehicleCounts.entries(),
-    ).map(([name, counts]) => ({
-      name,
-      fuelEntryCount: counts.fuelEntries,
-      serviceCount: counts.services,
-    }));
+    const vehicles = Array.from(vehicleCounts.entries()).map(
+      ([name, counts]) => ({
+        name,
+        fuelEntryCount: counts.fuelEntries,
+        serviceCount: counts.services,
+      }),
+    );
 
     return {
       vehicles,
       totalFuelEntries,
       totalServices,
-    } satisfies FuellyCsvPreview;
+    };
   });
-
-const VehicleMappingsSchema = z.array(
-  z.object({
-    fuellyVehicleName: z.string(),
-    vehicleId: z.string().nullable(),
-  }),
-);
 
 export type ImportFuellyDataServerFnResult = Awaited<
   ReturnType<typeof importFuellyDataServerFn>
@@ -304,10 +304,10 @@ export const importFuellyDataServerFn = createServerFn({
       throw new Error('Vehicle mappings are required');
     }
 
-    let mappings: VehicleMapping[];
+    let mappings: Array<FuellyImportVehicleMapping>;
     try {
       const parsed = JSON.parse(mappingsStr);
-      mappings = VehicleMappingsSchema.parse(parsed);
+      mappings = fuellyImportVehicleMappingSchema.array().parse(parsed);
     } catch {
       throw new Error('Invalid vehicle mappings format');
     }
@@ -575,5 +575,5 @@ export const importFuellyDataServerFn = createServerFn({
       fuelEntriesImported,
       servicesImported,
       errors,
-    } satisfies ImportSummary;
+    };
   });

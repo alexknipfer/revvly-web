@@ -14,18 +14,21 @@ import {
   ComboboxItem,
 } from '@/components/ui/combobox';
 
-import type { FuellyCsvPreview, VehicleMapping } from '../types';
-import { importFuellyDataServerFn } from '../server/server-fns';
+import {
+  FuellyCsvPreviewServerFnResult,
+  importFuellyDataServerFn,
+} from '../server/server-fns';
 import { getAllVehiclesQueryOptions } from '@/api/query-options';
 import { getVehicleDisplayName } from '@/lib/utils';
 
 import { ImportFuellySuccessDialog } from './import-fuelly-success-dialog';
+import { FuellyImportVehicleMapping } from '../schemas/fuelly-import';
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   csvFile: File;
-  csvPreview: FuellyCsvPreview;
+  csvPreview: FuellyCsvPreviewServerFnResult;
   onImportComplete?: () => void;
 }
 
@@ -38,11 +41,12 @@ export function ImportFuellyConfirmationDialog({
 }: Props) {
   const { data: userVehicles } = useSuspenseQuery(getAllVehiclesQueryOptions());
 
-  const [mappings, setMappings] = useState<VehicleMapping[]>(() =>
-    csvPreview.vehicles.map((v) => ({
-      fuellyVehicleName: v.name,
-      vehicleId: null,
-    })),
+  const [mappings, setMappings] = useState<Array<FuellyImportVehicleMapping>>(
+    () =>
+      csvPreview.vehicles.map((v) => ({
+        fuellyVehicleName: v.name,
+        vehicleId: null,
+      })),
   );
 
   const vehicleItems = useMemo(

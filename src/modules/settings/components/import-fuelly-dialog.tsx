@@ -8,8 +8,10 @@ import { Field, FieldError } from '@/components/ui/field';
 import { useServerFn } from '@tanstack/react-start';
 import { useMutation } from '@tanstack/react-query';
 
-import type { FuellyCsvPreview } from '../types';
-import { parseFuellyCsvPreviewServerFn } from '../server/server-fns';
+import {
+  FuellyCsvPreviewServerFnResult,
+  parseFuellyCsvPreviewServerFn,
+} from '../server/server-fns';
 import { ImportFuellyConfirmationDialog } from './import-fuelly-confirmation-dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { toast } from 'sonner';
@@ -24,7 +26,8 @@ export function ImportFuellyDialog({ open, onOpenChange }: Props) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [csvPreview, setCsvPreview] = useState<FuellyCsvPreview | null>(null);
+  const [csvPreview, setCsvPreview] =
+    useState<FuellyCsvPreviewServerFnResult | null>(null);
   const [showMappingDialog, setShowMappingDialog] = useState(false);
 
   const handleRemoveFile = () => {
