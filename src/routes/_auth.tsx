@@ -7,7 +7,6 @@ import {
   useLocation,
 } from '@tanstack/react-router';
 import * as Sentry from '@sentry/tanstackstart-react';
-import { convexQuery } from '@convex-dev/react-query';
 import { Car, Check, CirclePlus, EllipsisVertical } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { auth } from '@clerk/tanstack-react-start/server';
@@ -15,7 +14,6 @@ import { createServerFn } from '@tanstack/react-start';
 import { useSuspenseQuery } from '@tanstack/react-query';
 
 import { Toaster } from '@/components/ui/sonner';
-import { api } from 'convex/_generated/api';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -26,6 +24,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { AddVehicleDialog } from '@/modules/add-vehicle/components/add-vehicle-dialog';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { getAllVehiclesQueryOptions } from '@/api/query-options';
 
 const fetchClerkAuth = createServerFn({ method: 'GET' }).handler(async () => {
   const authResponse = await auth();
@@ -71,15 +70,13 @@ export const Route = createFileRoute('/_auth')({
     };
   },
   loader: ({ context }) => {
-    context.queryClient.prefetchQuery(convexQuery(api.vehicles.getAll, {}));
+    context.queryClient.prefetchQuery(getAllVehiclesQueryOptions());
   },
 });
 
 function RouteComponent() {
   const { userId } = Route.useRouteContext();
-  const { data: vehicles } = useSuspenseQuery(
-    convexQuery(api.vehicles.getAll, {}),
-  );
+  const { data: vehicles } = useSuspenseQuery(getAllVehiclesQueryOptions());
 
   const [addVehicleOpen, setAddVehicleOpen] = useState(false);
   const location = useLocation();
@@ -125,7 +122,7 @@ function RouteComponent() {
                     <Link
                       to={`/vehicles/$vehicleId`}
                       params={{ vehicleId: vehicle._id }}
-                      className="flex items-center gap-3 cursor-pointer w-full"
+                      className="flex items-center gap-3"
                     >
                       <div className="flex size-9 items-center justify-center rounded-full bg-mute">
                         {vehicle.imageUrl ? (
@@ -159,7 +156,11 @@ function RouteComponent() {
               ))}
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                className="flex items-center justify-between gap-3 text-xs cursor-pointer text-muted-foreground"
+                className="text-muted-foreground"
+                render={<Link to="/settings">Settings</Link>}
+              ></DropdownMenuItem>
+              <DropdownMenuItem
+                className="flex items-center justify-between gap-3 text-xs text-muted-foreground"
                 onClick={() => setAddVehicleOpen(true)}
               >
                 <span>Add Vehicle</span>
