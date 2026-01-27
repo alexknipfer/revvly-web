@@ -21,7 +21,7 @@ import {
   ItemDescription,
   ItemTitle,
 } from '@/components/ui/item';
-import { servicesOptions } from '@/api/query-options';
+import { servicesQueryOptions } from '@/api/query-options';
 
 import { Doc } from 'convex/_generated/dataModel';
 
@@ -43,7 +43,7 @@ export function ServiceTimeline() {
 function ServiceTimelineContent() {
   const { vehicleId } = routeApi.useParams();
 
-  const { data: services } = useSuspenseQuery(servicesOptions(vehicleId));
+  const { data: services } = useSuspenseQuery(servicesQueryOptions(vehicleId));
 
   const timelineItems = useMemo(() => {
     return services.map((service) => ({

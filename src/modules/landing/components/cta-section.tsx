@@ -2,8 +2,8 @@ import { Button } from '@/components/ui/button';
 
 import { Sparkles } from 'lucide-react';
 
-import { BadgePill } from './badge-pill';
-import { CornerAccents } from './corner-accents';
+import { BadgePill } from '../../../components/ui/badge-pill';
+import { CornerAccents } from '../../../components/corner-accents';
 import { LandingSection } from './landing-section';
 import { SignInToVehiclesButton } from './sign-in-to-vehicles-button';
 
@@ -11,12 +11,7 @@ export function CtaSection() {
   return (
     <LandingSection containerClassName="max-w-4xl">
       <div className="border border-border p-8 md:p-10 bg-card/50 backdrop-blur-sm text-center relative overflow-hidden">
-        <CornerAccents
-          topLeftClassName="w-8 h-8 border-t border-l border-indigo-600/50 dark:border-indigo-400/50"
-          topRightClassName="w-8 h-8 border-t border-r border-violet-600/50 dark:border-violet-400/50"
-          bottomLeftClassName="w-8 h-8 border-b border-l border-blue-600/50 dark:border-blue-400/50"
-          bottomRightClassName="w-8 h-8 border-b border-r border-indigo-600/50 dark:border-indigo-400/50"
-        />
+        <CornerAccents />
 
         <BadgePill className="border-indigo-400/30 bg-indigo-400/10 dark:bg-indigo-400/10 mb-4">
           <Sparkles className="h-3 w-3 text-indigo-600 dark:text-indigo-400" />

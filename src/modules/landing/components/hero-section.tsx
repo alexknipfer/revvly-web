@@ -11,8 +11,8 @@ import {
 
 import { Button } from '@/components/ui/button';
 
-import { BadgePill } from './badge-pill';
-import { CornerAccents } from './corner-accents';
+import { BadgePill } from '../../../components/ui/badge-pill';
+import { CornerAccents } from '../../../components/corner-accents';
 import { LandingContainer } from './landing-container';
 import { SignInToVehiclesButton } from './sign-in-to-vehicles-button';
 
@@ -28,22 +28,7 @@ export function HeroSection() {
     <section className="relative pt-10 pb-16 px-6">
       <LandingContainer>
         <div className="border border-border p-8 md:p-10 bg-card/50 backdrop-blur-sm relative overflow-hidden">
-          {/* Animated border glow */}
-          <div className="absolute inset-0 opacity-50">
-            <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-indigo-600 dark:via-indigo-400 to-transparent animate-pulse" />
-            <div className="absolute bottom-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-violet-600 dark:via-violet-400 to-transparent animate-pulse delay-1000" />
-            <div className="absolute top-0 bottom-0 left-0 w-px bg-linear-to-b from-transparent via-blue-600 dark:via-blue-400 to-transparent animate-pulse delay-2000" />
-            <div className="absolute top-0 bottom-0 right-0 w-px bg-linear-to-b from-transparent via-indigo-600 dark:via-indigo-400 to-transparent animate-pulse" />
-          </div>
-
-          {/* Corner brackets */}
-          <CornerAccents
-            topLeftClassName="w-6 h-6 border-t-2 border-l-2 border-indigo-600 dark:border-indigo-400"
-            topRightClassName="w-6 h-6 border-t-2 border-r-2 border-violet-600 dark:border-violet-400"
-            bottomLeftClassName="w-6 h-6 border-b-2 border-l-2 border-blue-600 dark:border-blue-400"
-            bottomRightClassName="w-6 h-6 border-b-2 border-r-2 border-indigo-600 dark:border-indigo-400"
-          />
-
+          <CornerAccents />
           <div className="text-center relative z-10">
             {/* Status badges row */}
             <div className="flex items-center justify-center gap-3 mb-6 flex-wrap">
