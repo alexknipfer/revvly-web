@@ -172,8 +172,12 @@ function RouteComponent() {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="text-muted-foreground"
+                render={<Link to="/account">Account</Link>}
+              />
+              <DropdownMenuItem
+                className="text-muted-foreground"
                 render={<Link to="/settings">Settings</Link>}
-              ></DropdownMenuItem>
+              />
               <DropdownMenuItem
                 className="flex items-center justify-between gap-3 text-xs text-muted-foreground"
                 onClick={() => setAddVehicleOpen(true)}

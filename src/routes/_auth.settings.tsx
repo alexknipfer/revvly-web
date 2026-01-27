@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { createFileRoute } from '@tanstack/react-router';
+import { UserProfile } from '@clerk/tanstack-react-start';
 
 import {
   Card,
@@ -19,7 +20,7 @@ function RouteComponent() {
   const [importDialogOpen, setImportDialogOpen] = useState(false);
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold text-primary sr-only sm:not-sr-only sm:mb-4">
         Settings
       </h1>
