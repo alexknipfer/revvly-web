@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthSettingsRouteImport } from './routes/_auth.settings'
+import { Route as AuthAccountRouteImport } from './routes/_auth.account'
 import { Route as AuthVehiclesIndexRouteImport } from './routes/_auth.vehicles.index'
 import { Route as AuthVehiclesVehicleIdRouteRouteImport } from './routes/_auth.vehicles.$vehicleId.route'
 import { Route as AuthVehiclesVehicleIdIndexRouteImport } from './routes/_auth.vehicles.$vehicleId.index'
@@ -32,6 +33,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthSettingsRoute = AuthSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthAccountRoute = AuthAccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthVehiclesIndexRoute = AuthVehiclesIndexRouteImport.update({
@@ -78,6 +84,7 @@ const AuthVehiclesVehicleIdFuelentryFuelEntryIdEditRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account': typeof AuthAccountRoute
   '/settings': typeof AuthSettingsRoute
   '/vehicles/$vehicleId': typeof AuthVehiclesVehicleIdRouteRouteWithChildren
   '/vehicles/': typeof AuthVehiclesIndexRoute
@@ -89,6 +96,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account': typeof AuthAccountRoute
   '/settings': typeof AuthSettingsRoute
   '/vehicles': typeof AuthVehiclesIndexRoute
   '/vehicles/$vehicleId': typeof AuthVehiclesVehicleIdIndexRoute
@@ -101,6 +109,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_auth': typeof AuthRouteWithChildren
+  '/_auth/account': typeof AuthAccountRoute
   '/_auth/settings': typeof AuthSettingsRoute
   '/_auth/vehicles/$vehicleId': typeof AuthVehiclesVehicleIdRouteRouteWithChildren
   '/_auth/vehicles/': typeof AuthVehiclesIndexRoute
@@ -114,6 +123,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/account'
     | '/settings'
     | '/vehicles/$vehicleId'
     | '/vehicles/'
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/account'
     | '/settings'
     | '/vehicles'
     | '/vehicles/$vehicleId'
@@ -136,6 +147,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_auth'
+    | '/_auth/account'
     | '/_auth/settings'
     | '/_auth/vehicles/$vehicleId'
     | '/_auth/vehicles/'
@@ -172,6 +184,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof AuthSettingsRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/account': {
+      id: '/_auth/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AuthAccountRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/vehicles/': {
@@ -253,12 +272,14 @@ const AuthVehiclesVehicleIdRouteRouteWithChildren =
   )
 
 interface AuthRouteChildren {
+  AuthAccountRoute: typeof AuthAccountRoute
   AuthSettingsRoute: typeof AuthSettingsRoute
   AuthVehiclesVehicleIdRouteRoute: typeof AuthVehiclesVehicleIdRouteRouteWithChildren
   AuthVehiclesIndexRoute: typeof AuthVehiclesIndexRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
+  AuthAccountRoute: AuthAccountRoute,
   AuthSettingsRoute: AuthSettingsRoute,
   AuthVehiclesVehicleIdRouteRoute: AuthVehiclesVehicleIdRouteRouteWithChildren,
   AuthVehiclesIndexRoute: AuthVehiclesIndexRoute,
