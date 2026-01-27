@@ -67,36 +67,33 @@ function RouteComponent() {
   return (
     <div className="space-y-6">
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="space-y-4">
-          <div className="flex flex-col md:grid md:grid-cols-[auto_1fr] gap-4 items-start">
-            <div className="w-full md:w-48 rounded-lg overflow-hidden border shadow-sm shrink-0">
-              <VehicleImage vehicle={vehicle}>
-                <VehicleImage.Upload />
-              </VehicleImage>
-            </div>
-            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 min-w-0 w-full">
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-2 mb-1">
-                  <h1 className="text-2xl md:text-3xl font-bold">
-                    {vehicle.name || vehicle.model}
-                  </h1>
-                  <div className="flex md:hidden gap-2 shrink-0">
-                    <ManageVehicleMenu />
-                    <VehicleActionsMenu />
-                  </div>
+        <div className="flex flex-col md:grid md:grid-cols-[auto_1fr] gap-4 items-start">
+          <div className="w-full md:w-48 rounded-lg overflow-hidden border shadow-sm shrink-0">
+            <VehicleImage vehicle={vehicle}>
+              <VehicleImage.Upload />
+            </VehicleImage>
+          </div>
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 min-w-0 w-full">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between gap-2 mb-1">
+                <h1 className="text-2xl md:text-3xl font-bold">
+                  {vehicle.name || vehicle.model}
+                </h1>
+                <div className="flex md:hidden gap-2 shrink-0">
+                  <ManageVehicleMenu />
+                  <VehicleActionsMenu />
                 </div>
-                <p className="text-muted-foreground text-base md:text-lg mb-3 md:mb-4">
-                  {vehicle.make} {vehicle.model} {vehicle.year}
-                </p>
               </div>
-              <div className="hidden md:flex gap-x-2 shrink-0">
-                <ManageVehicleMenu />
-                <VehicleActionsMenu />
-              </div>
+              <p className="text-muted-foreground text-lg">
+                {vehicle.make} {vehicle.model} {vehicle.year}
+              </p>
+            </div>
+            <div className="hidden md:flex gap-x-2 shrink-0">
+              <ManageVehicleMenu />
+              <VehicleActionsMenu />
             </div>
           </div>
         </div>
-        <VehicleAnalytics />
         <Tabs
           value={activeTab}
           onValueChange={(value) =>
@@ -104,6 +101,7 @@ function RouteComponent() {
               search: {
                 activeTab: value as 'overview' | 'fuel-logs' | 'service-logs',
               },
+              resetScroll: false,
             })
           }
           className="w-full"
@@ -113,7 +111,8 @@ function RouteComponent() {
             <TabsTrigger value="fuel-logs">Fuel Logs</TabsTrigger>
             <TabsTrigger value="service-logs">Service Logs</TabsTrigger>
           </TabsList>
-          <TabsContent value="overview" className="mt-6">
+          <TabsContent value="overview" className="space-y-4">
+            <VehicleAnalytics />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <MpgTrendChart />
               <FuelCostChart />
