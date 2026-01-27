@@ -2,62 +2,101 @@ import { z } from 'zod';
 import { ConvexError } from 'convex/values';
 import { zid } from 'convex-helpers/server/zod4';
 
-import { QueryCtx } from './_generated/server';
 import { requireAuth, verifyVerhicleOwnership } from './utils/auth';
-import { Id } from './_generated/dataModel';
 import { zMutation, zQuery } from './utils/zod';
 
-async function calculateVehicleTotals(
-  ctx: QueryCtx,
-  vehicleId: Id<'vehicles'>,
-  userId: string,
-) {
-  const entries = await ctx.db
-    .query('fuel_entries')
-    .withIndex('by_userid_vehicleid', (q) =>
-      q.eq('userId', userId).eq('vehicleId', vehicleId),
-    )
-    .order('asc')
-    .collect();
+export const getVehicleAnalytics = zQuery({
+  args: {
+    id: zid('vehicles'),
+  },
+  handler: async (ctx, { id }) => {
+    const identity = await requireAuth(ctx);
 
-  const sortedEntries = [...entries].sort((a, b) => a.odometer - b.odometer);
+    const vehicle = await ctx.db.get(id);
 
-  let totalGallonsUsed = 0;
-  let totalMilesTracked = 0;
-  let gallonsForMpgCalculation = 0;
+    if (!vehicle) {
+      throw new ConvexError({ message: 'Vehicle not found' });
+    }
 
-  for (let i = 0; i < sortedEntries.length; i++) {
-    const entry = sortedEntries[i];
-    totalGallonsUsed += entry.totalGallons;
+    if (vehicle.userId !== identity.subject) {
+      throw new ConvexError({
+        message: 'You can only view your own vehicles.',
+      });
+    }
 
-    // MPG calculation: only entries after the first one contribute to miles tracked
-    if (i > 0) {
-      const previousEntry = sortedEntries[i - 1];
-      const miles = entry.odometer - previousEntry.odometer;
+    const fuelEntries = await ctx.db
+      .query('fuel_entries')
+      .withIndex('by_userid_vehicleid', (q) =>
+        q.eq('userId', identity.subject).eq('vehicleId', id),
+      )
+      .order('asc')
+      .collect();
 
-      if (miles > 0 && entry.mpg) {
-        totalMilesTracked += miles;
-        // Only count gallons from entries that have MPG (i.e., not the first entry)
-        gallonsForMpgCalculation += entry.totalGallons;
+    const services = await ctx.db
+      .query('services')
+      .withIndex('by_userid_vehicleid', (q) =>
+        q.eq('userId', identity.subject).eq('vehicleId', id),
+      )
+      .collect();
+
+    const sortedEntries = [...fuelEntries].sort(
+      (a, b) => a.odometer - b.odometer,
+    );
+
+    let totalGallonsUsed = 0;
+    let totalMilesTracked = 0;
+    let gallonsForMpgCalculation = 0;
+    let totalFuelCost = 0;
+    const mpgValues: number[] = [];
+
+    for (let i = 0; i < sortedEntries.length; i++) {
+      const entry = sortedEntries[i];
+      totalGallonsUsed += entry.totalGallons;
+      totalFuelCost += entry.totalCost || 0;
+
+      // MPG calculation: only entries after the first one contribute to miles tracked
+      if (i > 0) {
+        const previousEntry = sortedEntries[i - 1];
+        const miles = entry.odometer - previousEntry.odometer;
+
+        if (miles > 0 && entry.mpg) {
+          totalMilesTracked += miles;
+          gallonsForMpgCalculation += entry.totalGallons;
+          mpgValues.push(entry.mpg);
+        }
       }
     }
-  }
 
-  const averageMpg =
-    gallonsForMpgCalculation > 0
-      ? totalMilesTracked / gallonsForMpgCalculation
-      : 0;
+    const averageMpg =
+      gallonsForMpgCalculation > 0
+        ? totalMilesTracked / gallonsForMpgCalculation
+        : 0;
 
-  return {
-    totalGallonsUsed,
-    totalMilesTracked,
-    averageMpg,
-    latestOdometer:
-      sortedEntries.length > 0
-        ? sortedEntries[sortedEntries.length - 1].odometer
-        : null,
-  };
-}
+    const lowestMpg = mpgValues.length > 0 ? Math.min(...mpgValues) : null;
+    const bestMpg = mpgValues.length > 0 ? Math.max(...mpgValues) : null;
+
+    const totalServiceCost = services.reduce(
+      (sum, service) => sum + service.cost,
+      0,
+    );
+
+    return {
+      totalGallonsUsed,
+      totalMilesTracked,
+      averageMpg,
+      lowestMpg,
+      bestMpg,
+      totalFuelCost,
+      fuelLogCount: fuelEntries.length,
+      serviceLogCount: services.length,
+      totalServiceCost,
+      latestOdometer:
+        sortedEntries.length > 0
+          ? sortedEntries[sortedEntries.length - 1].odometer
+          : null,
+    };
+  },
+});
 
 export const create = zMutation({
   args: {
@@ -137,12 +176,6 @@ export const getById = zQuery({
       });
     }
 
-    const totals = await calculateVehicleTotals(
-      ctx,
-      vehicle._id,
-      identity.subject,
-    );
-
     const imageUrl = vehicle.imageStorageId
       ? await ctx.storage.getUrl(vehicle.imageStorageId)
       : null;
@@ -150,7 +183,6 @@ export const getById = zQuery({
     return {
       ...vehicle,
       imageUrl,
-      ...totals,
     };
   },
 });
