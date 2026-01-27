@@ -1,17 +1,26 @@
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
+import { CornerAccents } from '@/components/corner-accents';
 
-function Card({ className, ...props }: React.ComponentProps<'div'>) {
+function Card({
+  className,
+  includeCornerAccents,
+  ...props
+}: React.ComponentProps<'div'> & { includeCornerAccents?: boolean }) {
   return (
     <div
       data-slot="card"
       className={cn(
         'bg-card text-card-foreground flex flex-col gap-3 rounded-none border border-border backdrop-blur-sm py-6 shadow-sm',
+        includeCornerAccents && 'relative',
         className,
       )}
       {...props}
-    />
+    >
+      {includeCornerAccents && <CornerAccents />}
+      {props.children}
+    </div>
   );
 }
 
