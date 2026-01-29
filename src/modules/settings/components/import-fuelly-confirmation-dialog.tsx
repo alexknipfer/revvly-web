@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useServerFn } from '@tanstack/react-start';
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 import { DrawerDialog } from '@/components/ui/dialog-drawer';
 import { Button } from '@/components/ui/button';
@@ -60,8 +61,12 @@ export function ImportFuellyConfirmationDialog({
     data: importResult,
   } = useMutation({
     mutationFn: importData,
-    onSuccess: () => {
-      onImportComplete?.();
+    onSuccess: (result) => {
+      if (result.errors.length > 0) {
+        toast.error('Failed to import Fuelly data');
+      } else {
+        onImportComplete?.();
+      }
     },
   });
 

@@ -1,17 +1,16 @@
-import { useForm } from '@tanstack/react-form';
+import z from 'zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { getRouteApi } from '@tanstack/react-router';
 import { useConvexMutation } from '@convex-dev/react-query';
 
 import { DrawerDialog } from '@/components/ui/dialog-drawer';
-import z from 'zod';
 import { api } from 'convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
 import { defaultTo } from '@/lib/utils';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { vehicleByIdQueryOptions } from '@/api/query-options';
+import { useAppForm } from '@/hooks/use-form';
+import { FuelType, fuelTypeSchema } from '@/types/fuel-entry';
 
 interface Props {
   open: boolean;
@@ -24,6 +23,7 @@ const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
 const formSchema = z.object({
   name: z.string(),
   plate: z.string().min(1),
+  defaultFuelType: fuelTypeSchema,
 });
 
 export function EditVehicleDialog({ open, onOpenChange, onSuccess }: Props) {
@@ -31,10 +31,11 @@ export function EditVehicleDialog({ open, onOpenChange, onSuccess }: Props) {
 
   const { data: vehicle } = useQuery(vehicleByIdQueryOptions({ vehicleId }));
 
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: {
       name: defaultTo(vehicle?.name, ''),
       plate: defaultTo(vehicle?.plate, ''),
+      defaultFuelType: defaultTo(vehicle?.defaultFuelType, '') as FuelType,
     },
     validators: {
       onSubmit: formSchema,
@@ -73,54 +74,36 @@ export function EditVehicleDialog({ open, onOpenChange, onSuccess }: Props) {
         }}
         className="space-y-5"
       >
-        <form.Field
-          name="name"
-          children={(field) => {
-            const isInvalid =
-              field.state.meta.isTouched && !field.state.meta.isValid;
-
-            return (
-              <Field data-invalid={isInvalid}>
-                <FieldLabel htmlFor={field.name}>Name</FieldLabel>
-                <Input
-                  name={field.name}
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-                {isInvalid && <FieldError errors={field.state.meta.errors} />}
-              </Field>
-            );
-          }}
-        />
-        <form.Field
-          name="plate"
-          children={(field) => {
-            const isInvalid =
-              field.state.meta.isTouched && !field.state.meta.isValid;
-
-            return (
-              <Field data-invalid={isInvalid}>
-                <FieldLabel htmlFor={field.name}>Plate *</FieldLabel>
-                <Input
-                  name={field.name}
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-                {isInvalid && <FieldError errors={field.state.meta.errors} />}
-              </Field>
-            );
-          }}
-        />
-        <div className="flex justify-end gap-x-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-          >
-            Cancel
-          </Button>
-          <Button type="submit">Update Vehicle</Button>
-        </div>
+        <form.AppForm>
+          <form.AppField name="name">
+            {(field) => <field.FormInput label="Name" />}
+          </form.AppField>
+          <form.AppField name="plate">
+            {(field) => <field.FormInput label="Plate" />}
+          </form.AppField>
+          <form.AppField name="defaultFuelType">
+            {(field) => (
+              <field.FormNativeSelect
+                label="Default Fuel Type"
+                description="This will be the default fuel type for new fuel entries."
+                items={fuelTypeSchema.options.map((option) => ({
+                  value: option,
+                  label: option,
+                }))}
+              />
+            )}
+          </form.AppField>
+          <div className="flex justify-end gap-x-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit">Update Vehicle</Button>
+          </div>
+        </form.AppForm>
       </form>
     </DrawerDialog>
   );

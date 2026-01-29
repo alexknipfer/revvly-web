@@ -6,7 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { useGeoLocation } from '@/hooks/use-geo-location';
-import { fuelTypeSchema, fuelLevelSchema } from '@/types/fuel-entry';
+import {
+  fuelTypeSchema,
+  fuelLevelSchema,
+  FuelType,
+  FuelLevel,
+} from '@/types/fuel-entry';
 import { withFieldGroup, useFieldContext } from '@/hooks/use-form';
 
 import { NearbyGasStationDialog } from './nearby-gas-station-dialog';
@@ -20,8 +25,8 @@ type FuelEntryFields = {
   costPerGallon: string;
   totalGallons: string;
   missedFuelup: boolean;
-  type: 'regular' | 'premium' | 'diesel' | 'e85';
-  level: 'full' | 'partial';
+  type: FuelType;
+  level: FuelLevel;
   location: string;
   notes: string;
 };
@@ -33,8 +38,8 @@ const defaultValues: FuelEntryFields = {
   totalGallons: '',
   location: '',
   notes: '',
-  type: 'regular',
-  level: 'full',
+  type: 'Regular (Octane 87)',
+  level: 'Full',
   missedFuelup: false,
 };
 

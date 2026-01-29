@@ -4,6 +4,7 @@ import { zid } from 'convex-helpers/server/zod4';
 
 import { requireAuth, verifyVerhicleOwnership } from './utils/auth';
 import { zMutation, zQuery } from './utils/zod';
+import { fuelTypeSchema } from '../src/types/fuel-entry';
 
 export const getVehicleAnalytics = zQuery({
   args: {
@@ -193,6 +194,7 @@ export const update = zMutation({
     update: z.object({
       name: z.string().optional(),
       plate: z.string().optional(),
+      defaultFuelType: fuelTypeSchema.optional(),
       imageStorageId: zid('_storage').optional(),
     }),
   },

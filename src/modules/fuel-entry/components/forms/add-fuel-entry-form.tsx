@@ -1,6 +1,6 @@
 import z from 'zod';
 import { useConvexMutation } from '@convex-dev/react-query';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { getRouteApi } from '@tanstack/react-router';
 
 import { useAppForm } from '@/hooks/use-form';
@@ -8,6 +8,8 @@ import { api } from 'convex/_generated/api';
 import { defaultTo } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Id } from 'convex/_generated/dataModel';
+import { vehicleByIdQueryOptions } from '@/api/query-options';
+import { FuelType } from '@/types/fuel-entry';
 
 import { FuelEntryFieldGroup } from '../fuel-entry-field-group';
 import { UploadReceiptDialog } from '../upload-receipt-dialog';
@@ -28,9 +30,15 @@ interface Props {
 
 export function AddFuelEntryForm({ onSuccess }: Props) {
   const { vehicleId } = routeApi.useParams();
+  const { data: vehicle } = useSuspenseQuery(
+    vehicleByIdQueryOptions({ vehicleId }),
+  );
   const form = useAppForm({
     defaultValues: {
-      fuelEntryFields: fuelEntryFormDefaultValues,
+      fuelEntryFields: {
+        ...fuelEntryFormDefaultValues,
+        type: defaultTo(vehicle?.defaultFuelType, '') as FuelType,
+      },
     },
     validators: {
       onSubmit: formSchema,
@@ -87,10 +95,7 @@ export function AddFuelEntryForm({ onSuccess }: Props) {
               );
 
               if (data.typeOfFuel) {
-                form.setFieldValue(
-                  'fuelEntryFields.type',
-                  data.typeOfFuel as 'regular' | 'premium' | 'diesel' | 'e85',
-                );
+                form.setFieldValue('fuelEntryFields.type', data.typeOfFuel);
               }
             }}
           />

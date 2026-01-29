@@ -3,7 +3,12 @@ import { ChevronDownIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { useFieldContext } from '@/hooks/use-form';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 
 function NativeSelect({
   className,
@@ -58,6 +63,7 @@ interface FormNativeSelectProps {
   className?: string;
   disabled?: boolean;
   emptyOptionLabel?: string;
+  description?: string;
 }
 
 function FormNativeSelect({
@@ -66,6 +72,7 @@ function FormNativeSelect({
   items,
   disabled,
   emptyOptionLabel = 'Select an option',
+  description,
 }: FormNativeSelectProps) {
   const field = useFieldContext<string>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
@@ -89,6 +96,7 @@ function FormNativeSelect({
           </NativeSelectOption>
         ))}
       </NativeSelect>
+      <FieldDescription>{description}</FieldDescription>
       {isInvalid && <FieldError errors={field.state.meta.errors} />}
     </Field>
   );
