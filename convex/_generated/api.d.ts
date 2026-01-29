@@ -15,6 +15,8 @@ import type * as migrations from "../migrations.js";
 import type * as services from "../services.js";
 import type * as services_validators from "../services/validators.js";
 import type * as storage from "../storage.js";
+import type * as users from "../users.js";
+import type * as users_validators from "../users/validators.js";
 import type * as utils_auth from "../utils/auth.js";
 import type * as utils_zod from "../utils/zod.js";
 import type * as vehicles from "../vehicles.js";
@@ -34,6 +36,8 @@ declare const fullApi: ApiFromModules<{
   services: typeof services;
   "services/validators": typeof services_validators;
   storage: typeof storage;
+  users: typeof users;
+  "users/validators": typeof users_validators;
   "utils/auth": typeof utils_auth;
   "utils/zod": typeof utils_zod;
   vehicles: typeof vehicles;
