@@ -21,6 +21,7 @@
   "description": "",
   "dependencies": {
     "@base-ui/react": "^1.1.0",
+    "@clerk/backend": "^2.29.6",
     "@clerk/tanstack-react-start": "^0.27.17",
     "@convex-dev/migrations": "^0.3.1",
     "@convex-dev/react-query": "0.1.0",
