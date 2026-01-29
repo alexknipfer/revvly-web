@@ -42,4 +42,9 @@ export const serverAppConfig = createServerOnlyFn(() => ({
   anthropic: {
     apiKey: loadServerEnvironmentVariable('ANTHROPIC_API_KEY'),
   },
+  clerk: {
+    webhookSigningSecret: loadServerEnvironmentVariable(
+      'CLERK_WEBHOOK_SIGNING_SECRET',
+    ),
+  },
 }));
