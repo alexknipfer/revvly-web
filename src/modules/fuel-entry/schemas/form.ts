@@ -22,8 +22,8 @@ export const fuelEntryFormDefaultValues: FuelEntryFormFields = {
   costPerGallon: '',
   totalGallons: '',
   missedFuelup: false,
-  type: 'regular',
-  level: 'full',
+  type: 'Regular (Octane 87)',
+  level: 'Full',
   location: '',
   notes: '',
 };

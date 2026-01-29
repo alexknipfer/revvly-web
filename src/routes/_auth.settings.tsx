@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { createFileRoute } from '@tanstack/react-router';
-import { UserProfile } from '@clerk/tanstack-react-start';
 
 import {
   Card,
