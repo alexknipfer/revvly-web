@@ -6,6 +6,7 @@ export const vehicleFields = v.object({
   model: v.string(),
   year: v.string(),
   plate: v.string(),
+  defaultFuelType: v.optional(v.string()),
   imageStorageId: v.optional(v.id('_storage')),
   userId: v.string(),
 });

@@ -7,7 +7,6 @@ import { useConvexMutation } from '@convex-dev/react-query';
 import { useServerFn } from '@tanstack/react-start';
 
 import { getSupportedVehicleYears } from '@/lib/utils';
-import { DrawerDialog } from '@/components/ui/dialog-drawer';
 import { Button } from '@/components/ui/button';
 import { useMediaQuery } from '@/hooks/use-media-query';
 
@@ -16,6 +15,13 @@ import {
   getVehicleModelsForMakeServerFn,
 } from '../server/server-fns';
 import { useAppForm } from '@/hooks/use-form';
+import {
+  Dialog,
+  DialogDescription,
+  DialogTitle,
+  DialogContent,
+  DialogHeader,
+} from '@/components/ui/dialog';
 
 const formSchema = z.object({
   year: z.string().min(1),
@@ -56,18 +62,20 @@ export function AddVehicleDialog({
   const selectedMake = useStore(form.store, (state) => state.values.make);
 
   const getVehicleMakes = useServerFn(getVehicleMakesServerFn);
-  const { data: vehicleMakes = [] } = useQuery({
-    queryKey: ['vehicle-makes'],
-    queryFn: getVehicleMakes,
-    enabled: !!selectedYear,
-  });
+  const { data: vehicleMakes = [], isPending: isLoadingVehicleMakes } =
+    useQuery({
+      queryKey: ['vehicle-makes'],
+      queryFn: getVehicleMakes,
+      enabled: !!selectedYear,
+    });
   const getVehicleModels = useServerFn(getVehicleModelsForMakeServerFn);
-  const { data: vehicleModels = [] } = useQuery({
-    queryKey: ['vehicle-models', selectedMake, selectedYear],
-    queryFn: () =>
-      getVehicleModels({ data: { make: selectedMake, year: selectedYear } }),
-    enabled: !!selectedMake && !!selectedYear,
-  });
+  const { data: vehicleModels = [], isPending: isLoadingVehicleModels } =
+    useQuery({
+      queryKey: ['vehicle-models', selectedMake, selectedYear],
+      queryFn: () =>
+        getVehicleModels({ data: { make: selectedMake, year: selectedYear } }),
+      enabled: !!selectedMake && !!selectedYear,
+    });
 
   const convexCreateUserMutation = useConvexMutation(api.vehicles.create);
   const createUserVehicleMutation = useMutation({
@@ -98,103 +106,106 @@ export function AddVehicleDialog({
   }));
 
   return (
-    <DrawerDialog
-      title="Add Vehicle"
-      description="Add your vehicle to begin tracking"
-      open={open}
-      onOpenChange={onOpenChange}
-    >
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          form.handleSubmit();
-        }}
-        className="space-y-5"
-      >
-        <form.AppForm>
-          <form.AppField
-            name="year"
-            listeners={{
-              onChangeDebounceMs: 500,
-              onChange: () => {
-                form.setFieldValue('make', '');
-                form.setFieldValue('model', '');
-              },
-            }}
-          >
-            {(field) => {
-              return isMobile ? (
-                <field.FormNativeSelect
-                  label="Year *"
-                  emptyOptionLabel="Select a year"
-                  items={yearItems}
-                />
-              ) : (
-                <field.FormCombobox
-                  label="Year *"
-                  placeholder="Select a year"
-                  items={yearItems}
-                />
-              );
-            }}
-          </form.AppField>
-          <form.AppField
-            name="make"
-            listeners={{
-              onChangeDebounceMs: 500,
-              onChange: () => {
-                form.setFieldValue('model', '');
-              },
-            }}
-          >
-            {(field) => {
-              return isMobile ? (
-                <field.FormNativeSelect
-                  label="Make *"
-                  emptyOptionLabel="Select a make"
-                  disabled={selectedYear === ''}
-                  items={makeItems}
-                />
-              ) : (
-                <field.FormCombobox
-                  label="Make *"
-                  placeholder="Select a make"
-                  items={makeItems}
-                  disabled={selectedYear === ''}
-                />
-              );
-            }}
-          </form.AppField>
-          <form.AppField name="model">
-            {(field) => {
-              return isMobile ? (
-                <field.FormNativeSelect
-                  label="Model *"
-                  emptyOptionLabel="Select a model"
-                  disabled={selectedMake === ''}
-                  items={modelItems}
-                />
-              ) : (
-                <field.FormCombobox
-                  label="Model *"
-                  placeholder="Select a model"
-                  disabled={selectedMake === ''}
-                  items={modelItems}
-                />
-              );
-            }}
-          </form.AppField>
-          <form.AppField name="name">
-            {(field) => <field.FormInput label="Name (Optional)" />}
-          </form.AppField>
-          <form.AppField name="plate">
-            {(field) => <field.FormInput label="Plate *" />}
-          </form.AppField>
-          <Button type="submit" className="w-full">
-            Add Vehicle
-          </Button>
-        </form.AppForm>
-      </form>
-    </DrawerDialog>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add Vehicle</DialogTitle>
+          <DialogDescription>
+            Add your vehicle to begin tracking
+          </DialogDescription>
+        </DialogHeader>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            form.handleSubmit();
+          }}
+          className="space-y-5"
+        >
+          <form.AppForm>
+            <form.AppField
+              name="year"
+              listeners={{
+                onChangeDebounceMs: 500,
+                onChange: () => {
+                  form.setFieldValue('make', '');
+                  form.setFieldValue('model', '');
+                },
+              }}
+            >
+              {(field) => {
+                return isMobile ? (
+                  <field.FormNativeSelect
+                    label="Year *"
+                    emptyOptionLabel="Select a year"
+                    items={yearItems}
+                  />
+                ) : (
+                  <field.FormCombobox
+                    label="Year *"
+                    placeholder="Select a year"
+                    items={yearItems}
+                  />
+                );
+              }}
+            </form.AppField>
+            <form.AppField
+              name="make"
+              listeners={{
+                onChangeDebounceMs: 500,
+                onChange: () => {
+                  form.setFieldValue('model', '');
+                },
+              }}
+            >
+              {(field) => {
+                return isMobile ? (
+                  <field.FormNativeSelect
+                    label="Make *"
+                    emptyOptionLabel="Select a make"
+                    disabled={selectedYear === '' || isLoadingVehicleMakes}
+                    items={makeItems}
+                  />
+                ) : (
+                  <field.FormCombobox
+                    label="Make *"
+                    placeholder="Select a make"
+                    items={makeItems}
+                    disabled={selectedYear === '' || isLoadingVehicleMakes}
+                  />
+                );
+              }}
+            </form.AppField>
+            <form.AppField name="model">
+              {(field) => {
+                return isMobile ? (
+                  <field.FormNativeSelect
+                    label="Model *"
+                    emptyOptionLabel="Select a model"
+                    disabled={selectedMake === '' || isLoadingVehicleModels}
+                    items={modelItems}
+                  />
+                ) : (
+                  <field.FormCombobox
+                    label="Model *"
+                    placeholder="Select a model"
+                    disabled={selectedMake === '' || isLoadingVehicleModels}
+                    items={modelItems}
+                  />
+                );
+              }}
+            </form.AppField>
+            <form.AppField name="name">
+              {(field) => <field.FormInput label="Name (Optional)" />}
+            </form.AppField>
+            <form.AppField name="plate">
+              {(field) => <field.FormInput label="Plate *" />}
+            </form.AppField>
+            <Button type="submit" className="w-full">
+              Add Vehicle
+            </Button>
+          </form.AppForm>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
