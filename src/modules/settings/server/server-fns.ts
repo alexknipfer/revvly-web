@@ -10,10 +10,10 @@ import { appendSentryUser } from '@/middleware/append-sentry-user';
 
 import type { Id } from 'convex/_generated/dataModel';
 import {
+  FuelLevel,
+  FuelType,
   FuellyFuelEntryImport,
   FuellyServiceImport,
-  fuelLevelSchema,
-  fuelTypeSchema,
 } from '@/types/fuel-entry';
 import { MAX_SERVER_FUNC_ATTACHMENT_SIZE } from '@/lib/constants';
 
@@ -133,6 +133,16 @@ function parseDateTime(dateStr: string, timeStr: string): string {
       .toISOString();
   } catch {
     return new Date().toISOString();
+  }
+}
+
+function parseFuelLevel(value: string): FuelLevel {
+  if (value === 'Reset') {
+    return 'Full';
+  } else if (value === 'Partial') {
+    return 'Partial';
+  } else {
+    return 'Full';
   }
 }
 
@@ -270,6 +280,41 @@ export type ImportFuellyDataServerFnResult = Awaited<
   ReturnType<typeof importFuellyDataServerFn>
 >;
 
+const fuelTypeMap = {
+  'Low [Octane: 85]': 'Low (Octane 85)',
+  'Low [Octane: 86]': 'Low (Octane 86)',
+  'Regular [Octane: 87]': 'Regular (Octane 87)',
+  'Mid [Octane: 88]': 'Mid (Octane 88)',
+  'Mid [Octane: 89]': 'Mid (Octane 89)',
+  'High [Octane: 90]': 'High (Octane 90)',
+  'Premium [Octane: 91]': 'Premium (Octane 91)',
+  'Premium [Octane: 92]': 'Premium (Octane 92)',
+  'Premium [Octane: 93]': 'Premium (Octane 93)',
+  'Super [Octane: 94]': 'Super (Octane 94)',
+  'Super [Octane: 95]': 'Super (Octane 95)',
+  'Super [Octane: 98]': 'Super (Octane 98)',
+  '4D': 'Diesel 4D',
+  Synthetic: 'Diesel Synthetic',
+  '2D [Cetane: 40]': 'Diesel 2D (Cetane 40)',
+  '1D [Cetane: 44]': 'Diesel 1D (Cetane 44)',
+  'ULSD [Cetane: 45]': 'Diesel ULSD (Cetane 45)',
+  E10: 'E10',
+  E15: 'E15',
+  'E22 - Gasohol': 'E22',
+  E30: 'E30',
+  E50: 'E50',
+  E85: 'E85',
+  E93: 'E93',
+  E100: 'E100',
+  B99: 'B99',
+  B100: 'B100',
+  'Blend B2': 'Blend B2',
+  'Blend B5': 'Blend B5',
+  'Blend B20 [Cetane: 50]': 'Blend B20 (Cetane 50)',
+  'Autogas/LPG': 'Autogas/LPG',
+  'CNG - Methane': 'CNG',
+} satisfies Record<string, FuelType>;
+
 export const importFuellyDataServerFn = createServerFn({
   method: 'POST',
 })
@@ -398,7 +443,7 @@ export const importFuellyDataServerFn = createServerFn({
           const totalCost =
             parseNumber(getValue('total cost')) || costPerGallon * gallons;
           const mpgStr = getValue('mpg');
-          const octane = getValue('octane');
+          const fuelType = getValue('octane');
           const filledUp = getValue('filled up');
           const location = getValue('location');
           const notes = getValue('notes');
@@ -419,12 +464,14 @@ export const importFuellyDataServerFn = createServerFn({
               mpgStr && parseNumber(mpgStr) > 0
                 ? parseNumber(mpgStr)
                 : undefined,
-            type: fuelTypeSchema.parse(octane.toLowerCase()),
-            level: fuelLevelSchema.parse(filledUp.toLowerCase()),
+            type:
+              fuelTypeMap[fuelType as keyof typeof fuelTypeMap] ??
+              'Regular (Octane 87)',
+            level: parseFuelLevel(filledUp),
             location: location || undefined,
             notes: notes || undefined,
             vehicleId: vehicleId as Id<'vehicles'>,
-            missedFuelup: false,
+            missedFuelup: filledUp === 'Reset',
           });
         } else if (type === 'Service') {
           const date = getValue('date');
