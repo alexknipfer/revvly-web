@@ -6,42 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { useGeoLocation } from '@/hooks/use-geo-location';
-import {
-  fuelTypeSchema,
-  fuelLevelSchema,
-  FuelType,
-  FuelLevel,
-} from '@/types/fuel-entry';
+import { fuelTypeSchema, fuelLevelSchema } from '@/types/fuel-entry';
 import { withFieldGroup, useFieldContext } from '@/hooks/use-form';
 
 import { NearbyGasStationDialog } from './nearby-gas-station-dialog';
 import { getRouteApi } from '@tanstack/react-router';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { vehicleAnalyticsQueryOptions } from '@/api/query-options';
-
-type FuelEntryFields = {
-  date: Date;
-  odometer: number;
-  costPerGallon: string;
-  totalGallons: string;
-  missedFuelup: boolean;
-  type: FuelType;
-  level: FuelLevel;
-  location: string;
-  notes: string;
-};
-
-const defaultValues: FuelEntryFields = {
-  date: new Date(),
-  odometer: 0,
-  costPerGallon: '',
-  totalGallons: '',
-  location: '',
-  notes: '',
-  type: 'Regular (Octane 87)',
-  level: 'Full',
-  missedFuelup: false,
-};
+import { getFuelEntryFormDefaultValues } from '@/modules/fuel-entry/schemas/form';
 
 const fuelTypes = fuelTypeSchema.options.map((type) => ({
   value: type,
@@ -120,7 +92,7 @@ function LocationField() {
 const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
 
 export const FuelEntryFieldGroup = withFieldGroup({
-  defaultValues,
+  defaultValues: getFuelEntryFormDefaultValues(),
   render: function Render({ group }) {
     const { vehicleId } = routeApi.useParams();
     const { data: analytics } = useSuspenseQuery(
