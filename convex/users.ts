@@ -55,7 +55,34 @@ export const deleteFromClerk = zMutation({
     const user = await userByExternalId(ctx, clerkUserId);
 
     if (user !== null) {
-      await ctx.db.delete(user._id);
+      const [vehicles, fuelEntries, services] = await Promise.all([
+        ctx.db
+          .query('vehicles')
+          .withIndex('by_userid', (q) => q.eq('userId', user._id))
+          .collect(),
+        ctx.db
+          .query('fuel_entries')
+          .withIndex('by_userid', (q) => q.eq('userId', user._id))
+          .collect(),
+        ctx.db
+          .query('services')
+          .withIndex('by_userid', (q) => q.eq('userId', user._id))
+          .collect(),
+      ]);
+
+      for (const fuelEntry of fuelEntries) {
+        await ctx.db.delete('fuel_entries', fuelEntry._id);
+      }
+
+      for (const service of services) {
+        await ctx.db.delete('services', service._id);
+      }
+
+      for (const vehicle of vehicles) {
+        await ctx.db.delete('vehicles', vehicle._id);
+      }
+
+      await ctx.db.delete('users', user._id);
     } else {
       throw new Error(`User not found for Clerk user ID: ${clerkUserId}`);
     }
