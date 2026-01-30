@@ -224,6 +224,17 @@ export const deleteById = zMutation({
       )
       .collect();
 
+    const services = await ctx.db
+      .query('services')
+      .withIndex('by_userid_vehicleid', (q) =>
+        q.eq('userId', identity.subject).eq('vehicleId', id),
+      )
+      .collect();
+
+    for (const service of services) {
+      await ctx.db.delete('services', service._id);
+    }
+
     for (const fuelEntry of fuelEntries) {
       await ctx.db.delete('fuel_entries', fuelEntry._id);
     }
