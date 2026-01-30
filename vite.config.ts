@@ -13,22 +13,8 @@ export default defineConfig({
   ssr: {
     external: ['sharp'],
   },
-  nitro: {
-    hooks: {
-      // Nitro builds the server with Rollup; add sharp to externals so it isn't bundled
-      'rollup:before'(
-        _nitro: unknown,
-        config: { external?: string[] | ((id: string) => boolean) },
-      ) {
-        if (config?.external && Array.isArray(config.external)) {
-          config.external = [...config.external, 'sharp'];
-        }
-      },
-    },
-  },
   // To fix the error "The requested module does not provide an export named 'parse'"
   optimizeDeps: {
     include: ['@clerk/tanstack-react-start', 'cookie-es'],
-    exclude: ['sharp'],
   },
 });
