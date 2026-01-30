@@ -8,12 +8,20 @@ export const upsertFromClerk = zMutation({
     firstName: z.string().nullable(),
     lastName: z.string().nullable(),
     imageUrl: z.string().optional(),
+    primaryEmailAddress: z.email(),
     externalId: z.string(),
     clerkWebhookSigningKey: z.string(),
   },
   async handler(
     ctx,
-    { firstName, lastName, imageUrl, externalId, clerkWebhookSigningKey },
+    {
+      firstName,
+      lastName,
+      imageUrl,
+      primaryEmailAddress,
+      externalId,
+      clerkWebhookSigningKey,
+    },
   ) {
     if (clerkWebhookSigningKey !== process.env.CLERK_WEBHOOK_SIGNING_SECRET) {
       throw new Error('Valid Clerk webhook signing key is required');
@@ -23,6 +31,7 @@ export const upsertFromClerk = zMutation({
       firstName,
       lastName,
       imageUrl,
+      primaryEmailAddress,
       externalId,
     };
 

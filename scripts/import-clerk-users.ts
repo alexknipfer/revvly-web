@@ -1,4 +1,4 @@
-import { createClerkClient } from '@clerk/backend';
+import { createClerkClient, type User } from '@clerk/backend';
 import { api } from 'convex/_generated/api';
 import { ConvexHttpClient } from 'convex/browser';
 import dotenv from 'dotenv';
@@ -32,7 +32,26 @@ for (const clerkUser of clerkUsers.data) {
     firstName: clerkUser.firstName,
     imageUrl: clerkUser.imageUrl,
     lastName: clerkUser.lastName,
+    primaryEmailAddress: getUserPrimaryEmail(clerkUser),
     externalId: clerkUser.id,
     clerkWebhookSigningKey: process.env.CLERK_WEBHOOK_SIGNING_SECRET!,
   });
+}
+
+function getUserPrimaryEmail(user: User) {
+  const primaryEmailId = user.primaryEmailAddressId;
+
+  if (!primaryEmailId) {
+    throw new Error('User has no primary email address');
+  }
+
+  const primaryEmail = user.emailAddresses.find(
+    (email) => email.id === primaryEmailId,
+  );
+
+  if (!primaryEmail) {
+    throw new Error('User has no primary email address');
+  }
+
+  return primaryEmail.emailAddress;
 }

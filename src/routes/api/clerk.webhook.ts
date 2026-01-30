@@ -6,6 +6,7 @@ import { appConfig, serverAppConfig } from '@/lib/appConfig';
 import { tryCatch } from '@/lib/utils';
 import { api } from 'convex/_generated/api';
 import { captureException } from '@/lib/logger';
+import { UserJSON } from '@clerk/backend';
 
 export const Route = createFileRoute('/api/clerk/webhook')({
   server: {
@@ -39,6 +40,7 @@ export const Route = createFileRoute('/api/clerk/webhook')({
                 lastName: event.data.last_name,
                 imageUrl: event.data.image_url,
                 externalId: event.data.id,
+                primaryEmailAddress: getUserPrimaryEmail(event.data),
                 clerkWebhookSigningKey,
               }),
             );
@@ -82,3 +84,21 @@ export const Route = createFileRoute('/api/clerk/webhook')({
     },
   },
 });
+
+function getUserPrimaryEmail(user: UserJSON) {
+  const primaryEmailId = user.primary_email_address_id;
+
+  if (!primaryEmailId) {
+    throw new Error('User has no primary email address');
+  }
+
+  const primaryEmail = user.email_addresses.find(
+    (email) => email.id === primaryEmailId,
+  );
+
+  if (!primaryEmail) {
+    throw new Error('User has no primary email address');
+  }
+
+  return primaryEmail.email_address;
+}
