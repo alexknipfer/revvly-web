@@ -1,3 +1,0 @@
-{
-  "installCommand": "pnpm install --config.arch=x64 --config.platform=linux"
-}

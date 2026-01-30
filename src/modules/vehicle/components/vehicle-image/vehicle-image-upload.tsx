@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
+import imageCompression from 'browser-image-compression';
 import { ImageUp, Loader2 } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
@@ -40,9 +41,19 @@ export function VehicleImageUpload({ className }: { className?: string }) {
     setUploading(true);
 
     try {
+      const file = new File([croppedBlob], 'image', {
+        type: croppedBlob.type || 'image/jpeg',
+      });
+      const compressedFile = await imageCompression(file, {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1920,
+        fileType: 'image/webp',
+        initialQuality: 0.85,
+      });
+
       const formData = new FormData();
       formData.append('vehicleId', vehicle._id);
-      formData.append('image', croppedBlob);
+      formData.append('image', compressedFile);
 
       uploadVehicleImageMutation({
         data: formData,
