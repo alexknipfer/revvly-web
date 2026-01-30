@@ -7,5 +7,12 @@ interface Props {
 }
 
 export function SignInToVehiclesButton({ children }: Props) {
-  return <SignInButton forceRedirectUrl="/vehicles">{children}</SignInButton>;
+  return (
+    <SignInButton
+      forceRedirectUrl="/vehicles"
+      signUpForceRedirectUrl="/vehicles"
+    >
+      {children}
+    </SignInButton>
+  );
 }
