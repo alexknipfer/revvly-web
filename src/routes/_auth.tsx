@@ -26,6 +26,7 @@ import { AddVehicleDialog } from '@/modules/add-vehicle/components/add-vehicle-d
 import { ThemeToggle } from '@/components/theme-toggle';
 import { getAllVehiclesQueryOptions } from '@/api/query-options';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import React from 'react';
 
 const fetchClerkAuth = createServerFn({ method: 'GET' }).handler(async () => {
   const { userId, getToken } = await auth();
@@ -125,51 +126,53 @@ function RouteComponent() {
             />
             <DropdownMenuContent align="end" className="w-64">
               {vehicles.length > 0 && (
-                <p className="p-2 text-xs text-muted-foreground tracking-wider">
-                  Your Vehicles
-                </p>
-              )}
-              {vehicles.map((vehicle) => (
-                <DropdownMenuItem
-                  key={vehicle._id}
-                  nativeButton={false}
-                  render={
-                    <Link
-                      to={`/vehicles/$vehicleId`}
-                      params={{ vehicleId: vehicle._id }}
-                      className="flex items-center gap-3"
-                    >
-                      <div className="flex size-9 items-center justify-center rounded-full bg-mute">
-                        {vehicle.imageUrl ? (
-                          <img
-                            src={vehicle.imageUrl}
-                            alt={vehicle.name}
-                            width={36}
-                            height={36}
-                            className="object-cover rounded-full w-full h-full"
-                          />
-                        ) : (
+                <React.Fragment>
+                  <p className="p-2 text-xs text-muted-foreground tracking-wider">
+                    Your Vehicles
+                  </p>
+                  {vehicles.map((vehicle) => (
+                    <DropdownMenuItem
+                      key={vehicle._id}
+                      nativeButton={false}
+                      render={
+                        <Link
+                          to={`/vehicles/$vehicleId`}
+                          params={{ vehicleId: vehicle._id }}
+                          className="flex items-center gap-3"
+                        >
                           <div className="flex size-9 items-center justify-center rounded-full bg-mute">
-                            <Car className="size-4 text-muted-foreground" />
+                            {vehicle.imageUrl ? (
+                              <img
+                                src={vehicle.imageUrl}
+                                alt={vehicle.name}
+                                width={36}
+                                height={36}
+                                className="object-cover rounded-full w-full h-full"
+                              />
+                            ) : (
+                              <div className="flex size-9 items-center justify-center rounded-full bg-mute">
+                                <Car className="size-4 text-muted-foreground" />
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                      <div className="flex flex-1 flex-col">
-                        <span className="text-xs text-popover-foreground">
-                          {vehicle.model}
-                        </span>
-                        <span className="text-sm text-muted-foreground">
-                          {vehicle.name}
-                        </span>
-                      </div>
-                      {location.pathname === `/vehicles/${vehicle._id}` && (
-                        <Check className="h-4 w-4 text-primary" />
-                      )}
-                    </Link>
-                  }
-                />
-              ))}
-              <DropdownMenuSeparator />
+                          <div className="flex flex-1 flex-col">
+                            <span className="text-xs text-popover-foreground">
+                              {vehicle.model}
+                            </span>
+                            <span className="text-sm text-muted-foreground">
+                              {vehicle.name}
+                            </span>
+                          </div>
+                          {location.pathname === `/vehicles/${vehicle._id}` && (
+                            <Check className="h-4 w-4 text-primary" />
+                          )}
+                        </Link>
+                      }
+                    />
+                  ))}
+                  <DropdownMenuSeparator />
+                </React.Fragment>
+              )}
               <DropdownMenuItem
                 className="text-muted-foreground"
                 render={<Link to="/account">Account</Link>}
