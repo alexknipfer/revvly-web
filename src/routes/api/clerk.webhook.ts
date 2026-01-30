@@ -37,6 +37,7 @@ export const Route = createFileRoute('/api/clerk/webhook')({
               convexClient.mutation(api.users.upsertFromClerk, {
                 firstName: event.data.first_name,
                 lastName: event.data.last_name,
+                imageUrl: event.data.image_url,
                 externalId: event.data.id,
                 clerkWebhookSigningKey,
               }),
