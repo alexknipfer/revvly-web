@@ -47,7 +47,7 @@ export function VehicleImageUpload({ className }: { className?: string }) {
       const compressedFile = await imageCompression(file, {
         maxSizeMB: 1,
         maxWidthOrHeight: 1920,
-        fileType: 'image/webp',
+        fileType: 'image/jpeg',
         initialQuality: 0.85,
       });
 
