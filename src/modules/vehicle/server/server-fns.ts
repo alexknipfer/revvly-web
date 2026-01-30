@@ -1,6 +1,5 @@
 import { createServerFn } from '@tanstack/react-start';
 import ky from 'ky';
-import sharp from 'sharp';
 
 import { api } from 'convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
@@ -36,6 +35,7 @@ export const uploadVehicleImageServerFn = createServerFn({
     };
   })
   .handler(async ({ data }) => {
+    const sharp = (await import('sharp')).default;
     const { vehicleId, image } = data;
 
     if (!vehicleId) {
