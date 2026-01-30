@@ -12,11 +12,14 @@ import { useVehicleImageContext } from '@/modules/vehicle/components/vehicle-ima
 export function VehicleImageUpload({ className }: { className?: string }) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const uploadVehicleImage = useServerFn(uploadVehicleImageServerFn);
   const { mutate: uploadVehicleImageMutation } = useMutation({
     mutationFn: uploadVehicleImage,
+    onSuccess: () => {
+      setSelectedFile(null);
+      setUploading(false);
+    },
   });
 
   const { vehicle } = useVehicleImageContext();
@@ -36,8 +39,6 @@ export function VehicleImageUpload({ className }: { className?: string }) {
   });
 
   const handleCropComplete = async (croppedBlob: Blob) => {
-    const newPreviewUrl = URL.createObjectURL(croppedBlob);
-    setPreviewUrl(newPreviewUrl);
     setUploading(true);
 
     try {
@@ -60,12 +61,10 @@ export function VehicleImageUpload({ className }: { className?: string }) {
       });
     } catch (error) {
       console.error('Error uploading image:', error);
-    } finally {
-      setUploading(false);
     }
   };
 
-  const vehicleImageUrl = previewUrl || vehicle.imageUrl;
+  const vehicleImageUrl = vehicle.imageUrl;
 
   return (
     <>
