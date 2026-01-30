@@ -1,6 +1,13 @@
 import { z } from 'zod';
 
-import { fuelLevelSchema, fuelTypeSchema } from '@/types/fuel-entry';
+import {
+  FuelLevel,
+  fuelTypeSchema,
+  FuelType,
+  fuelLevelSchema,
+} from '@/types/fuel-entry';
+import { Doc } from 'convex/_generated/dataModel';
+import { defaultTo } from '@/lib/utils';
 
 export const fuelEntryFormSchema = z.object({
   date: z.date(),
@@ -16,14 +23,29 @@ export const fuelEntryFormSchema = z.object({
 
 export type FuelEntryFormFields = z.infer<typeof fuelEntryFormSchema>;
 
-export const fuelEntryFormDefaultValues: FuelEntryFormFields = {
-  date: new Date(),
-  odometer: 0,
-  costPerGallon: '',
-  totalGallons: '',
-  missedFuelup: false,
-  type: 'Regular (Octane 87)',
-  level: 'Full',
-  location: '',
-  notes: '',
-};
+export function getFuelEntryFormDefaultValues({
+  fuelEntry,
+  vehicle,
+}: {
+  vehicle?: Doc<'vehicles'>;
+  fuelEntry?: Doc<'fuel_entries'>;
+} = {}): FuelEntryFormFields {
+  return {
+    date: fuelEntry ? new Date(fuelEntry.date) : new Date(),
+    odometer: fuelEntry ? fuelEntry.odometer : 0,
+    costPerGallon: fuelEntry ? fuelEntry.costPerGallon.toString() : '',
+    totalGallons: fuelEntry ? fuelEntry.totalGallons.toString() : '',
+    missedFuelup: fuelEntry ? fuelEntry.missedFuelup : false,
+    type: fuelEntry
+      ? (fuelEntry.type as FuelType)
+      : vehicle
+        ? (defaultTo(
+            vehicle.defaultFuelType,
+            'Regular (Octane 87)',
+          ) as FuelType)
+        : 'Regular (Octane 87)',
+    level: (fuelEntry ? (fuelEntry.level as FuelLevel) : 'Full') || 'Full',
+    location: defaultTo(fuelEntry?.location, ''),
+    notes: defaultTo(fuelEntry?.notes, ''),
+  };
+}

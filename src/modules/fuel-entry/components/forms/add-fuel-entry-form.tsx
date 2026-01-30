@@ -9,13 +9,12 @@ import { defaultTo } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Id } from 'convex/_generated/dataModel';
 import { vehicleByIdQueryOptions } from '@/api/query-options';
-import { FuelType } from '@/types/fuel-entry';
 
 import { FuelEntryFieldGroup } from '../fuel-entry-field-group';
 import { UploadReceiptDialog } from '../upload-receipt-dialog';
 import {
-  fuelEntryFormDefaultValues,
   fuelEntryFormSchema,
+  getFuelEntryFormDefaultValues,
 } from '../../schemas/form';
 
 const formSchema = z.object({
@@ -35,10 +34,7 @@ export function AddFuelEntryForm({ onSuccess }: Props) {
   );
   const form = useAppForm({
     defaultValues: {
-      fuelEntryFields: {
-        ...fuelEntryFormDefaultValues,
-        type: defaultTo(vehicle?.defaultFuelType, '') as FuelType,
-      },
+      fuelEntryFields: getFuelEntryFormDefaultValues({ vehicle }),
     },
     validators: {
       onSubmit: formSchema,
