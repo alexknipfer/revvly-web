@@ -24,6 +24,7 @@ import {
   MarkerPopup,
 } from '@/components/ui/map';
 import { nearbyGasStationsQueryOptions } from '@/api/query-options';
+import { cn } from '@/lib/utils';
 
 interface Props {
   open: boolean;
@@ -118,7 +119,7 @@ export function NearbyGasStationDialog({
                     latitude={station.location.latitude}
                   >
                     <MarkerContent>
-                      <div className="flex items-center justify-center size-6 rounded-full bg-green-700 border border-white shadow-lg">
+                      <div className="flex items-center justify-center size-6 rounded-full bg-primary text-white border border-primary-foreground">
                         <Fuel className="size-3" />
                       </div>
                     </MarkerContent>
@@ -162,26 +163,30 @@ export function NearbyGasStationDialog({
             <ScrollArea className="flex-1 min-h-0 max-h-52">
               <div className="space-y-1 pr-4">
                 {stations.map((station, index) => (
-                  <button
+                  <Button
                     key={index}
                     type="button"
                     onClick={() => {
                       setSelectedStation(station);
                       panToGasStation(station);
                     }}
-                    className={`w-full text-left p-2 rounded-md text-sm border transition-colors ${
-                      selectedStationValue?.id === station.id
-                        ? 'bg-primary text-primary-foreground border-primary'
-                        : 'bg-background hover:bg-accent border-input'
-                    }`}
+                    className={cn(
+                      'tracking-normal flex-col items-start w-full text-left whitespace-normal py-1.5',
+                      {
+                        'bg-primary/10 text-primary-foreground border-primary':
+                          selectedStationValue?.id === station.id,
+                        'bg-background hover:bg-accent border-input':
+                          selectedStationValue?.id !== station.id,
+                      },
+                    )}
                   >
-                    <div className="font-medium">
+                    <span className="font-medium font-sans block">
                       {station.displayName.text}
-                    </div>
-                    <div className="text-xs opacity-80">
+                    </span>
+                    <span className="text-xs opacity-80 font-sans">
                       {station.formattedAddress}
-                    </div>
-                  </button>
+                    </span>
+                  </Button>
                 ))}
               </div>
             </ScrollArea>
