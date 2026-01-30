@@ -16,8 +16,7 @@
     "preview": "vite preview",
     "import-clerk-users": "tsx scripts/import-clerk-users.ts",
     "import-clerk-users:prod": "ENV_FILE=.env.prod tsx scripts/import-clerk-users.ts",
-    "import-clerk-users:dev": "ENV_FILE=.env.dev tsx scripts/import-clerk-users.ts",
-    "import-clerk-users:staging": "ENV_FILE=.env.staging tsx scripts/import-clerk-users.ts"
+    "import-clerk-users:dev": "ENV_FILE=.env.dev tsx scripts/import-clerk-users.ts"
   },
   "keywords": [],
   "author": "",
