@@ -1,3 +1,5 @@
+import { defaultTo } from '@/lib/utils';
+import { Doc } from 'convex/_generated/dataModel';
 import { z } from 'zod';
 
 export const serviceFormSchema = z.object({
@@ -11,11 +13,17 @@ export const serviceFormSchema = z.object({
 
 export type ServiceFormFields = z.infer<typeof serviceFormSchema>;
 
-export const serviceFormDefaultValues: ServiceFormFields = {
-  date: new Date(),
-  odometer: 0,
-  cost: '',
-  types: [],
-  location: '',
-  notes: '',
-};
+export function getServiceFormDefaultValues({
+  service,
+}: {
+  service?: Doc<'services'>;
+} = {}): ServiceFormFields {
+  return {
+    date: service ? new Date(service.date) : new Date(),
+    odometer: service ? service.odometer : 0,
+    cost: service ? service.cost.toString() : '',
+    types: service ? service.types : [],
+    location: defaultTo(service?.location, ''),
+    notes: defaultTo(service?.notes, ''),
+  };
+}

@@ -1,14 +1,14 @@
 import { withFieldGroup } from '@/hooks/use-form';
 import { serviceTypeSchema } from '@/modules/service/schemas/service-type';
 
-import { serviceFormDefaultValues } from '../schemas/form';
+import { getServiceFormDefaultValues } from '../schemas/form';
 
 const serviceTypes = serviceTypeSchema.options.sort((a, b) =>
   a.localeCompare(b),
 );
 
 export const ServiceFieldGroup = withFieldGroup({
-  defaultValues: serviceFormDefaultValues,
+  defaultValues: getServiceFormDefaultValues(),
   render: function Render({ group }) {
     return (
       <>

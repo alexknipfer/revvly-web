@@ -12,31 +12,8 @@ import { withFieldGroup, useFieldContext } from '@/hooks/use-form';
 import { NearbyGasStationDialog } from './nearby-gas-station-dialog';
 import { getRouteApi } from '@tanstack/react-router';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { vehicleByIdQueryOptions } from '@/api/query-options';
-
-type FuelEntryFields = {
-  date: Date;
-  odometer: number;
-  costPerGallon: string;
-  totalGallons: string;
-  missedFuelup: boolean;
-  type: 'regular' | 'premium' | 'diesel' | 'e85';
-  level: 'full' | 'partial';
-  location: string;
-  notes: string;
-};
-
-const defaultValues: FuelEntryFields = {
-  date: new Date(),
-  odometer: 0,
-  costPerGallon: '',
-  totalGallons: '',
-  location: '',
-  notes: '',
-  type: 'regular',
-  level: 'full',
-  missedFuelup: false,
-};
+import { vehicleAnalyticsQueryOptions } from '@/api/query-options';
+import { getFuelEntryFormDefaultValues } from '@/modules/fuel-entry/schemas/form';
 
 const fuelTypes = fuelTypeSchema.options.map((type) => ({
   value: type,
@@ -115,11 +92,11 @@ function LocationField() {
 const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
 
 export const FuelEntryFieldGroup = withFieldGroup({
-  defaultValues,
+  defaultValues: getFuelEntryFormDefaultValues(),
   render: function Render({ group }) {
     const { vehicleId } = routeApi.useParams();
-    const { data: vehicle } = useSuspenseQuery(
-      vehicleByIdQueryOptions({ vehicleId }),
+    const { data: analytics } = useSuspenseQuery(
+      vehicleAnalyticsQueryOptions({ vehicleId }),
     );
 
     const costPerGallon = useStore(
@@ -153,9 +130,9 @@ export const FuelEntryFieldGroup = withFieldGroup({
               label="Odometer *"
               step="0.001"
               labelSuffix={
-                vehicle.latestOdometer ? (
+                analytics.latestOdometer ? (
                   <span className="text-xs text-muted-foreground font-normal">
-                    Latest: {vehicle.latestOdometer.toLocaleString()}
+                    Latest: {analytics.latestOdometer.toLocaleString()}
                   </span>
                 ) : undefined
               }

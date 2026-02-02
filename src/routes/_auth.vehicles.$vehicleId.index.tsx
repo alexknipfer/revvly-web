@@ -1,4 +1,3 @@
-import { convexQuery } from '@convex-dev/react-query';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { z } from 'zod';
@@ -6,8 +5,12 @@ import { Fuel, Plus, Wrench } from 'lucide-react';
 
 import { ManageVehicleMenu } from '@/modules/vehicle/components/manage-vehicle-menu';
 import { VehicleImage } from '@/modules/vehicle/components/vehicle-image/vehicle-image';
-import { vehicleByIdQueryOptions } from '@/api/query-options';
-import { VehicleStatCard } from '@/modules/vehicle/components/vehicle-stat-card';
+import {
+  vehicleByIdQueryOptions,
+  vehicleAnalyticsQueryOptions,
+  servicesQueryOptions,
+  fuelEntriesOptions,
+} from '@/api/query-options';
 import { MpgTrendChart } from '@/modules/fuel-entry/components/charts/mpg-trend-chart';
 import { FuelCostChart } from '@/modules/fuel-entry/components/charts/fuel-cost-chart';
 import { FuelEntryTimeline } from '@/modules/fuel-entry/components/fuel-entry-timeline';
@@ -27,8 +30,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { api } from 'convex/_generated/api';
-import { Id } from 'convex/_generated/dataModel';
+import { VehicleAnalytics } from '@/modules/vehicle/components/vehicle-analytics';
 
 const searchSchema = z.object({
   activeTab: z
@@ -42,22 +44,13 @@ export const Route = createFileRoute('/_auth/vehicles/$vehicleId/')({
   pendingComponent: LoadingComponent,
   validateSearch: searchSchema,
   loader: async ({ context, params }) => {
+    context.queryClient.prefetchQuery(fuelEntriesOptions(params.vehicleId));
+    context.queryClient.prefetchQuery(servicesQueryOptions(params.vehicleId));
     context.queryClient.prefetchQuery(
-      convexQuery(api.fuelEntries.getAll, {
-        vehicleId: params.vehicleId as Id<'vehicles'>,
-      }),
+      vehicleAnalyticsQueryOptions({ vehicleId: params.vehicleId }),
     );
-
-    context.queryClient.prefetchQuery(
-      convexQuery(api.services.getAll, {
-        vehicleId: params.vehicleId as Id<'vehicles'>,
-      }),
-    );
-
     await context.queryClient.ensureQueryData(
-      convexQuery(api.vehicles.getById, {
-        id: params.vehicleId as Id<'vehicles'>,
-      }),
+      vehicleByIdQueryOptions({ vehicleId: params.vehicleId }),
     );
   },
 });
@@ -74,58 +67,30 @@ function RouteComponent() {
   return (
     <div className="space-y-6">
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="space-y-4">
-          <div className="flex flex-col md:grid md:grid-cols-[auto_1fr] gap-4 items-start">
-            <div className="w-full md:w-48 rounded-lg overflow-hidden border shadow-sm shrink-0">
-              <VehicleImage vehicle={vehicle}>
-                <VehicleImage.Upload />
-              </VehicleImage>
+        <div className="flex flex-col md:grid md:grid-cols-[auto_1fr] gap-4 items-start">
+          <div className="w-full md:w-48 rounded-lg overflow-hidden border shadow-sm shrink-0">
+            <VehicleImage vehicle={vehicle}>
+              <VehicleImage.Upload />
+            </VehicleImage>
+          </div>
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 min-w-0 w-full">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between gap-2 mb-1">
+                <h1 className="text-2xl md:text-3xl font-bold">
+                  {vehicle.name || vehicle.model}
+                </h1>
+                <div className="flex md:hidden gap-2 shrink-0">
+                  <ManageVehicleMenu />
+                  <VehicleActionsMenu />
+                </div>
+              </div>
+              <p className="text-muted-foreground text-lg">
+                {vehicle.make} {vehicle.model} {vehicle.year}
+              </p>
             </div>
-            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 min-w-0 w-full">
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-2 mb-1">
-                  <h1 className="text-2xl md:text-3xl font-bold">
-                    {vehicle.name || vehicle.model}
-                  </h1>
-                  <div className="flex md:hidden gap-2 shrink-0">
-                    <ManageVehicleMenu />
-                    <VehicleActionsMenu />
-                  </div>
-                </div>
-                <p className="text-muted-foreground text-base md:text-lg mb-3 md:mb-4">
-                  {vehicle.make} {vehicle.model} {vehicle.year}
-                </p>
-                <div className="grid grid-cols-3 gap-4 md:flex md:items-center md:gap-6">
-                  <VehicleStatCard
-                    label="Average MPG"
-                    value={
-                      vehicle.averageMpg > 0
-                        ? vehicle.averageMpg.toFixed(1)
-                        : '--'
-                    }
-                  />
-                  <VehicleStatCard
-                    label="Total Miles Tracked"
-                    value={
-                      vehicle.totalMilesTracked > 0
-                        ? vehicle.totalMilesTracked.toLocaleString()
-                        : '--'
-                    }
-                  />
-                  <VehicleStatCard
-                    label="Total Gallons Used"
-                    value={
-                      vehicle.totalGallonsUsed > 0
-                        ? vehicle.totalGallonsUsed.toFixed(1)
-                        : '--'
-                    }
-                  />
-                </div>
-              </div>
-              <div className="hidden md:flex gap-x-2 shrink-0">
-                <ManageVehicleMenu />
-                <VehicleActionsMenu />
-              </div>
+            <div className="hidden md:flex gap-x-2 shrink-0">
+              <ManageVehicleMenu />
+              <VehicleActionsMenu />
             </div>
           </div>
         </div>
@@ -136,6 +101,7 @@ function RouteComponent() {
               search: {
                 activeTab: value as 'overview' | 'fuel-logs' | 'service-logs',
               },
+              resetScroll: false,
             })
           }
           className="w-full"
@@ -145,7 +111,8 @@ function RouteComponent() {
             <TabsTrigger value="fuel-logs">Fuel Logs</TabsTrigger>
             <TabsTrigger value="service-logs">Service Logs</TabsTrigger>
           </TabsList>
-          <TabsContent value="overview" className="mt-6">
+          <TabsContent value="overview" className="space-y-4">
+            <VehicleAnalytics />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <MpgTrendChart />
               <FuelCostChart />

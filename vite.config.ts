@@ -9,7 +9,6 @@ export default defineConfig({
     port: 3000,
   },
   plugins: [tsConfigPaths(), tanstackStart(), nitro(), viteReact()],
-  // To fix the error "The requested module does not provide an export named 'parse'"
   optimizeDeps: {
     include: ['@clerk/tanstack-react-start', 'cookie-es'],
   },

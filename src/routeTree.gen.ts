@@ -11,7 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthSettingsRouteImport } from './routes/_auth.settings'
+import { Route as AuthAccountRouteImport } from './routes/_auth.account'
 import { Route as AuthVehiclesIndexRouteImport } from './routes/_auth.vehicles.index'
+import { Route as ApiClerkWebhookRouteImport } from './routes/api/clerk.webhook'
 import { Route as AuthVehiclesVehicleIdRouteRouteImport } from './routes/_auth.vehicles.$vehicleId.route'
 import { Route as AuthVehiclesVehicleIdIndexRouteImport } from './routes/_auth.vehicles.$vehicleId.index'
 import { Route as AuthVehiclesVehicleIdServicesNewRouteImport } from './routes/_auth.vehicles.$vehicleId.services.new'
@@ -28,10 +31,25 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthSettingsRoute = AuthSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthAccountRoute = AuthAccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthVehiclesIndexRoute = AuthVehiclesIndexRouteImport.update({
   id: '/vehicles/',
   path: '/vehicles/',
   getParentRoute: () => AuthRoute,
+} as any)
+const ApiClerkWebhookRoute = ApiClerkWebhookRouteImport.update({
+  id: '/api/clerk/webhook',
+  path: '/api/clerk/webhook',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthVehiclesVehicleIdRouteRoute =
   AuthVehiclesVehicleIdRouteRouteImport.update({
@@ -72,7 +90,10 @@ const AuthVehiclesVehicleIdFuelentryFuelEntryIdEditRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account': typeof AuthAccountRoute
+  '/settings': typeof AuthSettingsRoute
   '/vehicles/$vehicleId': typeof AuthVehiclesVehicleIdRouteRouteWithChildren
+  '/api/clerk/webhook': typeof ApiClerkWebhookRoute
   '/vehicles/': typeof AuthVehiclesIndexRoute
   '/vehicles/$vehicleId/': typeof AuthVehiclesVehicleIdIndexRoute
   '/vehicles/$vehicleId/fuelentry/new': typeof AuthVehiclesVehicleIdFuelentryNewRoute
@@ -82,6 +103,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account': typeof AuthAccountRoute
+  '/settings': typeof AuthSettingsRoute
+  '/api/clerk/webhook': typeof ApiClerkWebhookRoute
   '/vehicles': typeof AuthVehiclesIndexRoute
   '/vehicles/$vehicleId': typeof AuthVehiclesVehicleIdIndexRoute
   '/vehicles/$vehicleId/fuelentry/new': typeof AuthVehiclesVehicleIdFuelentryNewRoute
@@ -93,7 +117,10 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_auth': typeof AuthRouteWithChildren
+  '/_auth/account': typeof AuthAccountRoute
+  '/_auth/settings': typeof AuthSettingsRoute
   '/_auth/vehicles/$vehicleId': typeof AuthVehiclesVehicleIdRouteRouteWithChildren
+  '/api/clerk/webhook': typeof ApiClerkWebhookRoute
   '/_auth/vehicles/': typeof AuthVehiclesIndexRoute
   '/_auth/vehicles/$vehicleId/': typeof AuthVehiclesVehicleIdIndexRoute
   '/_auth/vehicles/$vehicleId/fuelentry/new': typeof AuthVehiclesVehicleIdFuelentryNewRoute
@@ -105,7 +132,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/account'
+    | '/settings'
     | '/vehicles/$vehicleId'
+    | '/api/clerk/webhook'
     | '/vehicles/'
     | '/vehicles/$vehicleId/'
     | '/vehicles/$vehicleId/fuelentry/new'
@@ -115,6 +145,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/account'
+    | '/settings'
+    | '/api/clerk/webhook'
     | '/vehicles'
     | '/vehicles/$vehicleId'
     | '/vehicles/$vehicleId/fuelentry/new'
@@ -125,7 +158,10 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_auth'
+    | '/_auth/account'
+    | '/_auth/settings'
     | '/_auth/vehicles/$vehicleId'
+    | '/api/clerk/webhook'
     | '/_auth/vehicles/'
     | '/_auth/vehicles/$vehicleId/'
     | '/_auth/vehicles/$vehicleId/fuelentry/new'
@@ -137,6 +173,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRouteWithChildren
+  ApiClerkWebhookRoute: typeof ApiClerkWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -155,12 +192,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_auth/settings': {
+      id: '/_auth/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthSettingsRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/account': {
+      id: '/_auth/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AuthAccountRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/vehicles/': {
       id: '/_auth/vehicles/'
       path: '/vehicles'
       fullPath: '/vehicles/'
       preLoaderRoute: typeof AuthVehiclesIndexRouteImport
       parentRoute: typeof AuthRoute
+    }
+    '/api/clerk/webhook': {
+      id: '/api/clerk/webhook'
+      path: '/api/clerk/webhook'
+      fullPath: '/api/clerk/webhook'
+      preLoaderRoute: typeof ApiClerkWebhookRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_auth/vehicles/$vehicleId': {
       id: '/_auth/vehicles/$vehicleId'
@@ -234,11 +292,15 @@ const AuthVehiclesVehicleIdRouteRouteWithChildren =
   )
 
 interface AuthRouteChildren {
+  AuthAccountRoute: typeof AuthAccountRoute
+  AuthSettingsRoute: typeof AuthSettingsRoute
   AuthVehiclesVehicleIdRouteRoute: typeof AuthVehiclesVehicleIdRouteRouteWithChildren
   AuthVehiclesIndexRoute: typeof AuthVehiclesIndexRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
+  AuthAccountRoute: AuthAccountRoute,
+  AuthSettingsRoute: AuthSettingsRoute,
   AuthVehiclesVehicleIdRouteRoute: AuthVehiclesVehicleIdRouteRouteWithChildren,
   AuthVehiclesIndexRoute: AuthVehiclesIndexRoute,
 }
@@ -248,6 +310,7 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRouteWithChildren,
+  ApiClerkWebhookRoute: ApiClerkWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

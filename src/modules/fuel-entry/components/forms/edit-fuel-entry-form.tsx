@@ -8,9 +8,11 @@ import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/hooks/use-form';
 import { FuelEntryFieldGroup } from '@/modules/fuel-entry/components/fuel-entry-field-group';
 import { api } from 'convex/_generated/api';
-import { defaultTo } from '@/lib/utils';
 
-import { fuelEntryFormSchema } from '../../schemas/form';
+import {
+  fuelEntryFormSchema,
+  getFuelEntryFormDefaultValues,
+} from '../../schemas/form';
 
 const formSchema = z.object({
   fuelEntryFields: fuelEntryFormSchema,
@@ -32,17 +34,7 @@ export function EditFuelEntryForm({ onSuccess }: Props) {
 
   const form = useAppForm({
     defaultValues: {
-      fuelEntryFields: {
-        date: new Date(fuelEntry.date),
-        odometer: fuelEntry.odometer,
-        costPerGallon: fuelEntry.costPerGallon.toString(),
-        totalGallons: fuelEntry.totalGallons.toString(),
-        missedFuelup: fuelEntry.missedFuelup,
-        type: fuelEntry.type as 'regular' | 'premium' | 'diesel' | 'e85',
-        level: fuelEntry.level as 'full' | 'partial',
-        location: defaultTo(fuelEntry.location, ''),
-        notes: defaultTo(fuelEntry.notes, ''),
-      },
+      fuelEntryFields: getFuelEntryFormDefaultValues({ fuelEntry }),
     },
     validators: {
       onSubmit: formSchema,

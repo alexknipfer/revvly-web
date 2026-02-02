@@ -1,4 +1,5 @@
 import { ConvexError } from 'convex/values';
+import dayjs from 'dayjs';
 import { z } from 'zod';
 import { zid } from 'convex-helpers/server/zod4';
 
@@ -175,6 +176,7 @@ export const update = zMutation({
     }
 
     await ctx.db.patch(id, {
+      date,
       odometer,
       costPerGallon,
       totalGallons,
@@ -238,6 +240,10 @@ export const getAll = zQuery({
       query.filter((q) => q.gte(q.field('date'), startDate));
     }
 
-    return query.order('desc').collect();
+    const results = await query.collect();
+
+    return results.sort(
+      (a, b) => dayjs(b.date).valueOf() - dayjs(a.date).valueOf(),
+    );
   },
 });

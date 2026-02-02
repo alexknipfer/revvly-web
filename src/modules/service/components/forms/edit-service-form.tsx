@@ -8,8 +8,11 @@ import { Button } from '@/components/ui/button';
 import { useAppForm } from '@/hooks/use-form';
 import { ServiceFieldGroup } from '@/modules/service/components/service-field-group';
 import { api } from 'convex/_generated/api';
-import { serviceFormSchema } from '@/modules/service/schemas/form';
-import { defaultTo } from '@/lib/utils';
+
+import {
+  getServiceFormDefaultValues,
+  serviceFormSchema,
+} from '../../schemas/form';
 
 const formSchema = z.object({ serviceFields: serviceFormSchema });
 
@@ -32,14 +35,7 @@ export function EditServiceForm({ onSuccess }: Props) {
 
   const form = useAppForm({
     defaultValues: {
-      serviceFields: {
-        date: new Date(service.date),
-        odometer: service.odometer,
-        cost: service.cost.toString(),
-        types: service.types,
-        location: defaultTo(service.location, ''),
-        notes: defaultTo(service.notes, ''),
-      },
+      serviceFields: getServiceFormDefaultValues({ service }),
     },
     validators: {
       onSubmit: formSchema,

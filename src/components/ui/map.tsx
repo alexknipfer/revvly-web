@@ -1,5 +1,6 @@
 import MapLibreGL, { type PopupOptions, type MarkerOptions } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import { useTheme } from 'next-themes';
 import {
   createContext,
   forwardRef,
@@ -66,6 +67,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
   { children, styles, ...props },
   ref,
 ) {
+  const { resolvedTheme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const [mapInstance, setMapInstance] = useState<MapLibreGL.Map | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -85,7 +87,8 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const initialStyle = mapStyles.dark;
+    const initialStyle =
+      resolvedTheme === 'light' ? mapStyles.light : mapStyles.dark;
     currentStyleRef.current = initialStyle;
 
     const map = new MapLibreGL.Map({
@@ -116,23 +119,23 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // useEffect(() => {
-  //   if (!mapInstance || !resolvedTheme) return;
+  useEffect(() => {
+    if (!mapInstance || !resolvedTheme) return;
 
-  //   const newStyle =
-  //     resolvedTheme === 'dark' ? mapStyles.dark : mapStyles.light;
+    const newStyle =
+      resolvedTheme === 'dark' ? mapStyles.dark : mapStyles.light;
 
-  //   if (currentStyleRef.current === newStyle) return;
+    if (currentStyleRef.current === newStyle) return;
 
-  //   currentStyleRef.current = newStyle;
-  //   setIsStyleLoaded(false);
+    currentStyleRef.current = newStyle;
+    setIsStyleLoaded(false);
 
-  //   const frameId = requestAnimationFrame(() => {
-  //     mapInstance.setStyle(newStyle, { diff: true });
-  //   });
+    const frameId = requestAnimationFrame(() => {
+      mapInstance.setStyle(newStyle, { diff: true });
+    });
 
-  //   return () => cancelAnimationFrame(frameId);
-  // }, [mapInstance, resolvedTheme, mapStyles]);
+    return () => cancelAnimationFrame(frameId);
+  }, [mapInstance, resolvedTheme, mapStyles]);
 
   const isLoading = !isLoaded || !isStyleLoaded;
 

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
+import imageCompression from 'browser-image-compression';
 import { ImageUp, Loader2 } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
@@ -11,11 +12,14 @@ import { useVehicleImageContext } from '@/modules/vehicle/components/vehicle-ima
 export function VehicleImageUpload({ className }: { className?: string }) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const uploadVehicleImage = useServerFn(uploadVehicleImageServerFn);
   const { mutate: uploadVehicleImageMutation } = useMutation({
     mutationFn: uploadVehicleImage,
+    onSuccess: () => {
+      setSelectedFile(null);
+      setUploading(false);
+    },
   });
 
   const { vehicle } = useVehicleImageContext();
@@ -35,26 +39,32 @@ export function VehicleImageUpload({ className }: { className?: string }) {
   });
 
   const handleCropComplete = async (croppedBlob: Blob) => {
-    const newPreviewUrl = URL.createObjectURL(croppedBlob);
-    setPreviewUrl(newPreviewUrl);
     setUploading(true);
 
     try {
+      const file = new File([croppedBlob], 'image', {
+        type: croppedBlob.type || 'image/jpeg',
+      });
+      const compressedFile = await imageCompression(file, {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1920,
+        fileType: 'image/jpeg',
+        initialQuality: 0.85,
+      });
+
       const formData = new FormData();
       formData.append('vehicleId', vehicle._id);
-      formData.append('image', croppedBlob);
+      formData.append('image', compressedFile);
 
       uploadVehicleImageMutation({
         data: formData,
       });
     } catch (error) {
       console.error('Error uploading image:', error);
-    } finally {
-      setUploading(false);
     }
   };
 
-  const vehicleImageUrl = previewUrl || vehicle.imageUrl;
+  const vehicleImageUrl = vehicle.imageUrl;
 
   return (
     <>

@@ -10,7 +10,7 @@ import { Id } from 'convex/_generated/dataModel';
 
 import { ServiceFieldGroup } from '../service-field-group';
 import {
-  serviceFormDefaultValues,
+  getServiceFormDefaultValues,
   serviceFormSchema,
 } from '../../schemas/form';
 
@@ -28,7 +28,7 @@ export function AddServiceForm({ onSuccess }: Props) {
   const { vehicleId } = routeApi.useParams();
   const form = useAppForm({
     defaultValues: {
-      serviceFields: serviceFormDefaultValues,
+      serviceFields: getServiceFormDefaultValues(),
     },
     validators: {
       onSubmit: formSchema,

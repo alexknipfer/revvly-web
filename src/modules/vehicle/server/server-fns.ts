@@ -1,6 +1,5 @@
 import { createServerFn } from '@tanstack/react-start';
 import ky from 'ky';
-import sharp from 'sharp';
 
 import { api } from 'convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
@@ -52,25 +51,6 @@ export const uploadVehicleImageServerFn = createServerFn({
     }
 
     const arrayBuffer = await image.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    const [optimizeError, optimizedBuffer] = await tryCatch(
-      sharp(buffer)
-        .resize(1920, 1920, {
-          fit: 'inside',
-          withoutEnlargement: true,
-        })
-        .webp({
-          quality: 85,
-          effort: 6,
-        })
-        .toBuffer(),
-    );
-
-    if (optimizeError) {
-      captureException(optimizeError);
-      throw new Error('Failed to upload image');
-    }
 
     const [uploadUrlError, uploadUrl] = await tryCatch(
       convexClient.mutation(api.storage.generateUploadUrl),
@@ -84,8 +64,8 @@ export const uploadVehicleImageServerFn = createServerFn({
     const [uploadError, uploadResult] = await tryCatch(
       ky
         .post<{ storageId: Id<'_storage'> }>(uploadUrl, {
-          headers: { 'Content-Type': 'image/webp' },
-          body: new Uint8Array(optimizedBuffer),
+          headers: { 'Content-Type': image.type },
+          body: new Uint8Array(arrayBuffer),
         })
         .json(),
     );

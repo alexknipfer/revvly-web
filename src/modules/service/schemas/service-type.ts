@@ -74,6 +74,10 @@ export const serviceTypeSchema = z.enum([
   'Emissions Test',
   'Diagnostic Scan',
 
+  // Car Care
+  'Car Wash',
+  'Car Detailing',
+
   // Other
   'Other',
 ]);
