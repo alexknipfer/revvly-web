@@ -7,6 +7,8 @@ import { tryCatch } from '@/lib/utils';
 import { getAuthConvexClient } from '@/lib/auth';
 import { captureException } from '@/lib/logger';
 import { appendSentryUser } from '@/middleware/append-sentry-user';
+import z from 'zod';
+import { ConvexError } from 'convex/values';
 
 const MAX_FILE_SIZE = 8 * 1024 * 1024;
 
@@ -90,4 +92,49 @@ export const uploadVehicleImageServerFn = createServerFn({
     }
 
     return { success: true, storageId: uploadResult.storageId };
+  });
+
+const shareVehicleInputSchema = z.object({
+  vehicleId: z.string().min(1),
+  recipientEmail: z.email(),
+});
+
+export const createShareVehicleServerFn = createServerFn({
+  method: 'POST',
+})
+  .middleware([appendSentryUser])
+  .inputValidator(shareVehicleInputSchema)
+  .handler(async ({ data }) => {
+    const { vehicleId, recipientEmail } = data;
+    const [convexClientError, convexClient] = await tryCatch(
+      getAuthConvexClient(),
+    );
+
+    if (convexClientError) {
+      captureException(convexClientError);
+      throw new Error('Failed to get convex client');
+    }
+
+    const [createShareError] = await tryCatch(
+      convexClient.mutation(api.vehicleShares.create, {
+        vehicleId,
+        recipientEmail,
+      }),
+    );
+
+    if (createShareError) {
+      if (createShareError instanceof ConvexError) {
+        if (createShareError.data.code === 'VEHICLE_ALREADY_SHARED_WITH_USER') {
+          throw new Error('Vehicle already shared with this user');
+        }
+      } else {
+        captureException(createShareError);
+        throw new Error('Failed to create vehicle share');
+      }
+    }
+
+    return {
+      message:
+        'If a user with this email address has an account, they will receive an email with a link to accept the share.',
+    };
   });
