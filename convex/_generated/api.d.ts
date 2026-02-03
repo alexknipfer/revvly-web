@@ -19,6 +19,8 @@ import type * as users from "../users.js";
 import type * as users_validators from "../users/validators.js";
 import type * as utils_auth from "../utils/auth.js";
 import type * as utils_zod from "../utils/zod.js";
+import type * as vehicleShares from "../vehicleShares.js";
+import type * as vehicleShares_validators from "../vehicleShares/validators.js";
 import type * as vehicles from "../vehicles.js";
 import type * as vehicles_validators from "../vehicles/validators.js";
 
@@ -40,6 +42,8 @@ declare const fullApi: ApiFromModules<{
   "users/validators": typeof users_validators;
   "utils/auth": typeof utils_auth;
   "utils/zod": typeof utils_zod;
+  vehicleShares: typeof vehicleShares;
+  "vehicleShares/validators": typeof vehicleShares_validators;
   vehicles: typeof vehicles;
   "vehicles/validators": typeof vehicles_validators;
 }>;
