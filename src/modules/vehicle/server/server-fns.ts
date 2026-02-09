@@ -133,6 +133,8 @@ export const createShareVehicleServerFn = createServerFn({
       }
     }
 
+    // TODO: Send email to recipient
+
     return {
       message:
         'If a user with this email address has an account, they will receive an email with a link to accept the share.',
