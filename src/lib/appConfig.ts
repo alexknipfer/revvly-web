@@ -47,4 +47,7 @@ export const serverAppConfig = createServerOnlyFn(() => ({
       'CLERK_WEBHOOK_SIGNING_SECRET',
     ),
   },
+  resend: {
+    apiKey: loadServerEnvironmentVariable('RESEND_API_KEY'),
+  },
 }));
