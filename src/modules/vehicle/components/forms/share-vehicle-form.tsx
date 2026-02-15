@@ -34,6 +34,9 @@ export function ShareVehicleForm({ onCancel, onSubmitted }: Props) {
       toast.success(result.message);
       onSubmitted();
     },
+    onError: (error) => {
+      toast.error(error.message);
+    },
   });
 
   const onSubmit = async (data: ShareVehicleFormFields) => {

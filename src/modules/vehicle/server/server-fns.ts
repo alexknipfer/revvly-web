@@ -1,5 +1,7 @@
 import { createServerFn } from '@tanstack/react-start';
 import ky from 'ky';
+import { Resend } from 'resend';
+import { auth } from '@clerk/tanstack-react-start/server';
 
 import { api } from 'convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
@@ -9,8 +11,10 @@ import { captureException } from '@/lib/logger';
 import { appendSentryUser } from '@/middleware/append-sentry-user';
 import z from 'zod';
 import { ConvexError } from 'convex/values';
+import { serverAppConfig } from '@/lib/appConfig';
 
 const MAX_FILE_SIZE = 8 * 1024 * 1024;
+const resend = new Resend(serverAppConfig().resend.apiKey);
 
 export const uploadVehicleImageServerFn = createServerFn({
   method: 'POST',
@@ -106,6 +110,12 @@ export const createShareVehicleServerFn = createServerFn({
   .inputValidator(shareVehicleInputSchema)
   .handler(async ({ data }) => {
     const { vehicleId, recipientEmail } = data;
+    const { userId, isAuthenticated } = await auth();
+
+    if (!isAuthenticated) {
+      throw new Error('Not Authorized');
+    }
+
     const [convexClientError, convexClient] = await tryCatch(
       getAuthConvexClient(),
     );
@@ -113,6 +123,26 @@ export const createShareVehicleServerFn = createServerFn({
     if (convexClientError) {
       captureException(convexClientError);
       throw new Error('Failed to get convex client');
+    }
+
+    const [userError, user] = await tryCatch(
+      convexClient.query(api.users.getById, { clerkUserId: userId }),
+    );
+
+    if (userError || !user) {
+      captureException(userError);
+      throw new Error('Not Authorized');
+    }
+
+    const [vehicleError, vehicle] = await tryCatch(
+      convexClient.query(api.vehicles.getById, {
+        id: vehicleId as Id<'vehicles'>,
+      }),
+    );
+
+    if (vehicleError || !vehicle) {
+      captureException(vehicleError);
+      throw new Error('Vehicle not found');
     }
 
     const [createShareError] = await tryCatch(
@@ -133,7 +163,39 @@ export const createShareVehicleServerFn = createServerFn({
       }
     }
 
-    // TODO: Send email to recipient
+    const [recipientUserError, recipientUser] = await tryCatch(
+      convexClient.query(api.users.getByEmail, { email: recipientEmail }),
+    );
+
+    if (recipientUserError) {
+      captureException(recipientUserError);
+      throw new Error('Failed to create vehicle share');
+    }
+
+    const shareSenderName = user.firstName
+      ? `${user.firstName}${user.lastName ? ` ${user.lastName}` : ''}`
+      : user.primaryEmailAddress;
+
+    const recipientName = recipientUser
+      ? recipientUser.firstName
+        ? `${recipientUser.firstName}${recipientUser.lastName ? ` ${recipientUser.lastName}` : ''}`
+        : recipientEmail
+      : recipientEmail;
+
+    const vehicleDisplay = `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
+
+    await resend.emails.send({
+      to: recipientEmail,
+      template: {
+        id: 'share-vehicle-basic',
+        variables: {
+          ACCEPT_INVITATION_LINK: 'https://alexknipfer.com',
+          RECIPIENT: recipientName,
+          SHARE_SENDER: shareSenderName,
+          VEHICLE: vehicleDisplay,
+        },
+      },
+    });
 
     return {
       message:
