@@ -26,6 +26,9 @@ const loadServerEnvironmentVariable = (key: string) => {
 };
 
 export const appConfig = {
+  app: {
+    url: loadEnvironmentVariable('VITE_APP_URL'),
+  },
   convex: {
     url: loadEnvironmentVariable('VITE_CONVEX_URL'),
   },
