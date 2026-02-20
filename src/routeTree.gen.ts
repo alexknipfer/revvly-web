@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as InviteShareIdRouteImport } from './routes/invite.$shareId'
 import { Route as AuthSettingsRouteImport } from './routes/_auth.settings'
 import { Route as AuthAccountRouteImport } from './routes/_auth.account'
 import { Route as AuthVehiclesIndexRouteImport } from './routes/_auth.vehicles.index'
@@ -29,6 +30,11 @@ const AuthRoute = AuthRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InviteShareIdRoute = InviteShareIdRouteImport.update({
+  id: '/invite/$shareId',
+  path: '/invite/$shareId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthSettingsRoute = AuthSettingsRouteImport.update({
@@ -92,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/account': typeof AuthAccountRoute
   '/settings': typeof AuthSettingsRoute
+  '/invite/$shareId': typeof InviteShareIdRoute
   '/vehicles/$vehicleId': typeof AuthVehiclesVehicleIdRouteRouteWithChildren
   '/api/clerk/webhook': typeof ApiClerkWebhookRoute
   '/vehicles/': typeof AuthVehiclesIndexRoute
@@ -105,6 +112,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/account': typeof AuthAccountRoute
   '/settings': typeof AuthSettingsRoute
+  '/invite/$shareId': typeof InviteShareIdRoute
   '/api/clerk/webhook': typeof ApiClerkWebhookRoute
   '/vehicles': typeof AuthVehiclesIndexRoute
   '/vehicles/$vehicleId': typeof AuthVehiclesVehicleIdIndexRoute
@@ -119,6 +127,7 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteWithChildren
   '/_auth/account': typeof AuthAccountRoute
   '/_auth/settings': typeof AuthSettingsRoute
+  '/invite/$shareId': typeof InviteShareIdRoute
   '/_auth/vehicles/$vehicleId': typeof AuthVehiclesVehicleIdRouteRouteWithChildren
   '/api/clerk/webhook': typeof ApiClerkWebhookRoute
   '/_auth/vehicles/': typeof AuthVehiclesIndexRoute
@@ -134,6 +143,7 @@ export interface FileRouteTypes {
     | '/'
     | '/account'
     | '/settings'
+    | '/invite/$shareId'
     | '/vehicles/$vehicleId'
     | '/api/clerk/webhook'
     | '/vehicles/'
@@ -147,6 +157,7 @@ export interface FileRouteTypes {
     | '/'
     | '/account'
     | '/settings'
+    | '/invite/$shareId'
     | '/api/clerk/webhook'
     | '/vehicles'
     | '/vehicles/$vehicleId'
@@ -160,6 +171,7 @@ export interface FileRouteTypes {
     | '/_auth'
     | '/_auth/account'
     | '/_auth/settings'
+    | '/invite/$shareId'
     | '/_auth/vehicles/$vehicleId'
     | '/api/clerk/webhook'
     | '/_auth/vehicles/'
@@ -173,6 +185,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRouteWithChildren
+  InviteShareIdRoute: typeof InviteShareIdRoute
   ApiClerkWebhookRoute: typeof ApiClerkWebhookRoute
 }
 
@@ -190,6 +203,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invite/$shareId': {
+      id: '/invite/$shareId'
+      path: '/invite/$shareId'
+      fullPath: '/invite/$shareId'
+      preLoaderRoute: typeof InviteShareIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_auth/settings': {
@@ -310,6 +330,7 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRouteWithChildren,
+  InviteShareIdRoute: InviteShareIdRoute,
   ApiClerkWebhookRoute: ApiClerkWebhookRoute,
 }
 export const routeTree = rootRouteImport
