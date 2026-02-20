@@ -12,6 +12,7 @@ import { appendSentryUser } from '@/middleware/append-sentry-user';
 import z from 'zod';
 import { ConvexError } from 'convex/values';
 import { serverAppConfig } from '@/lib/appConfig';
+import { appConfig } from '@/lib/appConfig';
 
 const MAX_FILE_SIZE = 8 * 1024 * 1024;
 const resend = new Resend(serverAppConfig().resend.apiKey);
@@ -145,7 +146,7 @@ export const createShareVehicleServerFn = createServerFn({
       throw new Error('Vehicle not found');
     }
 
-    const [createShareError] = await tryCatch(
+    const [createShareError, shareId] = await tryCatch(
       convexClient.mutation(api.vehicleShares.create, {
         vehicleId,
         recipientEmail,
@@ -184,12 +185,14 @@ export const createShareVehicleServerFn = createServerFn({
 
     const vehicleDisplay = `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
 
+    const acceptInvitationLink = `${appConfig.app.url}/invite/${shareId}`;
+
     await resend.emails.send({
       to: recipientEmail,
       template: {
         id: 'share-vehicle-basic',
         variables: {
-          ACCEPT_INVITATION_LINK: 'https://alexknipfer.com',
+          ACCEPT_INVITATION_LINK: acceptInvitationLink,
           RECIPIENT: recipientName,
           SHARE_SENDER: shareSenderName,
           VEHICLE: vehicleDisplay,
