@@ -26,9 +26,6 @@ const loadServerEnvironmentVariable = (key: string) => {
 };
 
 export const appConfig = {
-  app: {
-    url: loadEnvironmentVariable('VITE_APP_URL'),
-  },
   convex: {
     url: loadEnvironmentVariable('VITE_CONVEX_URL'),
   },
@@ -42,6 +39,9 @@ export const appConfig = {
 };
 
 export const serverAppConfig = createServerOnlyFn(() => ({
+  app: {
+    url: loadServerEnvironmentVariable('VERCEL_URL'),
+  },
   anthropic: {
     apiKey: loadServerEnvironmentVariable('ANTHROPIC_API_KEY'),
   },
