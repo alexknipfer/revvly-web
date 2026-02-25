@@ -16,21 +16,18 @@ export const getById = zQuery({
     if (!share) {
       throw new ConvexError({
         message: 'Invite not found',
-        code: 'INVITE_NOT_FOUND',
       });
     }
 
     if (share.acceptedAt) {
       throw new ConvexError({
         message: 'This invite has already been accepted',
-        code: 'INVITE_ALREADY_ACCEPTED',
       });
     }
 
     if (share.expiresAt && dayjs().isAfter(dayjs(share.expiresAt))) {
       throw new ConvexError({
         message: 'This invite has expired',
-        code: 'INVITE_EXPIRED',
       });
     }
 
@@ -39,7 +36,6 @@ export const getById = zQuery({
     if (!vehicle) {
       throw new ConvexError({
         message: 'Vehicle not found',
-        code: 'VEHICLE_NOT_FOUND',
       });
     }
 

@@ -3,7 +3,7 @@ import { zid } from 'convex-helpers/server/zod4';
 import { ConvexError } from 'convex/values';
 
 import { zMutation, zQuery } from './utils/zod';
-import { requireAuth, verifyVerhicleOwnership } from './utils/auth';
+import { requireAuth, verifyVehicleAccess } from './utils/auth';
 
 const serviceFields = z.object({
   date: z.iso.datetime(),
@@ -19,7 +19,7 @@ export const create = zMutation({
   args: serviceFields,
   handler: async (ctx, args) => {
     const identity = await requireAuth(ctx);
-    await verifyVerhicleOwnership({ ctx, vehicleId: args.vehicleId, identity });
+    await verifyVehicleAccess({ ctx, vehicleId: args.vehicleId, identity });
 
     return ctx.db.insert('services', {
       ...args,
@@ -36,7 +36,6 @@ export const update = zMutation({
   args: updateServiceFields,
   handler: async (ctx, args) => {
     const identity = await requireAuth(ctx);
-    await verifyVerhicleOwnership({ ctx, vehicleId: args.vehicleId, identity });
 
     const foundService = await ctx.db.get(args.id);
 
@@ -45,8 +44,12 @@ export const update = zMutation({
     }
 
     if (foundService.userId !== identity.subject) {
-      throw new ConvexError({ message: 'Unauthorized' });
+      throw new ConvexError({
+        message: 'Only the entry creator can update this service entry.',
+      });
     }
+
+    await verifyVehicleAccess({ ctx, vehicleId: args.vehicleId, identity });
 
     if (foundService.vehicleId !== args.vehicleId) {
       throw new ConvexError({
@@ -67,16 +70,12 @@ export const getById = zQuery({
   },
   handler: async (ctx, { id, vehicleId }) => {
     const identity = await requireAuth(ctx);
-    await verifyVerhicleOwnership({ ctx, vehicleId, identity });
+    await verifyVehicleAccess({ ctx, vehicleId, identity });
 
     const service = await ctx.db.get(id);
 
     if (!service) {
       throw new ConvexError({ message: 'Service not found' });
-    }
-
-    if (service.userId !== identity.subject) {
-      throw new ConvexError({ message: 'Unauthorized' });
     }
 
     if (service.vehicleId !== vehicleId) {
@@ -95,13 +94,11 @@ export const getAll = zQuery({
   },
   handler: async (ctx, { vehicleId }) => {
     const identity = await requireAuth(ctx);
-    await verifyVerhicleOwnership({ ctx, vehicleId, identity });
+    await verifyVehicleAccess({ ctx, vehicleId, identity });
 
     return ctx.db
       .query('services')
-      .withIndex('by_userid_vehicleid', (q) =>
-        q.eq('userId', identity.subject).eq('vehicleId', vehicleId),
-      )
+      .withIndex('by_vehicleid', (q) => q.eq('vehicleId', vehicleId))
       .collect();
   },
 });

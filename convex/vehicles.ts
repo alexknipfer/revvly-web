@@ -2,7 +2,12 @@ import { z } from 'zod';
 import { ConvexError } from 'convex/values';
 import { zid } from 'convex-helpers/server/zod4';
 
-import { requireAuth, verifyVerhicleOwnership } from './utils/auth';
+import {
+  requireAuth,
+  verifyVerhicleOwnership,
+  verifyVehicleAccess,
+  getSharedVehicleIds,
+} from './utils/auth';
 import { zMutation, zQuery } from './utils/zod';
 import { fuelTypeSchema } from '../src/types/fuel-entry';
 
@@ -13,31 +18,17 @@ export const getVehicleAnalytics = zQuery({
   handler: async (ctx, { id }) => {
     const identity = await requireAuth(ctx);
 
-    const vehicle = await ctx.db.get(id);
-
-    if (!vehicle) {
-      throw new ConvexError({ message: 'Vehicle not found' });
-    }
-
-    if (vehicle.userId !== identity.subject) {
-      throw new ConvexError({
-        message: 'You can only view your own vehicles.',
-      });
-    }
+    await verifyVehicleAccess({ ctx, vehicleId: id, identity });
 
     const fuelEntries = await ctx.db
       .query('fuel_entries')
-      .withIndex('by_userid_vehicleid', (q) =>
-        q.eq('userId', identity.subject).eq('vehicleId', id),
-      )
+      .withIndex('by_vehicleid', (q) => q.eq('vehicleId', id))
       .order('asc')
       .collect();
 
     const services = await ctx.db
       .query('services')
-      .withIndex('by_userid_vehicleid', (q) =>
-        q.eq('userId', identity.subject).eq('vehicleId', id),
-      )
+      .withIndex('by_vehicleid', (q) => q.eq('vehicleId', id))
       .collect();
 
     const sortedEntries = [...fuelEntries].sort(
@@ -127,15 +118,23 @@ export const getAll = zQuery({
   handler: async (ctx) => {
     const identity = await requireAuth(ctx);
 
-    const vehicles = await ctx.db
+    const ownVehicles = await ctx.db
       .query('vehicles')
       .withIndex('by_userid', (q) => q.eq('userId', identity.subject))
       .collect();
 
+    const sharedVehicleIds = await getSharedVehicleIds(ctx, identity);
+    const sharedVehicles = (
+      await Promise.all(sharedVehicleIds.map((id) => ctx.db.get(id)))
+    ).filter((v): v is NonNullable<typeof v> => v !== null);
+
+    const allVehicles = [...ownVehicles, ...sharedVehicles];
+
     return Promise.all(
-      vehicles.map(async (vehicle) => {
+      allVehicles.map(async (vehicle) => {
         return {
           ...vehicle,
+          isShared: vehicle.userId !== identity.subject,
           imageUrl: vehicle.imageStorageId
             ? await ctx.storage.getUrl(vehicle.imageStorageId)
             : null,
@@ -149,12 +148,21 @@ export const getFirst = zQuery({
   handler: async (ctx) => {
     const identity = await requireAuth(ctx);
 
-    const vehicle = await ctx.db
+    const ownVehicle = await ctx.db
       .query('vehicles')
       .withIndex('by_userid', (q) => q.eq('userId', identity.subject))
       .first();
 
-    return vehicle;
+    if (ownVehicle) {
+      return ownVehicle;
+    }
+
+    const sharedVehicleIds = await getSharedVehicleIds(ctx, identity);
+    if (sharedVehicleIds.length > 0) {
+      return ctx.db.get(sharedVehicleIds[0]);
+    }
+
+    return null;
   },
 });
 
@@ -165,17 +173,11 @@ export const getById = zQuery({
   handler: async (ctx, { id }) => {
     const identity = await requireAuth(ctx);
 
-    const vehicle = await ctx.db.get(id);
-
-    if (!vehicle) {
-      throw new ConvexError({ message: 'Vehicle not found' });
-    }
-
-    if (vehicle.userId !== identity.subject) {
-      throw new ConvexError({
-        message: 'You can only view your own vehicles.',
-      });
-    }
+    const { vehicle } = await verifyVehicleAccess({
+      ctx,
+      vehicleId: id,
+      identity,
+    });
 
     const imageUrl = vehicle.imageStorageId
       ? await ctx.storage.getUrl(vehicle.imageStorageId)
@@ -183,6 +185,7 @@ export const getById = zQuery({
 
     return {
       ...vehicle,
+      isShared: vehicle.userId !== identity.subject,
       imageUrl,
     };
   },
@@ -219,16 +222,12 @@ export const deleteById = zMutation({
 
     const fuelEntries = await ctx.db
       .query('fuel_entries')
-      .withIndex('by_userid_vehicleid', (q) =>
-        q.eq('userId', identity.subject).eq('vehicleId', id),
-      )
+      .withIndex('by_vehicleid', (q) => q.eq('vehicleId', id))
       .collect();
 
     const services = await ctx.db
       .query('services')
-      .withIndex('by_userid_vehicleid', (q) =>
-        q.eq('userId', identity.subject).eq('vehicleId', id),
-      )
+      .withIndex('by_vehicleid', (q) => q.eq('vehicleId', id))
       .collect();
 
     for (const service of services) {
