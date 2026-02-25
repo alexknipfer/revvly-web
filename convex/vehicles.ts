@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { ConvexError } from 'convex/values';
 import { zid } from 'convex-helpers/server/zod4';
 
 import {
@@ -218,7 +217,6 @@ export const deleteById = zMutation({
   handler: async (ctx, { id }) => {
     const identity = await requireAuth(ctx);
     await verifyVerhicleOwnership({ ctx, vehicleId: id, identity });
-    await ctx.db.delete('vehicles', id);
 
     const fuelEntries = await ctx.db
       .query('fuel_entries')
@@ -230,6 +228,11 @@ export const deleteById = zMutation({
       .withIndex('by_vehicleid', (q) => q.eq('vehicleId', id))
       .collect();
 
+    const shares = await ctx.db
+      .query('vehicle_shares')
+      .withIndex('by_vehicleid', (q) => q.eq('vehicleId', id))
+      .collect();
+
     for (const service of services) {
       await ctx.db.delete('services', service._id);
     }
@@ -237,6 +240,12 @@ export const deleteById = zMutation({
     for (const fuelEntry of fuelEntries) {
       await ctx.db.delete('fuel_entries', fuelEntry._id);
     }
+
+    for (const share of shares) {
+      await ctx.db.delete('vehicle_shares', share._id);
+    }
+
+    await ctx.db.delete('vehicles', id);
 
     return id;
   },
