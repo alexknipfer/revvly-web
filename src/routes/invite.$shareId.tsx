@@ -67,7 +67,7 @@ function InvitePage() {
       <AuthLoading>
         <Loader2 className="size-8 animate-spin text-muted-foreground" />
       </AuthLoading>
-      <Authenticated>
+      <Unauthenticated>
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="mx-auto mb-4 size-12 rounded-full bg-primary/10 flex items-center justify-center">
@@ -102,8 +102,8 @@ function InvitePage() {
             </SignInButton>
           </CardFooter>
         </Card>
-      </Authenticated>
-      <Unauthenticated>
+      </Unauthenticated>
+      <Authenticated>
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="mx-auto mb-4 size-12 rounded-full bg-primary/10 flex items-center justify-center">
@@ -152,7 +152,7 @@ function InvitePage() {
             </Button>
           </CardFooter>
         </Card>
-      </Unauthenticated>
+      </Authenticated>
     </div>
   );
 }
