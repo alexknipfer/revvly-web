@@ -12,7 +12,6 @@ import { appendSentryUser } from '@/middleware/append-sentry-user';
 import z from 'zod';
 import { ConvexError } from 'convex/values';
 import { serverAppConfig } from '@/lib/appConfig';
-import { appConfig } from '@/lib/appConfig';
 
 const MAX_FILE_SIZE = 8 * 1024 * 1024;
 const resend = new Resend(serverAppConfig().resend.apiKey);
@@ -185,7 +184,7 @@ export const createShareVehicleServerFn = createServerFn({
 
     const vehicleDisplay = `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
 
-    const acceptInvitationLink = `${appConfig.app.url}/invite/${shareId}`;
+    const acceptInvitationLink = `${serverAppConfig().app.url}/invite/${shareId}`;
 
     await resend.emails.send({
       to: recipientEmail,
