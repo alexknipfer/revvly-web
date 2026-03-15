@@ -39,6 +39,9 @@ export const appConfig = {
 };
 
 export const serverAppConfig = createServerOnlyFn(() => ({
+  app: {
+    url: loadServerEnvironmentVariable('VERCEL_URL'),
+  },
   anthropic: {
     apiKey: loadServerEnvironmentVariable('ANTHROPIC_API_KEY'),
   },
@@ -46,5 +49,8 @@ export const serverAppConfig = createServerOnlyFn(() => ({
     webhookSigningSecret: loadServerEnvironmentVariable(
       'CLERK_WEBHOOK_SIGNING_SECRET',
     ),
+  },
+  resend: {
+    apiKey: loadServerEnvironmentVariable('RESEND_API_KEY'),
   },
 }));

@@ -1,9 +1,9 @@
 import z from 'zod';
 
 import { QueryCtx } from './_generated/server';
-import { zMutation } from './utils/zod';
+import { zMutation, zQuery } from './utils/zod';
 
-export const upsertFromClerk = zMutation({
+export const upsertfromclerk = zMutation({
   args: {
     firstName: z.string().nullable(),
     lastName: z.string().nullable(),
@@ -86,6 +86,23 @@ export const deleteFromClerk = zMutation({
     } else {
       throw new Error(`User not found for Clerk user ID: ${clerkUserId}`);
     }
+  },
+});
+
+export const getById = zQuery({
+  args: { clerkUserId: z.string().min(1) },
+  handler: (ctx, { clerkUserId }) => {
+    return userByExternalId(ctx, clerkUserId);
+  },
+});
+
+export const getByEmail = zQuery({
+  args: { email: z.string().email() },
+  handler: (ctx, { email }) => {
+    return ctx.db
+      .query('users')
+      .withIndex('by_email', (q) => q.eq('primaryEmailAddress', email))
+      .unique();
   },
 });
 

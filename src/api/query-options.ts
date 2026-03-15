@@ -81,3 +81,10 @@ export const servicesQueryOptions = (vehicleId: string) =>
       vehicleId: vehicleId as Id<'vehicles'>,
     }),
   );
+
+export const vehicleShareQueryOptions = (shareId: string) =>
+  queryOptions(
+    convexQuery(api.vehicleShares.getById, {
+      id: shareId as Id<'vehicle_shares'>,
+    }),
+  );

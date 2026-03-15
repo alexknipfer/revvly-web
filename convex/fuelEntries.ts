@@ -5,7 +5,7 @@ import { zid } from 'convex-helpers/server/zod4';
 
 import { fuelTypeSchema, fuelLevelSchema } from '../src/types/fuel-entry';
 
-import { requireAuth, verifyVerhicleOwnership } from './utils/auth';
+import { requireAuth, verifyVehicleAccess } from './utils/auth';
 import { zMutation, zQuery } from './utils/zod';
 
 const fuelEntryFields = z.object({
@@ -39,7 +39,7 @@ export const create = zMutation({
     },
   ) => {
     const identity = await requireAuth(ctx);
-    await verifyVerhicleOwnership({ ctx, vehicleId, identity });
+    await verifyVehicleAccess({ ctx, vehicleId, identity });
 
     let mpg: number | undefined = undefined;
     let totalMiles = 0;
@@ -98,9 +98,7 @@ export const getById = zQuery({
       throw new ConvexError({ message: 'Fuel entry not found' });
     }
 
-    if (entry.userId !== identity.subject) {
-      throw new ConvexError({ message: 'Unauthorized' });
-    }
+    await verifyVehicleAccess({ ctx, vehicleId: entry.vehicleId, identity });
 
     return entry;
   },
@@ -136,10 +134,12 @@ export const update = zMutation({
     }
 
     if (currentEntry.userId !== identity.subject) {
-      throw new ConvexError({ message: 'Unauthorized' });
+      throw new ConvexError({
+        message: 'Only the entry creator can update this fuel entry.',
+      });
     }
 
-    await verifyVerhicleOwnership({
+    await verifyVehicleAccess({
       ctx,
       vehicleId: currentEntry.vehicleId,
       identity,
@@ -228,13 +228,11 @@ export const getAll = zQuery({
   },
   handler: async (ctx, { vehicleId, startDate }) => {
     const identity = await requireAuth(ctx);
-    await verifyVerhicleOwnership({ ctx, vehicleId, identity });
+    await verifyVehicleAccess({ ctx, vehicleId, identity });
 
     const query = ctx.db
       .query('fuel_entries')
-      .withIndex('by_userid_vehicleid', (q) =>
-        q.eq('userId', identity.subject).eq('vehicleId', vehicleId),
-      );
+      .withIndex('by_vehicleid', (q) => q.eq('vehicleId', vehicleId));
 
     if (startDate) {
       query.filter((q) => q.gte(q.field('date'), startDate));

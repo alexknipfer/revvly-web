@@ -3,7 +3,8 @@ import { toast } from 'sonner';
 import { useConvexMutation } from '@convex-dev/react-query';
 import { useMutation } from '@tanstack/react-query';
 import { getRouteApi, useRouter } from '@tanstack/react-router';
-import { Pencil, Trash } from 'lucide-react';
+import { Pencil, Share2, Trash } from 'lucide-react';
+import { DrawerDialog } from '@/components/ui/dialog-drawer';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -27,14 +28,16 @@ import { EditVehicleDialog } from './edit-vehicle.dialog';
 import { api } from 'convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
 
+import { ShareVehicleForm } from './forms/share-vehicle-form';
+
 const routeApi = getRouteApi('/_auth/vehicles/$vehicleId');
 
 export function ManageVehicleMenu() {
   const { vehicleId } = routeApi.useParams();
   const router = useRouter();
-  const [activeDialog, setActiveDialog] = useState<'edit' | 'delete' | null>(
-    null,
-  );
+  const [activeDialog, setActiveDialog] = useState<
+    'edit' | 'delete' | 'share' | null
+  >(null);
 
   const convexDeleteVehicleMutation = useConvexMutation(
     api.vehicles.deleteById,
@@ -63,6 +66,10 @@ export function ManageVehicleMenu() {
             <Pencil className="size-4" />
             Edit Vehicle
           </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setActiveDialog('share')}>
+            <Share2 className="size-4" />
+            Share Vehicle
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             variant="destructive"
@@ -81,7 +88,21 @@ export function ManageVehicleMenu() {
           toast.success('Vehicle updated successfully');
         }}
       />
-
+      <DrawerDialog
+        open={activeDialog === 'share'}
+        onOpenChange={(open) => {
+          setActiveDialog(open ? 'share' : null);
+        }}
+        title="Share Vehicle"
+        description="Invite someone by email. They will be able to view this vehicle's history and add service or fuel entries."
+      >
+        <ShareVehicleForm
+          onCancel={() => setActiveDialog(null)}
+          onSubmitted={() => {
+            setActiveDialog(null);
+          }}
+        />
+      </DrawerDialog>
       <AlertDialog
         open={activeDialog === 'delete'}
         onOpenChange={(open) => setActiveDialog(open ? 'delete' : null)}
