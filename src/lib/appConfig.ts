@@ -38,19 +38,25 @@ export const appConfig = {
   },
 };
 
-export const serverAppConfig = createServerOnlyFn(() => ({
-  app: {
-    url: loadServerEnvironmentVariable('VERCEL_URL'),
-  },
-  anthropic: {
-    apiKey: loadServerEnvironmentVariable('ANTHROPIC_API_KEY'),
-  },
-  clerk: {
-    webhookSigningSecret: loadServerEnvironmentVariable(
-      'CLERK_WEBHOOK_SIGNING_SECRET',
-    ),
-  },
-  resend: {
-    apiKey: loadServerEnvironmentVariable('RESEND_API_KEY'),
-  },
-}));
+export const serverAppConfig = createServerOnlyFn(() => {
+  const isProduction = process.env.VERCEL_ENV === 'production';
+
+  return {
+    app: {
+      url: isProduction
+        ? loadServerEnvironmentVariable('VERCEL_PROJECT_PRODUCTION_URL')
+        : loadServerEnvironmentVariable('VERCEL_BRANCH_URL'),
+    },
+    anthropic: {
+      apiKey: loadServerEnvironmentVariable('ANTHROPIC_API_KEY'),
+    },
+    clerk: {
+      webhookSigningSecret: loadServerEnvironmentVariable(
+        'CLERK_WEBHOOK_SIGNING_SECRET',
+      ),
+    },
+    resend: {
+      apiKey: loadServerEnvironmentVariable('RESEND_API_KEY'),
+    },
+  };
+});
