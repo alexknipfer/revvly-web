@@ -59,7 +59,7 @@ export function DrawerDialog({
     );
   }
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
+    <Drawer open={open} onOpenChange={onOpenChange} repositionInputs={false}>
       <DrawerContent className="px-2">
         <DrawerHeader
           className={`text-left ${
