@@ -3,7 +3,7 @@ import z from 'zod';
 import { QueryCtx } from './_generated/server';
 import { zMutation, zQuery } from './utils/zod';
 
-export const upsertfromclerk = zMutation({
+export const upsertFromClerk = zMutation({
   args: {
     firstName: z.string().nullable(),
     lastName: z.string().nullable(),
