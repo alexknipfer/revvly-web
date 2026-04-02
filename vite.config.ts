@@ -9,9 +9,6 @@ export default defineConfig({
     port: 3000,
   },
   plugins: [tailwindcss(), tanstackStart(), nitro(), viteReact()],
-  optimizeDeps: {
-    include: ['@clerk/tanstack-react-start', 'cookie-es'],
-  },
   resolve: {
     tsconfigPaths: true,
   },
